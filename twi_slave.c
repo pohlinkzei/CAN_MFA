@@ -56,7 +56,7 @@ ISR (TWI_vect)  {
 		
 	case TW_SR_SLA_ACK: // 0x60 Slave Receiver, Slave wurde adressiert	
 		TWCR_ACK; // nächstes Datenbyte empfangen, ACK danach senden
-		LEDPORT ^= (1<<LED);
+		//LEDPORT ^= (1<<LED);
 		buffer_adr=0xFF; //Bufferposition ist undefiniert
 	break;
 	
@@ -80,7 +80,8 @@ ISR (TWI_vect)  {
 		
 				if(buffer_adr<i2c_buffer_size+1)
 					{
-							i2crxdata[buffer_adr]=data; //Daten in Buffer schreibe	
+							i2crxdata[buffer_adr]=data; //Daten in Buffer schreibe
+								
 					}
 				buffer_adr++; //Buffer-Adresse weiterzählen für nächsten Schreibzugriff
 				

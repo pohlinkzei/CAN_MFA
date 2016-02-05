@@ -103,7 +103,7 @@ volatile uint16_t speed[2]; //0-317km/h
 //volatile uint16_t speed[CUR]; //0-317km/h
 //volatile uint16_t speed[AVG];
 volatile uint16_t rpm;	//0-16000rpm
-volatile int16_t eng_temp;//-100-154 centigrade
+volatile int16_t engine_temperature;//-100-154 centigrade
 volatile uint8_t fuel;	//0-100% or 0-80l
 volatile uint32_t cons_time[16];
 volatile uint8_t cons_cnt;
@@ -128,13 +128,17 @@ volatile uint16_t range[2];
 
 volatile voltage_value_t starterbat;
 volatile voltage_value_t zweitbat;
-volatile int16_t aussentemperatur;
-volatile int16_t oeltemperatur;
+volatile int16_t ambient_temperature;
+volatile int16_t oil_temperature;
+volatile uint8_t cal_water_temperature;
+volatile uint8_t cal_voltage;
+volatile uint8_t cal_oil_temperature;
+volatile uint8_t cal_consumption;
 
 volatile uint16_t avg_timer;
 extern volatile uint16_t k58b_timer;
 volatile uint32_t cons_timer;
-volatile uint8_t cons_scale;
+volatile uint8_t cal_consumption;
 volatile uint8_t can_status;
 
 volatile uint8_t display_values_small[4];
@@ -148,8 +152,8 @@ volatile uint8_t display_value;
 volatile uint8_t old_display_value;
 volatile uint8_t max_display_value;
 
-volatile int8_t next_turn;
-volatile uint32_t distance_nt;
+volatile int8_t navigation_next_turn;
+volatile uint32_t distance_to_next_turn;
 
 volatile uint8_t radio_text[64];
 

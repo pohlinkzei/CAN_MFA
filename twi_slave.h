@@ -4,17 +4,12 @@
  *  Author: uwegw
  */ 
 
-
 #ifndef _TWISLAVE_H
 #define _TWISLAVE_H
 
 #include <util/twi.h> 		  //enthaelt z.B. die Bezeichnungen fuer die Statuscodes in TWSR
 #include <avr/interrupt.h>  //dient zur behandlung der Interrupts
 #include <stdint.h> 		    //definiert den Datentyp uint8_t
-
-#define LED		PD4
-#define LEDPORT PORTD
-#define LEDDDR DDRD
 
 /** 
  *  @defgroup twislave TWI-Slave
@@ -56,7 +51,7 @@
 
 //%%%%%%%% von Benutzer konfigurierbare Einstellungen %%%%%%%%
 /**@brief Groesse des Buffers in Byte (2..254) */
-#define i2c_buffer_size 60// I2C_REG_ANZAHL 254 Hier kann eingestellt werden wieviele Register ausgegeben werden
+#define i2c_buffer_size 58 //I2C_REG_ANZAHL //254 Hier kann eingestellt werden wieviele Register ausgegeben werden
 
 
 //%%%%%%%% Globale Variablen, die vom Hauptprogramm genutzt werden %%%%%%%%

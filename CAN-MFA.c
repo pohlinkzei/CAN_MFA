@@ -24,7 +24,7 @@
 //#include "dogm-graphic.h"
 #include "dog_display.h"
 #include "dog_symbol.h"
-#include "CAN-Sniffer.h"
+#include "CAN-MFA.h"
 #include "kl58b.h"
 #include "calculation.h"
 #include <avr/sleep.h>
@@ -34,7 +34,7 @@ uint8_t frame_buffer[ROWS][COLUMNS] = {{0,}};
 extern uint8_t reversed;
 extern uint8_t underlined;
 uint8_t get_text_length(char* text, uint8_t max_len);
-volatile uint8_t navigation_next_turn = 0;
+
 uint8_t navi_old = 0xFF;
 
 mfa_t mfa;
@@ -152,15 +152,15 @@ int main(void){
 	starterbat.fraction = 42;
 	zweitbat.integer = 14;
 	zweitbat.fraction = 15;
-	aussentemperatur = 24;
-	oeltemperatur = 103;
+	ambient_temperature = 24;
+	oil_temperature = 103;
 	driving_time[AVG] = 15864357;
 	driving_time[CUR] = 123434;
 	distance[AVG] = 100000;
 	distance[CUR] = 13144757;
 	range[AVG] = 0;	
 	range[CUR] = 0;	
-	eng_temp = 87;
+	engine_temperature = 87;
 	rpm = 3260;
     while(1)
     {
@@ -261,7 +261,7 @@ void display_small_text(void){
 			can_line2[12] = KMH + 1;
 			can_line3[4] = ENGT;
 			can_line3[5] = ENGT + 1;
-			sprint_temperature(&can_line3[6],eng_temp);
+			sprint_temperature(&can_line3[6],engine_temperature);
 			can_line3[9] = 0xF8;
 			can_line3[10] = 'C';
 			//char line3[16] = {' ',  0,  1,  2,  3,  4,  5,  6,  7,  8,  9, 10, 11, 12,' ',' '};
@@ -321,15 +321,15 @@ void display_small_text(void){
 						
 			adc_line4[4] = OILT;
 			adc_line4[5] = OILT + 1;
-			sprint_temperature(&adc_line4[7],oeltemperatur);
+			sprint_temperature(&adc_line4[7],oil_temperature);
 			adc_line4[10] = 0xF8;
 			adc_line4[11] = 'C';
-			if(aussentemperatur < 30){
+			if(ambient_temperature < 30){
 				adc_line5[4] = FROST;
 				adc_line5[5] = FROST + 1;
 			}
 						
-			sprint_temperature(&adc_line5[7],aussentemperatur);
+			sprint_temperature(&adc_line5[7],ambient_temperature);
 			adc_line5[10] = 0xF8;
 			adc_line5[11] = 'C';
 			dog_write_mid_strings(NEW_POSITION(2,0),adc_line2, adc_line3);
@@ -413,7 +413,7 @@ void display_med_text(void){
 		case VAL_WATER:{
 			str[1] = OILT;
 						
-			sprint_temperature(&str[4], oeltemperatur);
+			sprint_temperature(&str[4], oil_temperature);
 			str[2] = OILT+1;
 			str[8] = 0xF8;
 			str[9] = 'C';
@@ -426,7 +426,7 @@ void display_med_text(void){
 			}
 			str[1] = ENGT;
 						
-			sprint_temperature(&str[4], eng_temp);
+			sprint_temperature(&str[4], engine_temperature);
 			str[2] = ENGT+1;
 			str[8] = 0xF8;
 			str[9] = 'C';
@@ -440,7 +440,7 @@ void display_med_text(void){
 		}
 		case VAL_EXTTEMP:{
 			uint8_t j = 0;
-			sprint_temperature(&str[4], aussentemperatur);
+			sprint_temperature(&str[4], ambient_temperature);
 			
 			str[8] = 0xF8;
 			str[9] = 'C';
@@ -451,7 +451,7 @@ void display_med_text(void){
 				str[i] = ' ';			
 			}
 			
-			if(aussentemperatur < 0){
+			if(ambient_temperature < 0){
 				str[4] = FROST;
 				str[5] = FROST +1;
 				for(i=0; i<11; i++){
@@ -759,7 +759,7 @@ void can_task(){
 			can_status |= (1<<ID280);
 		}
 		if(id288_valid){
-			eng_temp = id288_data[1] - 100;
+			engine_temperature = id288_data[1] - 100;
 			speed[CUR] = ((id288_data[3] * 5) >> 2)*10;
 			//speed = ((id288_data[3] * 50) + 5)/40;
 			id288_valid = false;
@@ -779,7 +779,7 @@ void can_task(){
 				cons_timer = 0;
 				uint32_t cons_ul_delta = cons_ul[15] - cons_ul[0];
 				uint32_t cons_time_delta = cons_time[15] - cons_time[0];
-				cons_l_h = ((cons_ul_delta * 3600.0) * cons_scale)/256;
+				cons_l_h = ((cons_ul_delta * 3600.0) * cal_consumption)/256;
 				cons_l_h /= (cons_time_delta * 1000.0);
 				if (speed[CUR]>14){
 					cons_l_100km[CUR] = (cons_l_h * 100.0)/speed[CUR];
@@ -847,8 +847,8 @@ void app_task(){;
 		dummy = dummy;
 		starterbat = calculate_voltage(read_adc(SPANNUNG1));
 		zweitbat = calculate_voltage(read_adc(SPANNUNG2));
-		oeltemperatur = calculate_oil_temperature(read_adc(OELTEMP));
-		aussentemperatur = calculate_temperature(read_adc(AUSSENTEMP));
+		oil_temperature = calculate_oil_temperature(read_adc(OELTEMP));
+		ambient_temperature = calculate_temperature(read_adc(AUSSENTEMP));
 		if(!(MFA_SWITCH_PIN & (1<<MFA_SWITCH_MODE))){
 			mfa.mode = true;
 			if(mfa.mode != mfa_old.mode){
