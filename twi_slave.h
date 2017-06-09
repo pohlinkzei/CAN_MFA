@@ -1,9 +1,3 @@
-/*
- * twislave.h
- *
- *  Author: uwegw
- */ 
-
 #ifndef _TWISLAVE_H
 #define _TWISLAVE_H
 
@@ -51,8 +45,12 @@
 
 //%%%%%%%% von Benutzer konfigurierbare Einstellungen %%%%%%%%
 /**@brief Groesse des Buffers in Byte (2..254) */
-#define i2c_buffer_size 58 //I2C_REG_ANZAHL //254 Hier kann eingestellt werden wieviele Register ausgegeben werden
+#define i2c_buffer_size 254 //I2C_REG_ANZAHL //254 Hier kann eingestellt werden wieviele Register ausgegeben werden
 
+
+#define I2CPORT PORTD
+#define SDA PD1
+#define SCL PD0
 
 //%%%%%%%% Globale Variablen, die vom Hauptprogramm genutzt werden %%%%%%%%
 /**@brief Der Buffer, in dem die Daten gespeichert werden.
