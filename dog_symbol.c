@@ -7,7 +7,7 @@
 #include "dog_display.h"
 #include "dog_symbol.h"
 
-extern uint8_t display_mode;
+extern volatile uint8_t display_mode;
 
 void display_navigation_symbol(position_t position, uint8_t next_turn){
 	uint8_t i,j;
@@ -30,7 +30,7 @@ void display_navigation_symbol(position_t position, uint8_t next_turn){
 	
 }
 
-void display_navigation_symbol48(position_t position, uint8_t next_turn){
+void display_navigation_symbol48(position_t position, int8_t next_turn){
 	uint8_t a = 0;
 	uint8_t b = 0;
 	uint8_t c = 0;
@@ -94,7 +94,7 @@ void print_navigation_symbol(uint8_t fbuf[ROWS][COLUMNS], position_t position, u
 }
 
 
-
+/*
 void display_symbol_12x16(position_t position, uint8_t symbol){
 	uint8_t i;
 	uint8_t temp[2][16];
@@ -168,3 +168,4 @@ void print_symbol_12x16(uint8_t fbuf[ROWS][COLUMNS], position_t position, uint8_
 		fbuf[position.page + 1][position.column + i] = pgm_read_byte(&(symbol_12x16[2*i+1][symbol]));
 	}
 }
+//*/

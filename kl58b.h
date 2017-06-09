@@ -16,11 +16,15 @@
 #define INT6_FALLING 0x20
 
 
+#define K58B_POLL 0
 
-volatile uint16_t k58b_timer;
-volatile uint8_t k58b_scale;
-uint16_t volatile k58b_pw;
+extern uint8_t volatile k58b_status; // fuer alten wert (Flankenerkennung)
+extern uint16_t volatile k58b_high; // zaehler für 0.1ms high samples
+extern uint16_t volatile k58b_low; // zaehler für 0.1ms low samples
+extern volatile uint16_t k58b_timer;
+extern volatile uint8_t k58b_scale;
+extern volatile uint16_t k58b_pw; // prozentwert fuer pwm
 void initk58_pwm(void);
-
+void set_backlight(uint8_t pc);
 
 #endif
