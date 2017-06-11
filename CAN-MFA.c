@@ -130,6 +130,7 @@ volatile uint32_t cons_timer;
 volatile uint8_t can_status = 0x00;
 
 volatile uint8_t display_mode = 0;
+volatile uint8_t display_mode_tmp;
 volatile uint8_t old_display_mode;
 volatile uint8_t display_enable;
 volatile uint8_t display_value[5] = {0, STANDARD_VALUES, VAL_AMBIENT, VAL_CUR_CONS, 0}; // small, med_top, med_bot, navi
@@ -139,6 +140,7 @@ volatile uint8_t old_display_value[5] = {0,0,0,0,0};
 
 volatile uint8_t navigation_next_turn;
 volatile uint8_t navigation_status;
+volatile uint8_t navigation_status_old;
 volatile uint32_t distance_to_next_turn;
 
 volatile uint8_t radio_text[AUDIO_STR_LENGTH];
@@ -340,7 +342,7 @@ status_t get_status(status_t old){
 	status_t status = OFF;
 	if(!(TKML_PIN & (1<<TKML))) status = DOOR_OPEN;
 	if(K15_PIN & (1<<K15)) status = IGNITION_ON;
-	if(navigation_status == 0x04) display_mode = NAVIGATION; 
+
 	if(old != status){
 		switch(status){
 			case DOOR_OPEN:{
@@ -418,8 +420,8 @@ int main(void){
 	line_shift_timer = LINE_SHIFT_START;
 	display_mode = SMALL_TEXT;
 	display_value[SMALL_TEXT] = STANDARD_VALUES;
-	
 	//strcpy( (char*) radio_text, "  CAN Test        ");
+
 	status = get_status(OFF);
 	
 	
@@ -558,12 +560,7 @@ void display_navi(void){
 	//display_mode++;
 	//return;
 #if 1	//max_display_value = 26;
-/*
-	if(navi_old == navigation_next_turn){
-		display_mode++;
-		return;
-	}
-//*/
+
 	if(navigation_status != 0x07){
 		uint8_t navi = 16;
 		display_navigation_symbol48(NEW_POSITION(2,navi), navigation_next_turn, distance_to_next_turn);
@@ -572,6 +569,7 @@ void display_navi(void){
 		display_mode++;
 	}
 	
+
 #else
 	dog_set_page(2);
 	char str[32] = {0,};
@@ -609,7 +607,7 @@ void display_small_text(void){
 			char can_line4[22] = "                ";
 			char can_line5[22] = "                ";
 			
-		#if 1			
+			#if 1
 			can_line2[11] = KMH;
 			can_line2[12] = KMH + 1;
 			can_line3[4] = ENGT;
@@ -644,7 +642,7 @@ void display_small_text(void){
 			dog_write_mid_strings(NEW_POSITION(2,0),can_line2, can_line5);
 			dog_write_mid_strings(NEW_POSITION(5,0),can_line4, can_line3);
 			
-		#else
+			#else
 			
 			can_line2[6] = KMH;
 			can_line2[7] = KMH + 1;
@@ -696,7 +694,7 @@ void display_small_text(void){
 			dog_write_mid_strings(NEW_POSITION(2,0),can_line2, can_line5);
 			
 			dog_write_mid_strings(NEW_POSITION(5,0),can_line4, can_line3);
-		#endif			
+			#endif
 			break;
 		}
 		case CAN_VALUES2:{
@@ -972,6 +970,7 @@ void display_small_text(void){
 		}
 	}		
 
+
 void display_med_row(volatile uint8_t* dv, uint8_t page, uint8_t row){
 	uint8_t i;
 	char str[12] = "            ";
@@ -983,6 +982,7 @@ void display_med_row(volatile uint8_t* dv, uint8_t page, uint8_t row){
 	
 	switch(display_value){
 		case VAL_CUR_SPEED:{
+
 			sprint_cur_speed(&str[3], speed[CUR]);
 			str[7] = KMH;
 			str[8] = KMH+1;
@@ -1084,11 +1084,6 @@ void display_med_row(volatile uint8_t* dv, uint8_t page, uint8_t row){
 			break;
 		}
 		case VAL_OIL:{
-			/*
-			if(oil_temperature > 300 && oil_temperature < -50){
-				display_value++;
-			}
-			//*/
 			str[1] = OILT;
 			
 			sprint_temperature(&str[4], oil_temperature);
@@ -1616,6 +1611,7 @@ void display_can_data(void){
 				dog_write_tiny_string("520");
 				
 				for(i=0; i<8; i++){
+
 					sprintf(id, "%02X", id520_data[i]);
 					dog_transmit_data(0x00);
 					dog_write_small_string(id);
@@ -1803,8 +1799,6 @@ void display_task(){
 	//#warning: "TODO: display and menue"
 }
 
-
-
 void adc_init(void){
 	ADMUX |= (1<<REFS0);										// VCC with external capacitor at AREF
 	ADCSRA |= (1<<ADEN) | (1<<ADPS2) | (1<<ADPS1) | (1<<ADPS0); // ADC enabled, prescaler: 128
@@ -1962,12 +1956,15 @@ void app_task(){
 		}
 		mfa_old = mfa;
 		disable_mfa_switch();
-		/*
+		//*
 		// process navigation data
-		if(navigation_status != 0x0F){
+		if(navigation_status != navigation_status_old && (navigation_status == 4 || navigation_status == 3 || navigation_status == 3)){
+			if(display_mode != NAVIGATION){
+				display_mode_tmp = display_mode;
+			}
 			display_mode = NAVIGATION;
-		}else{
-			display_mode = SMALL_TEXT;
+		}else if(display_mode == NAVIGATION){
+			display_mode = display_mode_tmp;
 		}
 		//*/
 }

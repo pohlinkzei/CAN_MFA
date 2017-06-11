@@ -261,7 +261,7 @@ void twi_task(void){
 			eeprom_write_byte(&cal_speed, rx.cal_speed);
 		}
 		//*/
-		for(i=0;i<32;i++){
+		for(i=0;i<AUDIO_STR_LENGTH;i++){
 			tx.radio_text[i] = radio_text[i];
 		}
 	}
@@ -273,8 +273,7 @@ void twi_task(void){
 	//*
 	tx.navigation_next_turn = navigation_next_turn + (navigation_status << 5);
 	tx.distance_to_next_turn = distance_to_next_turn;
-	
-	
+
 	tx.cal_water_temperature = eeprom_read_byte(&cal_water_temperature);
 	tx.cal_voltage = eeprom_read_byte(&cal_voltage);
 	tx.cal_oil_temperature = eeprom_read_byte(&cal_oil_temperature);

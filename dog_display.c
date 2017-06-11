@@ -371,8 +371,7 @@ void dog_write_rotating(position_t position, const char* text, uint8_t length, u
 		if(do_not_rot_cnt > 254){
 			do_not_rot_cnt =0;
 			do_rot = 1;
-		}
-		
+		}		
 		if(length < line_length){
 			for(i=0; i<length; i++){
 				line_text[i] = text[i];

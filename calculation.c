@@ -29,6 +29,51 @@ void sprint_float(char* str, float _float){
 	sprint_avg_speed(str, integer);
 }
 
+uint32_t round_distance(uint32_t distance){
+	if (distance >= 10000)
+	return ((distance + 500) / 1000) * 1000;
+	else if (distance >= 1000)
+	return ((distance+50) / 100) * 100;
+	else if (distance >= 300)
+	return ((distance+ 13) / 25) * 25;
+	else if (distance >= 50)
+	return ((distance + 5) / 10) * 10;
+	else
+	return distance;
+}
+
+void sprint_distance(char* str, uint64_t distance){
+	if (distance >= 10000){
+		uint16_to_string(str, distance / 1000);
+		str[5] = 'k';
+		str[6] = 'm';
+	}else if (distance >= 1000){
+		sprint_float(str, ((float) distance / 1000));
+		str[5] = 'k';
+		str[6] = 'm';
+	}else if (distance >= 300){
+		//sprintf(str, "%.0f m ", (((double) distance) / 25) * 25);
+		uint16_to_string(str, (distance / 25) * 25);
+		str[5] = 'm';
+		str[6] = ' ';
+	}else if (distance >= 50){
+		//sprintf(str, "%.0f m ", (((double) distance) / 10) * 10);
+		uint16_to_string(str, (distance / 10) * 10);
+		str[5] = 'm';
+		str[6] = ' ';
+	}else if (distance >= 10){
+		//sprintf(str, "%.0f m ", ((double) distance));
+		uint16_to_string(str, distance);
+		str[5] = 'm';
+		str[6] = ' ';
+	}else{
+		//sprintf(str, "%.1f m ", ((double) distance));
+		uint16_to_string(str, distance);
+		str[5] = 'm';
+		str[6] = ' ';
+	}
+}
+
 
 void sprint_avg_speed(char* str, uint16_t integer){
 	uint8_t one = 0;
@@ -218,7 +263,7 @@ void int16_to_string(char* str, int16_t integer){
 	uint16_to_string(&str[1],integer);
 }
 
-
+/*
 uint32_t round_distance(uint32_t distance){
 	if (distance >= 10000)
 	return ((distance + 500) / 1000) * 1000;
@@ -264,7 +309,7 @@ void sprint_distance(char* str, uint64_t distance){
 		str[6] = ' ';
 	}
 }
-
+*/
 
 int16_t calculate_temperature(uint16_t adc){//kty 81-110
 	//t=((840*adc)/128-1557)/10

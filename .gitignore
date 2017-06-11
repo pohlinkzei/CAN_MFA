@@ -1,0 +1,6 @@
+*.atsln
+*.atsuo
+*.cproj
+Debug/
+Release/
+forum.h

@@ -9,6 +9,7 @@
 #include "calculation.h"
 
 extern volatile uint8_t display_mode;
+
 /*
 void display_navigation_symbol(position_t position, uint8_t next_turn){
 	uint8_t i,j;
@@ -31,7 +32,6 @@ void display_navigation_symbol(position_t position, uint8_t next_turn){
 	
 }
 //*/
-
 
 void display_navigation_symbol48(position_t position, int8_t next_turn,  uint64_t distance){
 	uint8_t a = 0;

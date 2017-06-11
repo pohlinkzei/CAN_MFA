@@ -124,7 +124,6 @@
 #define INNENTEMP 6
 
 
-
 // display value med
 #define VAL_CUR_SPEED 0
 #define VAL_AVG_SPEED 1
@@ -151,11 +150,6 @@
 #define STANDARD_VALUES 2
 #define CAN_VALUES2 3
 
-//display value navi
-
-
-
- 
 #define LINE_SHIFT_START 128
 
 #define AVG_DIGIT 0x9D
@@ -254,6 +248,7 @@ extern volatile uint32_t cons_timer;
 extern volatile uint8_t can_status;
 
 extern volatile uint8_t display_mode;
+extern volatile uint8_t display_mode_tmp;
 extern volatile uint8_t old_display_mode;
 extern volatile uint8_t display_enable;
 extern volatile uint8_t display_value[5];
@@ -263,6 +258,7 @@ extern volatile uint8_t old_display_value[5];
 
 extern volatile uint8_t navigation_next_turn;
 extern volatile uint8_t navigation_status;
+extern volatile uint8_t navigation_status_old;
 extern volatile uint32_t distance_to_next_turn;
 
 extern volatile uint8_t radio_text[AUDIO_STR_LENGTH];
