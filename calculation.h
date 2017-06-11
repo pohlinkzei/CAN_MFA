@@ -5,7 +5,7 @@
  *  Author: Hubert
  */ 
 #include <avr/io.h>
-
+#include <avr/eeprom.h>
 #ifndef CALCULATION_H_
 #define CALCULATION_H_
 
@@ -27,6 +27,8 @@ void stringcopy(char* source, char* destination, uint8_t length);
 void sprint_cur_speed(char* str, uint16_t integer);
 void sprint_avg_speed(char* str, uint16_t integer);
 void sprint_float(char* str, float _float);
-
-
+void calculate_consumption(uint16_t delta_ul, uint32_t delta_ms);
+void calculate_averages(void);
+void sprint_distance(char* str, uint64_t distance);
+uint32_t round_distance(uint32_t distance);
 #endif /* CALCULATION_H_ */

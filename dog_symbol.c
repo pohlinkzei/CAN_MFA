@@ -6,9 +6,10 @@
  */ 
 #include "dog_display.h"
 #include "dog_symbol.h"
+#include "calculation.h"
 
-extern uint8_t display_mode;
-
+extern volatile uint8_t display_mode;
+/*
 void display_navigation_symbol(position_t position, uint8_t next_turn){
 	uint8_t i,j;
 	uint8_t temp[4][32];
@@ -29,16 +30,25 @@ void display_navigation_symbol(position_t position, uint8_t next_turn){
 	}	
 	
 }
+//*/
 
-void display_navigation_symbol48(position_t position, uint8_t next_turn){
+
+void display_navigation_symbol48(position_t position, int8_t next_turn,  uint64_t distance){
 	uint8_t a = 0;
 	uint8_t b = 0;
 	uint8_t c = 0;
+	char distance_str[7] = {0,};
 	if(next_turn<0){
 		display_mode++;
 		return;
-	}		
+	}	
+	/*	
 	//uint8_t d = 132-(position.column+48);
+	if(position.column < 40){
+		
+	}else if(position.column > 40 && (position.column < )){
+	}
+	//*/
 	for(a=0;a<6;a++){
 		dog_set_position(a+position.page, 0);
 		for(c=0; c<position.column;c++){
@@ -46,15 +56,41 @@ void display_navigation_symbol48(position_t position, uint8_t next_turn){
 		}
 		//dog_set_position(a+position.page, position.column);			
 		for(b=0;b<48; b++){
-			
 			dog_transmit_data(pgm_read_byte(&(nav_48x48[next_turn][a*48 + b])));
 		}
+		/*
 		//dog_set_position(a+position.page, position.column + 48);
 		for(c=position.column + 48; c<132;c++){
 			dog_transmit_data(0x00);
-		}			
+		}
+		*/
+		c=position.column + 48;
+					
+	}
+	c=position.column + 48;
+	sprint_distance(distance_str, round_distance(distance));
+	dog_set_position(position.page, position.column + 48);
+	for(a=c; a<132; a++){
+		dog_transmit_data(0x00);
+	}
+	dog_set_position(position.page + 1, position.column + 48);
+	for(a=c; a<132; a++){
+		dog_transmit_data(0x00);
 	}
 	
+	dog_write_mid_string(NEW__POSITION(position.page + 2,position.column + 48,2), distance_str);
+	dog_set_position(position.page +4, position.column + 48);
+	for(a=c; a<132; a++){
+		dog_transmit_data(0x00);
+	}
+	dog_set_position(position.page + 5, position.column + 48);
+	for(a=c; a<132; a++){
+		dog_transmit_data(0x00);
+	}
+	dog_set_position(position.page + 2, position.column + 104);
+	for(a=c; a<132; a++){
+		dog_transmit_data(0x00);
+	}
 /*	uint8_t i,j;
 	uint8_t temp[6][48];
 
@@ -77,6 +113,7 @@ void display_navigation_symbol48(position_t position, uint8_t next_turn){
 	*/
 }
 //*/
+/*
 void print_navigation_symbol(uint8_t fbuf[ROWS][COLUMNS], position_t position, uint8_t next_turn){
 	uint8_t i,j;
 	uint8_t temp[4][32];
@@ -92,9 +129,9 @@ void print_navigation_symbol(uint8_t fbuf[ROWS][COLUMNS], position_t position, u
 		}
 	}			
 }
+//*/
 
-
-
+/*
 void display_symbol_12x16(position_t position, uint8_t symbol){
 	uint8_t i;
 	uint8_t temp[2][16];
@@ -168,3 +205,4 @@ void print_symbol_12x16(uint8_t fbuf[ROWS][COLUMNS], position_t position, uint8_
 		fbuf[position.page + 1][position.column + i] = pgm_read_byte(&(symbol_12x16[2*i+1][symbol]));
 	}
 }
+//*/

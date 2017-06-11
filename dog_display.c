@@ -6,34 +6,85 @@
 /** VARIABLES ********************************************************************************************************************/
 volatile uint8_t init132[] = {0x40 ,0xA1 ,0xC0 ,0xA6 ,0xA2 ,0x2F ,0xF8 ,0x00 ,0x23 ,0x81 ,0x1F ,0xAC ,0x00 ,0xAF}; 
 							//0x40 ,0xA0 ,0xC8 ,0xA6 ,0xA2 ,0x2F ,0xF8 ,0x00 ,0x23 ,0x81 ,0x1F ,0xAC ,0x00 ,0xAF}; 
-volatile uint8_t init128[] = {0x40 ,0xA1 ,0xC0 ,0xA6 ,0xA2 ,0x2F ,0xF8 ,0x00 ,0x27 ,0x81 ,0x16 ,0xAC ,0x00 ,0xAF}; 
-							//{0x40 ,0xA0 ,0xC8 ,0xA6 ,0xA2 ,0x2F ,0xF8 ,0x00 ,0x27 ,0x81 ,0x16 ,0xAC ,0x00 ,0xAF};
+//volatile uint8_t init128[] = {0x40 ,0xA1 ,0xC0 ,0xA6 ,0xA2 ,0x2F ,0xF8 ,0x00 ,0x27 ,0x81 ,0x16 ,0xAC ,0x00 ,0xAF}; 
+volatile uint8_t init128[] = {0x40 ,0xA0 ,0xC8 ,0xA6 ,0xA2 ,0x2F ,0xF8 ,0x00 ,0x27 ,0x81 ,0x16 ,0xAC ,0x00 ,0xAF};
 volatile uint16_t k,h,i;
-uint8_t reversed = 0;
-uint8_t underlined = 0;
+volatile uint8_t reversed = 0;
+volatile uint8_t underlined = 0;
 uint8_t count;
 uint8_t n,m;
+uint8_t do_rot = 1;
+uint8_t do_rot_cnt = 0;
+uint8_t do_not_rot_cnt = 0;
 
 
 /** FUNCTIONS ********************************************************************************************************************/
 void dog_spi_init(void){
 	SPI_DDR |= (1<<MOSI) | (1<<MISO) | (1<<SCK);
+#if CS
+	DOG_CS_DDR |= (1<<DOG_CS);
+	DOG_CS_PORT |= (1<<DOG_CS);
+#endif	
 	DOG_A0_DDR |= (1<<DOG_A0);
 	DOG_RST_DDR |= (1<<DOG_RST);
 	SPCR = 0;
-	//SPCR = (1<<SPE) | (1<<MSTR)| (0<<DORD) | (1<<CPOL) | (1<<CPHA);// | (1<<SPR0)  | (1<<SPR1);
-	SPCR = (1<<SPE) | (1<<MSTR) | (1<<SPR0) | (1<<SPR1) | (0<<DORD) | (1<<CPOL) | (1<<CPHA);
+	SPCR = (1<<SPE) | (1<<MSTR)| (0<<DORD) | (1<<CPOL) | (1<<CPHA);// | (1<<SPR0)  | (1<<SPR1);
+	//SPCR = (1<<SPE) | (1<<MSTR) | (1<<SPR0) | (1<<SPR1) | (0<<DORD) | (1<<CPOL) | (1<<CPHA);
+	
+	if(F_CPU == 16000000UL){
+		//16M / 128 = 125K
+		SPCR |= (1<<SPR0)  | (1<<SPR1);
+	}else if(F_CPU == 8000000UL){
+		// 8M / 64 = 125k
+		SPCR |= (1<<SPR1);
+	}else if(F_CPU == 2000000UL){
+		// 2M / 16 = 125k
+		SPCR |= (1<<SPR0);
+	}else{//1MHz
+		// 1M / 8 = 125k
+		SPCR |= (1<<SPR0)  | (1<<SPI2X);
+	}
+	
 	//SPSR = (1<<SPI2X);
 
 	uint8_t dummy = (SPSR);
 	dummy=dummy;
 }
+
+void dog_enable_io(void){
+	SPI_DDR |= (1<<MOSI) | (1<<MISO) | (1<<SCK);
+	#if CS
+	DOG_CS_DDR |= (1<<DOG_CS);
+	DOG_CS_PORT |= (1<<DOG_CS);
+	#endif
+	DOG_A0_DDR |= (1<<DOG_A0);
+	DOG_RST_DDR |= (1<<DOG_RST);
+	SPCR |= (1<<SPE);
+}
+
+
+void dog_disable_io(void){
+	SPI_DDR &= ~(1<<MOSI) & ~(1<<MISO) & ~(1<<SCK);
+	#if CS
+	DOG_CS_DDR &= ~(1<<DOG_CS);
+	DOG_CS_PORT &= ~(1<<DOG_CS);
+	#endif
+	DOG_A0_DDR &= ~(1<<DOG_A0);
+	DOG_RST_DDR &= ~(1<<DOG_RST);
+	SPCR &= ~(1<<SPE);
+}
 /**-----------------------------------------------------------------------------------------------------------------------------**/
 uint8_t dog_transmit(uint8_t data){
+#if CS
+	DOG_CS_PORT &= ~(1<<DOG_CS);
+#endif
 	SPDR = data;
 	while(!(SPSR & (1<<SPIF))){;}
 	//_delay_us(50);
 	return SPDR;
+#if CS
+	DOG_CS_PORT |= (1<<DOG_CS);
+#endif
 }
 /**-----------------------------------------------------------------------------------------------------------------------------**/
 void dog_transmit_data(uint8_t data){
@@ -86,7 +137,7 @@ void dog_write_small_digit(uint8_t digit){
 	
 }
 /**-----------------------------------------------------------------------------------------------------------------------------**/
-void dog_write_small_string(char *string){
+void dog_write_small_string(const char *string){
 	while(*string){
 		dog_write_small_digit(*string);
 		string++;
@@ -203,11 +254,35 @@ void dog_write_mid_digit(position_t position,uint8_t digit){
 		}
 		dog_set_position(position.page+1,position.column);
 		for(i=0;i<8;i++){
+			if(underlined){
+				temp[1][i] |= 0x30;
+			}
 			dog_transmit_data(temp[1][i]);
 			//dog_transmit_data(lower[i]);
 		}	
+	}else if(position.row < 4){
+		for(i=0; i<8; i++){
+			temprow = 0;
+			temprow = (temp[0][i]) + ((uint16_t) temp[1][i] << 8);
+			temprow = temprow << position.row;
+			temp[0][i] = (uint8_t) ((temprow) & 0x000000FF);
+			temp[1][i] = (uint8_t) ((temprow>>8) & 0x000000FF);
+		}
+		
+		dog_set_position(position.page, position.column);
+		for(i=0; i<8; i++){
+			dog_transmit_data(temp[0][i]);
+		}
+		dog_set_position(position.page+1, position.column);
+		for(i=0; i<8; i++){
+			dog_transmit_data(temp[1][i]);
+		}
+		
 	}else{
 		for(i=0; i<8; i++){
+			if(underlined){
+				temp[1][i] |= 0x30;
+			}
 			temprow = 0;
 			temprow = ((temp[0][i]) + ((uint16_t) temp[1][i] << 8) + ((uint32_t) temp[2][i] << 16));
 			temprow = temprow << position.row;
@@ -231,7 +306,7 @@ void dog_write_mid_digit(position_t position,uint8_t digit){
 	}
 }
 /**-----------------------------------------------------------------------------------------------------------------------------**/
-void dog_write_mid_string(position_t position,char *string){
+void dog_write_mid_string(position_t position, const char *string){
 	while(*string){
 		dog_write_mid_digit(position,*string);
 		string++;
@@ -239,7 +314,7 @@ void dog_write_mid_string(position_t position,char *string){
 	}
 }
 /**-----------------------------------------------------------------------------------------------------------------------------**/
-void dog_write_mid_strings(position_t pos, char *str0, char *str1){
+void dog_write_mid_strings(position_t pos, const char *str0, const char *str1){
 	volatile uint8_t line0[132] = {0}, line1[132] = {0}, line2[132] = {0};
 	uint8_t h=0, i=0, offset=0;
 #ifdef CHARSET_ASCII
@@ -278,40 +353,62 @@ void dog_write_mid_strings(position_t pos, char *str0, char *str1){
 }
 #endif
 /**-----------------------------------------------------------------------------------------------------------------------------**/
-void dog_write_rotating(position_t position, char* text, uint8_t length, uint8_t type, volatile uint16_t tim){
+void dog_write_rotating(position_t position, const char* text, uint8_t length, uint8_t type, volatile uint16_t tim){
 	// position: Startposition der laufschrift
 	// text: der Text, der umläuft höhö
 	// length: die Textlänge
 	// tim: eine Referenz auf die timervariable (womöglich gibt es mehrere parallele Laufschriften)
 	//idee: wenn der Text länger ist, als die Displaybreite hergibt, rotiert der Text im 10s Abstand dreimal um das Display.
 	// 
-	uint8_t line_length = 0;
-	dog_set_position(position.page, position.column);
+	uint8_t line_length = COLUMNS / type;
+	uint16_t rot = 0;
+	int16_t ti = 0;
+	char line_text[23] = {0,};
 	line_length = COLUMNS / type;
-	uint16_t rot = tim % ((line_length + length)*type);
-	if(length < line_length){
+	rot = tim % ((line_length + length)*type);
+	if(length < line_length || tim > 0x3FF){
+		do_not_rot_cnt++;
+		if(do_not_rot_cnt > 254){
+			do_not_rot_cnt =0;
+			do_rot = 1;
+		}
+		
+		if(length < line_length){
+			for(i=0; i<length; i++){
+				line_text[i] = text[i];
+			}
+			line_text[i] = 0x00;
+		}else{
+			for(i=0; i<line_length; i++){
+				line_text[i] = text[i];
+			}
+			line_text[i] = 0x00;
+		}
+		
 		switch(type){
 			#ifdef USE_TINY_FONT
 			case SIZE4X6:{
-				dog_write_tiny_string(text);
+				dog_set_position(position.page, position.column);
+				dog_write_tiny_string(line_text);
 				break;
 			}
 			#endif
 			#ifdef USE_SMALL_FONT
 			case SIZE6X8:{
-				dog_write_small_string(text);
+				dog_set_position(position.page, position.column);
+				dog_write_small_string(line_text);
 				break;
 			}
 			#endif
 			#ifdef USE_MID_FONT
 			case SIZE8X12:{
-				dog_write_mid_string(position, text);
+				dog_write_mid_string(position, line_text);
 				break;
 			}	
 			#endif
 			#ifdef USE_BIG_FONT
 			case SIZE12X16:{
-				dog_write_big_string(position, text);
+				dog_write_big_string(position, line_text);
 				break;
 			}
 			#endif
@@ -321,28 +418,38 @@ void dog_write_rotating(position_t position, char* text, uint8_t length, uint8_t
 		}
 		return;
 	}
-	char line_text[22] = {0,};
 	position.column -= rot % type;
-	dog_set_position(position.page, position.column);
 	for(i=0; i<line_length;i++){
-		int8_t ti = i+(rot/type)-line_length;
-		if(ti < 0){
-			line_text[i] = ' ';
-		}else if(ti>length){
-			line_text[i] = ' ';
-		}else{	
-			line_text[i] = text[ti];
-		}		
+		ti = i+(rot/type)-line_length;
+		//if(text[ti]){
+			if(ti < 0){
+				line_text[i] = ' ';
+			}else if(ti>length){
+				line_text[i] = ' ';
+			}else{	
+				line_text[i] = text[ti];
+			}		
+		//}
 	}
+	/*
+	if(!strncmp(line_text, text, length)){
+		do_rot_cnt++;
+		if(do_rot_cnt > 2){
+			do_rot = 0;
+		}
+	}
+	//*/
 	switch (type){
 		#ifdef USE_TINY_FONT
 		case SIZE4X6:{
+			dog_set_position(position.page, position.column);
 			dog_write_tiny_string(line_text);
 			break;
 		}
 		#endif
 		#ifdef USE_SMALL_FONT
 		case SIZE6X8:{
+			dog_set_position(position.page, position.column);
 			dog_write_small_string(line_text);
 			break;
 		}
@@ -428,7 +535,7 @@ void dog_write_big_digit(position_t position,uint8_t digit){
 	//*/
 }
 /**-----------------------------------------------------------------------------------------------------------------------------**/
-void dog_write_big_string(position_t position,char *string){
+void dog_write_big_string(position_t position,const char *string){
 	while(*string){
 		dog_write_big_digit(position,*string);
 		string++;
@@ -453,8 +560,22 @@ void dog_clear_lcd(void){
 	}
 }
 /**-----------------------------------------------------------------------------------------------------------------------------**/
+void dog_set_lcd(uint8_t value){
+	uint8_t i,h;
+	dog_home();
+	if(reversed){
+		value = 0xFF - value;
+	}
+	for(h=0;h<ROWS;h++){
+		dog_set_page(h);
+		for(i=0;i<COLUMNS;i++){
+			dog_transmit_data(value);
+		}
+	}
+}
+/**-----------------------------------------------------------------------------------------------------------------------------**/
 #ifdef USE_TINY_FONT
-void dog_write_tiny_string(char *string){
+void dog_write_tiny_string(const char *string){
 	while(*string){
 		dog_write_tiny_digit(*string);
 		string++;
@@ -483,12 +604,18 @@ position_t NEW__POSITION(uint8_t page,uint8_t column, uint8_t row){
 /**-----------------------------------------------------------------------------------------------------------------------------**/
 void dog_init(void){
 	uint8_t i = 0;
+#if CS
+	DOG_CS_PORT &= ~(1<<DOG_CS);
+#endif
 	DOG_RST_HIGH();
 	_delay_us(100);
 	DOG_RST_LOW();
 	_delay_us(100);
 	DOG_RST_HIGH();
 	_delay_ms(1);
+#if CS
+	DOG_CS_PORT |= (1<<DOG_CS);
+#endif
 	for(i=0;i<14;i++){
 		dog_transmit(init128[i]);
 	}

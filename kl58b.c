@@ -6,28 +6,54 @@
  # Frequenz K58B: 72,36Hz
  # Tastverhältnis: 20-100%
  */
+#include <avr/eeprom.h>
 #include "kl58b.h"
+#include "CAN-MFA.h"
 
+uint8_t volatile k58b_status; // fuer alten wert (Flankenerkennung)
 uint16_t volatile k58b_high;
 uint16_t volatile k58b_low;
+volatile uint16_t k58b_timer;
+volatile uint8_t k58b_scale;
+uint16_t volatile k58b_pw;
 uint8_t volatile bel_pwm = 255;
 uint8_t volatile bel_tim = 0;
 
 void initk58_pwm(void){
 	k58b_high = 0;
 	k58b_low = 0;
-	k58b_pw = 0;
+	k58b_pw = 100;
 	k58b_timer = 0; 
+	#if K58B_POLL
+	#warning "POLL k58b signal"
+	#else
 	EICRB |= INT6_RISING;  
 	EIMSK |= (1<<INT6);
+	#endif
+	
+	TCCR3A = 0x00;
+	TCCR3A |= (1<<COM3A1);	// Clear on match (nicht-invertierte PWM)
+	TCCR3A |= (1<<WGM30);	// für WGM 1
+		
+	OCR3A = 0x00;
+	TCNT3 = 0x00;
+	TCCR3B = 0x00;
+	//TCCR1B |= (1<<CS11);	// Teiler 8
+	TCCR3B |= (1<<CS30) | (1<<CS31);	// Teiler 64 für ca. 60 Hz bei 2 Mhz
+	//TCCR3B |= (1<<CS31);	// Teiler 8 für ca. 245 Hz bei 1 Mhz
+	//TCCR1B |= (1<<CS10);	// Teiler 1 für ca. 3900 Hz bei 2 Mhz
+	
 }
 
-void set_k58_value(uint8_t value){
-	//OCR3A = (value * k58b_scale) << 8;
-	//bel
-	;
+void set_backlight(uint8_t pw){
+	OCR3A = pw;
+	if(pw > 0){
+		LED_DDR |= (1<<LED);
+	}else{
+		LED_DDR &= ~(1<<LED);
+	}
 }
-
+#if !K58B_POLL
 ISR(INT6_vect){
 	if(EICRB & INT6_RISING){
 		if(k58b_low != 0){
@@ -48,7 +74,10 @@ ISR(INT6_vect){
 	//return 0;
 }
 
-ISR(TIMER1_COMPA_vect){//100ns Timer for Pwm
+#endif
+
+ISR(TIMER3_COMPA_vect){//100ns Timer for Pwm
+	/*
 	bel_tim++;
 	if(bel_tim == 0){
 		PORTE |= (1<<PE2);
@@ -59,4 +88,5 @@ ISR(TIMER1_COMPA_vect){//100ns Timer for Pwm
 // 	PORTE ^= (1<<PE2);
  	k58b_timer++;
  	if(k58b_timer == 0) k58b_pw = 100;
+	 */
 }
