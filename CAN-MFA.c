@@ -29,6 +29,7 @@
 #include "forum.h"
 #include "tuer.h"
 #include "uart_task.h"
+#include "navigation.h"
 #ifdef HAVE_MCP_ADC
 #include "mcp3208.h"
 #endif
@@ -561,12 +562,13 @@ void display_navi(void){
 	//return;
 #if 1	//max_display_value = 26;
 
-	if(navigation_status != 0x07){
+	if(navigation_status == status_routing || navigation_status != status_recalculating){
 		uint8_t navi = 16;
-		display_navigation_symbol48(NEW_POSITION(2,navi), navigation_next_turn, distance_to_next_turn);
+		display_navigation_symbol(NEW_POSITION(2,navi), navigation_next_turn, distance_to_next_turn);
 		navi_old = navigation_next_turn;
-	}else{
-		display_mode++;
+	}else if(navigation_status != status_invalid){
+		uint8_t navi = 42;
+		display_navigation_status(NEW_POSITION(2,navi), navigation_status);
 	}
 	
 
@@ -1387,7 +1389,7 @@ void display_can_data(void){
 						dog_transmit_data(0x00);
 						dog_write_small_string(id);
 					}
-					}else{
+				}else{
 					uint8_t i;
 					char id[2] = {0};
 					dog_set_position(2,8);
@@ -1760,7 +1762,7 @@ void display_task(){
 	underlined = 0;
 	switch(display_mode){
 		case NAVIGATION:{
-			if(navigation_status == 0x04){
+			if(navigation_status == status_routing || navigation_status == status_recalculating){
 				display_navi();
 				break;
 			}
@@ -1952,7 +1954,7 @@ void app_task(){
 		disable_mfa_switch();
 		//*
 		// process navigation data
-		if(navigation_status != navigation_status_old && (navigation_status == 4 || navigation_status == 3 || navigation_status == 3)){
+		if(navigation_status != navigation_status_old && (navigation_status == status_recalculating || navigation_status == status_routing)){
 			if(display_mode != NAVIGATION){
 				display_mode_tmp = display_mode;
 			}
@@ -1996,7 +1998,7 @@ ISR(TIMER1_COMPA_vect){
 		uint32_t delta = 0;
 		if(new_val < old_val){
 			delta = new_val - old_val + 0x7FFF;
-			}else{
+		}else{
 			delta = new_val - old_val;
 		}
 		old_val = new_val;

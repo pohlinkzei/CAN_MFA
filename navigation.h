@@ -11,10 +11,11 @@
 
 // taken from navit - which will talk with this device...
 enum nav_status {
-	status_invalid = -2,		/*!< Status is unknown. The {@code nav_status} attribute will never return this
-								     value but code that listens to changes to this attribute may use this value
+	status_invalid = 6,		/*!< Status is unknown. The {@code nav_status} attribute will never return this
+	// -2 & 0x07 = 6				     value but code that listens to changes to this attribute may use this value
 								     as a placeholder until the first actual status has been obtained. */
-	status_no_route = -1,		/*!< No route was found */
+	status_no_route = 7,		/*!< No route was found */
+	// -1 & 0x07 = 7 
 	status_no_destination = 0,	/*!< No destination set, not routing */
 	status_position_wait = 1,	/*!< Destination is set but current position is unknown */
 	status_calculating = 2,		/*!< A new route is being calculated and turn instructions are being generated */
