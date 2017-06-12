@@ -1140,7 +1140,7 @@ void display_med_row(volatile uint8_t* dv, uint8_t page, uint8_t row){
 			}
 			//*/
 			str[1] = 'G';
-			str[2] = 'B';
+			str[2] = 'T';
 			
 			sprint_temperature(&str[4], gearbox_temperature);
 
@@ -1190,33 +1190,42 @@ void display_med_row(volatile uint8_t* dv, uint8_t page, uint8_t row){
 		case VAL_TIME:{
 
 			// 0123456789012
-			//    12:34
+			//      01234567
+			//       12:34
+			char time[9] = "        ";
 			uint8_t dt_hour, dt_minute;
 			if(mfa.mode == CUR){
 				dt_hour = (driving_time[AVG] / 3600);
 				dt_minute = (driving_time[AVG] % 3600) / 60;
 				
-				uint8_to_string(&str[2], dt_hour);
-				uint8_to_string(&str[5], dt_minute);
+				uint8_to_string(&time[0], dt_hour);
+				uint8_to_string(&time[3], dt_minute);
+				dog_set_page(page);
+				dog_write_small_string("    ab    ");
+				dog_set_page(page+1);
+				dog_write_small_string("   Reset  ");
 			}else{
 				dt_hour = (driving_time_start / 3600);
 				dt_minute = (driving_time_start % 3600) / 60;
 				
-				uint8_to_string(&str[2], dt_hour);
-				uint8_to_string(&str[5], dt_minute);
+				uint8_to_string(&time[0], dt_hour);
+				uint8_to_string(&time[3], dt_minute);
+				dog_set_page(page);
+				dog_write_small_string("    ab    ");
+				dog_set_page(page+1);
+				dog_write_small_string("   Start  ");
 			}
-			str[5] = ':';
+			str[3] = ':';
 			if(dt_hour < 10){
-				str[3] = '0';
+				str[1] = '0';
 			}
 			if(dt_minute < 10){
-				str[6] = '0';
+				str[4] = '0';
 			}
-			for(i=0; i<12; i++){
-				dog_write_big_digit(NEW__POSITION(page,i*12,row),str[i]);
+			for(i=0; i<7; i++){
+				dog_write_big_digit(NEW__POSITION(page,(i+5)*12,row),str[i]);
 				str[i] = ' ';
 			}
-			#warning "TODO add ab start / ab reset"
 			break;
 		}
 		case VAL_MANIFOLD:{
