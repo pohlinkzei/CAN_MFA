@@ -1,6 +1,8 @@
 *.atsln
 *.atsuo
 *.cproj
+*.xml
+*.csv
 Debug/
 Release/
 forum.h
