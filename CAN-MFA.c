@@ -1,5 +1,5 @@
 /*
- * CAN_Sniffer.c
+ * CAN-MFA.c
  *
  * Created: 14.03.2014 11:55:00
  *  Author: Hubert
@@ -1186,41 +1186,35 @@ void display_med_row(volatile uint8_t* dv, uint8_t page, uint8_t row){
 		}
 
 		case VAL_TIME:{
-			display_value++;
-			break;	
-			// "01234567890"
-			// " 12:34:56  :
-			//driving_time[mfa.mode]
-			/*
-			uint16_t year = (uint16_t) (driving_time[mfa.mode] / 31536000);//3600*24*365))));
-			uint8_t day = (uint8_t) (driving_time[mfa.mode]/(86400)%365);
-			uint8_t hour = (driving_time[mfa.mode]/3600)%24;
-			uint8_t minute = (driving_time[mfa.mode]/60)%60;
-			uint8_t second = driving_time[mfa.mode]%60;
+
+			// 0123456789012
+			//    12:34
+			uint8_t dt_hour, dt_minute;
+			if(mfa.mode == CUR){
+				dt_hour = (driving_time[AVG] / 3600);
+				dt_minute = (driving_time[AVG] % 3600) / 60;
 				
+				uint8_to_string(&str[2], dt_hour);
+				uint8_to_string(&str[5], dt_minute);
+			}else{
+				dt_hour = (driving_time_start / 3600);
+				dt_minute = (driving_time_start % 3600) / 60;
 				
-			// "01234567890"
-			// "   12:364  "
-			uint16_to_string(&str[4], day);
-				
-			uint8_to_string(&str[2], year);
-			str[5] = 'y';
-			str[9] = 'd';
+				uint8_to_string(&str[2], dt_hour);
+				uint8_to_string(&str[5], dt_minute);
+			}
+			str[5] = ':';
+			if(dt_hour < 10){
+				str[3] = '0';
+			}
+			if(dt_minute < 10){
+				str[6] = '0';
+			}
 			for(i=0; i<12; i++){
 				dog_write_big_digit(NEW__POSITION(page,i*12,row),str[i]);
 				str[i] = ' ';
 			}
-			uint8_to_string(&str[7], second);
-			uint8_to_string(&str[4], minute);
-			uint8_to_string(&str[1], hour);
-			str[4] = 'h';
-			str[7] = 'm';
-			for(i=0; i<12; i++){
-				dog_write_big_digit(NEW__POSITION(5,i*12,1),str[i]);
-				str[i] = ' ';
-			}
-			str[9] = 's';
-			//*/
+			#warning "TODO add ab start / ab reset"
 			break;
 		}
 		case VAL_MANIFOLD:{
