@@ -87,7 +87,7 @@ volatile int16_t gra_speed; //id288D4
 volatile uint8_t pedal_position; //id280D6
 volatile uint8_t eng_status0; //id280D1
 volatile uint8_t eng_status1; //id288D2
-
+volatile uint8_t do_not_switch_to_navigation;
 
 
 #define MAX_AVG_CNT 1
@@ -562,7 +562,7 @@ void display_navi(void){
 	//return;
 #if 1	//max_display_value = 26;
 
-	if(navigation_status == status_routing || navigation_status != status_recalculating){
+	if(navigation_status == status_routing || navigation_status == status_recalculating){
 		uint8_t navi = 16;
 		display_navigation_symbol(NEW_POSITION(2,navi), navigation_next_turn, distance_to_next_turn);
 		navi_old = navigation_next_turn;
@@ -1940,6 +1940,7 @@ void app_task(){
 				if(!no_res_switch){
 					//if(display_value%2){
 						display_value[display_mode]++;
+						
 					//}else{
 					//	(mfa.mode==CUR)?mfa.mode=AVG:mfa.mode=CUR;
 					//}
@@ -1955,6 +1956,11 @@ void app_task(){
 				if(display_mode > CAN_DATA){
 					display_mode = 0;
 				}
+				if((navigation_status == status_routing || navigation_status == status_recalculating) && display_mode == NAVIGATION){
+					do_not_switch_to_navigation = 1;
+				}else{
+					do_not_switch_to_navigation = 0;
+				}
 			}
 		}else{
 			mfa.mfa = 0;
@@ -1963,13 +1969,16 @@ void app_task(){
 		disable_mfa_switch();
 		//*
 		// process navigation data
-		if(navigation_status != navigation_status_old && (navigation_status == status_recalculating || navigation_status == status_routing)){
-			if(display_mode != NAVIGATION){
-				display_mode_tmp = display_mode;
+		
+		if(!do_not_switch_to_navigation){
+			if(navigation_status != navigation_status_old && (navigation_status == status_recalculating || navigation_status == status_routing)){
+				if(display_mode != NAVIGATION){
+					display_mode_tmp = display_mode;
+				}
+				display_mode = NAVIGATION;
+			}else if(display_mode == NAVIGATION){
+				display_mode = display_mode_tmp;
 			}
-			display_mode = NAVIGATION;
-		}else if(display_mode == NAVIGATION){
-			display_mode = display_mode_tmp;
 		}
 		//*/
 }

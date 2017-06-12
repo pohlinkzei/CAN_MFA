@@ -207,6 +207,7 @@ extern volatile int16_t gra_speed; //id380D4
 extern volatile uint8_t pedal_position; //id280D6
 extern volatile uint8_t eng_status0; //id280D1
 extern volatile uint8_t eng_status1; //id288D2
+extern volatile uint8_t do_not_switch_to_navigation;
 
 extern uint64_t can_speed_sum;
 extern uint32_t can_speed_cnt;

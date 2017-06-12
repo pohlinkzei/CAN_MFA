@@ -14,7 +14,6 @@ void display_navigation_status(position_t position, int8_t status){
 	uint8_t a = 0;
 	uint8_t b = 0;
 	uint8_t c = 0;
-	char distance_str[7] = {0,};
 	if(status<0){
 		display_mode++;
 		return;
@@ -42,8 +41,15 @@ void display_navigation_status(position_t position, int8_t status){
 	for(a=c; a<132; a++){
 		dog_transmit_data(0x00);
 	}
-
-	dog_set_position(position.page +4, position.column + 48);
+	dog_set_position(position.page + 2, position.column + 48);
+	for(a=c; a<132; a++){
+		dog_transmit_data(0x00);
+	}
+	dog_set_position(position.page + 3, position.column + 48);
+	for(a=c; a<132; a++){
+		dog_transmit_data(0x00);
+	}
+	dog_set_position(position.page + 4, position.column + 48);
 	for(a=c; a<132; a++){
 		dog_transmit_data(0x00);
 	}
@@ -51,10 +57,7 @@ void display_navigation_status(position_t position, int8_t status){
 	for(a=c; a<132; a++){
 		dog_transmit_data(0x00);
 	}
-	dog_set_position(position.page + 2, position.column + 48);
-	for(a=c; a<132; a++){
-		dog_transmit_data(0x00);
-	}
+	
 }
 
 void display_navigation_symbol(position_t position, int8_t next_turn,  uint64_t distance){
