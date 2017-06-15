@@ -1336,7 +1336,7 @@ void display_can_data(void){
 			case 0:{
 				if(mfa.mode){
 					uint8_t i;
-					char id[3] = {0,};
+					char id[3] = {0,0,0};
 					dog_set_position(2,8);
 					dog_write_tiny_string("280");
 							
@@ -1396,7 +1396,7 @@ void display_can_data(void){
 					}
 				}else{
 					uint8_t i;
-					char id[2] = {0};
+					char id[3] = {0,0,0};
 					dog_set_position(2,8);
 					dog_write_tiny_string("520");
 							
