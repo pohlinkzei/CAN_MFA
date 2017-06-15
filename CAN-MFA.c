@@ -398,6 +398,9 @@ status_t get_status(status_t old){
 				if(old == IGNITION_ON){
 					k15_delay_cnt = eeprom_read_byte(&cal_k15_delay) + 1;
 				}
+				if(old == DOOR_OPEN){
+					door_delay = 1000; //ms
+				}
 				break;
 			}
 			default:{
@@ -444,13 +447,6 @@ int main(void){
 		
 		switch (status){
 			case OFF:{
-				/*
-				if(old_status == DOOR_OPEN){
-					display_tuer_closed();
-					door_delay = 1;
-					break;
-				}
-				*/
 				int vtg_state = ((display_value[SMALL_TEXT] == ADC_VALUES && display_mode == SMALL_TEXT)
 							 || (display_value[MED_TEXT_TOP] == VAL_VOLTA && display_mode == MED_TEXT_TOP)
 							 || (display_value[MED_TEXT_TOP] == VAL_VOLTB && display_mode == MED_TEXT_TOP)
@@ -509,7 +505,7 @@ int main(void){
 				break;
 			}
 			case IGNITION_ON:{
-				
+				door_delay = 0;
 				display_task();
 				uart_bootloader_task();
 				can_task();
@@ -625,7 +621,7 @@ void display_small_text(void){
 				can_line5[11] = CONS_PER_HOUR;
 				can_line5[10] = ' ';
 				can_line5[12] = ' ';
-				}else{
+			}else{
 				sprint_float(&can_line5[5],cons_l_100km[mfa.mode]);
 				can_line5[10] = CONS;
 				can_line5[11] = CONS + 1;
@@ -636,7 +632,7 @@ void display_small_text(void){
 				can_line2[4] = ' ';
 				can_line5[4] = ' ';
 				sprint_cur_speed(&can_line2[7],speed[mfa.mode]);
-				}else{
+			}else{
 				can_line2[4] = 0x9D;
 				can_line5[4] = 0x9D;
 				sprint_avg_speed(&can_line2[6],speed[mfa.mode]);
@@ -1907,14 +1903,12 @@ void app_task(){
 		oil_temperature = calculate_oil_temperature(adc_value[OELTEMP]);
 		ambient_temperature = calculate_temperature(adc_value[AUSSENTEMP]);
 		
-		//MFA_SWITCH_DDR |= (1<<MFA_SWITCH_GND);
-		//#if 0
 		if(!(MFA_SWITCH_PIN & (1<<MFA_SWITCH_MODE))){
 			mfa.mode = CUR;
 		}else{
 			mfa.mode = AVG;
 		}			
-		//#endif
+
 		if(!(MFA_SWITCH_PIN & (1<<MFA_SWITCH_RES))){
 			//sprintf(radio_text, "%i           " ,mfa_res_cnt);
 			mfa.res = 1;
@@ -1938,12 +1932,7 @@ void app_task(){
 			mfa_res_cnt = 0;
 			if(mfa.res != mfa_old.res){
 				if(!no_res_switch){
-					//if(display_value%2){
-						display_value[display_mode]++;
-						
-					//}else{
-					//	(mfa.mode==CUR)?mfa.mode=AVG:mfa.mode=CUR;
-					//}
+					display_value[display_mode]++;
 				}else{
 					no_res_switch = 0;
 				}
@@ -1991,10 +1980,11 @@ ISR(TIMER0_COMP_vect){//1ms timer
 		if(k58b_timer > 0)
 		k58b_timer--;
 	}
-	/*
+	//*
 	if(door_delay){
 		door_delay--;
-	}*/
+	}
+	//*/
 	set_backlight(k58b_pw);
 	line_ms_timer++;
 	if(line_ms_timer > 400){
