@@ -1971,7 +1971,7 @@ void app_task(){
 		// process navigation data
 		
 		if(!do_not_switch_to_navigation){
-			if(navigation_status != navigation_status_old && (navigation_status == status_recalculating || navigation_status == status_routing)){
+			if((navigation_status == status_recalculating || navigation_status == status_routing)){
 				if(display_mode != NAVIGATION){
 					display_mode_tmp = display_mode;
 				}
