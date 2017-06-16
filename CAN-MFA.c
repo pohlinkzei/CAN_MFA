@@ -1224,6 +1224,7 @@ void display_med_row(volatile uint8_t* dv, uint8_t page, uint8_t row){
 			}
 			break;
 		}
+		#if 0
 		case VAL_MANIFOLD:{
 			display_value++;
 			break;
@@ -1252,6 +1253,7 @@ void display_med_row(volatile uint8_t* dv, uint8_t page, uint8_t row){
 			display_value++;
 			break;
 		}
+		#endif
 		//*/
 		default:{
 			display_value=0;
@@ -1315,8 +1317,8 @@ void display_tuer_closed(void){
 
 void generate_can_display_str_byte(char str[17], uint8_t index, volatile uint8_t can_data[8]){
 	str[1] = index + '0';
-	snprintf(&str[2], 5, "0x%02X ", can_data[index]);
-	uint8_to_string(&str[7],id280_data[index]);
+	snprintf(&str[3], 5, "0x%02X    ", can_data[index]);
+	uint8_to_string(&str[8],can_data[index]);
 }
 
 void generate_can_display_str_word(char str[17], uint8_t index, volatile uint8_t can_data[8]){
@@ -1324,8 +1326,8 @@ void generate_can_display_str_word(char str[17], uint8_t index, volatile uint8_t
 	//rpm = (id280_data[4] + ((id280_data[3]) << 8))>>2;
 	uint16_t tmp = (can_data[index] << 8  ) + can_data[index+1];
 
-	snprintf(&str[2], 7, "0x%04X ", tmp);
-	uint16_to_string(&str[7],tmp);
+	snprintf(&str[3], 7, "0x%04X ", tmp);
+	uint16_to_string(&str[10],tmp);
 }
 
 void display_can_data(void){
@@ -1510,21 +1512,21 @@ void display_can_data(void){
 					str0[1] = '4';
 					str0[2] = '8';
 					str0[3] = '0';
-					generate_can_display_str_word(str1, 6, id288_data);
+					generate_can_display_str_word(str1, 6, id480_data);
 				}else{
-					generate_can_display_str_byte(str0, 0, id288_data);
-					generate_can_display_str_byte(str1, 1, id288_data);
+					generate_can_display_str_byte(str0, 0, id480_data);
+					generate_can_display_str_byte(str1, 1, id480_data);
 				}
 
 				
 
 				dog_write_mid_strings(NEW_POSITION(2,0), str0, str1);
 				if(mfa.mode){
-					generate_can_display_str_word(str0, 2, id288_data);
-					generate_can_display_str_word(str1, 6, id288_data);
+					generate_can_display_str_word(str0, 2, id480_data);
+					generate_can_display_str_word(str1, 6, id480_data);
 				}else{
-					generate_can_display_str_byte(str0, 2, id288_data);
-					generate_can_display_str_byte(str1, 3, id288_data);
+					generate_can_display_str_byte(str0, 2, id480_data);
+					generate_can_display_str_byte(str1, 3, id480_data);
 				}
 				dog_write_mid_strings(NEW_POSITION(5,0), str0, str1);
 				break;
