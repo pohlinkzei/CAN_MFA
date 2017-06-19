@@ -53,6 +53,7 @@ volatile uint8_t k15_delay_cnt = 0;
 volatile status_t status;
 volatile status_t old_status;
 volatile uint16_t door_delay = 0;
+volatile uint16_t door_open_count = 0; 
 volatile uint8_t id280_data[8];
 volatile uint8_t id288_data[8];
 volatile uint8_t id380_data[8];
@@ -407,6 +408,10 @@ status_t get_status(status_t old){
 				;
 			}
 		}
+	}else{
+		if(status==DOOR_OPEN){
+			door_open_count++;
+		}
 	}
 	return status;
 }
@@ -446,6 +451,16 @@ int main(void){
 		//*/
 		
 		switch (status){
+			case DOOR_OPEN:{
+				reversed = 0;
+				k15_delay_cnt = 0;
+				if(door_open_count < 300){
+					display_tuer_open();
+					uart_bootloader_task();
+					break;
+				}
+				
+			}
 			case OFF:{
 				int vtg_state = ((display_value[SMALL_TEXT] == ADC_VALUES && display_mode == SMALL_TEXT)
 							 || (display_value[MED_TEXT_TOP] == VAL_VOLTA && display_mode == MED_TEXT_TOP)
@@ -469,12 +484,12 @@ int main(void){
 						display_task();
 						break;
 					}
-					/*
+					//*
 					if(door_delay){
 						display_tuer_closed();
 						break;
 					}
-					*/
+					//*/
 					uint8_t i;
 					k58b_pw = 0;
 					// disable CAN receiver
@@ -511,14 +526,6 @@ int main(void){
 				can_task();
 				app_task();
 				twi_task();
-				break;
-			}
-			
-			case DOOR_OPEN:{
-				reversed = 0;
-				k15_delay_cnt = 0;
-				display_tuer_open();
-				uart_bootloader_task();
 				break;
 			}
 			default:{
@@ -1509,11 +1516,39 @@ void display_can_data(void){
 				char str0[17] =	"                 ";
 				char str1[17] =	"                 ";
 				if(mfa.mode){
+					str0[1] = '3';
+					str0[2] = '8';
+					str0[3] = '0';
+					generate_can_display_str_word(str1, 6, id380_data);
+				}else{
+					generate_can_display_str_byte(str0, 0, id380_data);
+					generate_can_display_str_byte(str1, 1, id380_data);
+				}
+
+				
+
+				dog_write_mid_strings(NEW_POSITION(2,0), str0, str1);
+				if(mfa.mode){
+					generate_can_display_str_word(str0, 2, id380_data);
+					generate_can_display_str_word(str1, 6, id380_data);
+				}else{
+					generate_can_display_str_byte(str0, 2, id380_data);
+					generate_can_display_str_byte(str1, 3, id380_data);
+				}
+				dog_write_mid_strings(NEW_POSITION(5,0), str0, str1);
+				break;
+			}
+			case 4:{
+				// check unknown values from ID 480
+				// [ 0 ] [ 1 ] [ 2 ] [ 3 ] [ - ] [ - ] [ - ] [ - ]
+				char str0[17] =	"                 ";
+				char str1[17] =	"                 ";
+				if(mfa.mode){
 					str0[1] = '4';
 					str0[2] = '8';
 					str0[3] = '0';
-					generate_can_display_str_word(str1, 6, id480_data);
-				}else{
+					generate_can_display_str_word(str1, 0, id480_data);
+					}else{
 					generate_can_display_str_byte(str0, 0, id480_data);
 					generate_can_display_str_byte(str1, 1, id480_data);
 				}
@@ -1523,8 +1558,8 @@ void display_can_data(void){
 				dog_write_mid_strings(NEW_POSITION(2,0), str0, str1);
 				if(mfa.mode){
 					generate_can_display_str_word(str0, 2, id480_data);
-					generate_can_display_str_word(str1, 6, id480_data);
-				}else{
+					generate_can_display_str_word(str1, 3, id480_data);
+					}else{
 					generate_can_display_str_byte(str0, 2, id480_data);
 					generate_can_display_str_byte(str1, 3, id480_data);
 				}
@@ -2024,6 +2059,11 @@ ISR(TIMER1_COMPA_vect){
 	}else{
 		if(k15_delay_cnt){
 			k15_delay_cnt--;
+		}
+		if(status == DOOR_OPEN && door_open_count < 305){
+			door_open_count++;
+		}else{
+			door_open_count=0;
 		}
 	}
 	/*

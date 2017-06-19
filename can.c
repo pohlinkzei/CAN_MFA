@@ -194,7 +194,7 @@ void can_task(void){
 		if(id480_valid){
 			// [ 0 ] [ 1 ] [ cons ] [ cons ] [ 4 ] [ 5 ] [ 6 ] [ 7 ]
 			can_status |= (1<<ID480);
-			//id480_valid = 0;
+			id480_valid = 0;
 		}
 		if(id320_valid){
 			// [ 0 ] [ 1 ] [ 2 ] [ 3 ] [ 4 ] [ 5 ] [ 6 ] [ 7 ]
