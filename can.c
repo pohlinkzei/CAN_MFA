@@ -168,7 +168,8 @@ void can_task(void){
 			// calculate rpm
 			rpm = (id280_data[4] + ((id280_data[3]) << 8))>>2;
 			eng_status0 = id280_data[0];
-			pedal_position = id280_data[6];
+			uint16_t p_temp = id280_data[5] * 100;
+			pedal_position =  p_temp / 249;
 			id280_valid = 0;
 			can_status |= (1<<ID280);
 		}
