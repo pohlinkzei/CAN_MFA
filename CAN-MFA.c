@@ -1484,7 +1484,7 @@ void display_can_data(void){
 					generate_can_display_str_byte(str1, 2, id280_data);
 				}
 				dog_write_mid_strings(NEW_POSITION(2,0), str0, str1);
-				generate_can_display_str_byte(str0, 5, id280_data);
+				generate_can_display_str_byte(str0, 6, id280_data);
 				generate_can_display_str_byte(str1, 7, id280_data);
 				dog_write_mid_strings(NEW_POSITION(5,0), str0, str1);
 				// check unknown values from ID 280
@@ -1497,7 +1497,7 @@ void display_can_data(void){
 				char str0[17] =	"                 ";
 				char str1[17] =	"                 ";
 				generate_can_display_str_byte(str0, 0, id288_data);
-				generate_can_display_str_byte(str1, 5, id288_data);
+				generate_can_display_str_byte(str1, 6, id288_data);
 
 				dog_write_mid_strings(NEW_POSITION(2,0), str0, str1);
 				if(mfa.mode){
