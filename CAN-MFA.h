@@ -264,7 +264,10 @@ extern volatile uint32_t distance_to_next_turn;
 
 extern volatile uint8_t radio_text[AUDIO_STR_LENGTH];
 
-
+extern volatile uint8_t navi_old;
+extern volatile uint16_t timer2_cnt;
+extern volatile mfa_t mfa;
+extern volatile mfa_t mfa_old;
 
 extern volatile uint16_t line_ms_timer;
 extern volatile uint16_t line_shift_timer;
