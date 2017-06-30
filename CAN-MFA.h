@@ -149,7 +149,7 @@
 #define ADC_VALUES 1
 #define STANDARD_VALUES 2
 #define CAN_VALUES2 3
-#define MAX_VALUES 4
+#define MIN_MAX_VALUES 4
 
 #define LINE_SHIFT_START 128
 
@@ -197,6 +197,7 @@ extern volatile uint16_t rpm;	//0-16000rpm
 extern uint16_t max_rpm EEMEM;
 extern volatile int16_t engine_temperature;//-100-154 centigrade
 extern int16_t max_engine_temp EEMEM;
+extern int16_t min_engine_temp EEMEM;
 extern volatile uint8_t fuel;	//0-100% or 0-80l
 //extern volatile uint32_t cons_time[16];
 //extern volatile uint8_t cons_cnt;
@@ -235,12 +236,16 @@ extern volatile voltage_value_t v_solar_plus;
 extern volatile voltage_value_t v_solar_minus;
 extern volatile int16_t in_temperature;
 extern int16_t max_in_temp EEMEM;
+extern int16_t min_in_temp EEMEM;
 extern volatile int16_t gearbox_temperature;
 extern int16_t max_gearbox_temp EEMEM;
+extern int16_t min_gearbox_temp EEMEM;
 extern volatile int16_t ambient_temperature;
 extern int16_t max_ambient_temp EEMEM;
+extern int16_t min_ambient_temp EEMEM;
 extern volatile int16_t oil_temperature;
 extern int16_t max_oil_temp EEMEM;
+extern int16_t min_oil_temp EEMEM;
 extern uint8_t cal_water_temperature EEMEM; 
 extern uint8_t cal_voltage EEMEM; // 171
 extern uint8_t cal_speed EEMEM; // 169

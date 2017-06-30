@@ -75,6 +75,7 @@ volatile uint16_t rpm;	//0-16000rpm
 volatile int16_t engine_temperature;//-100-154 centigrade
 uint16_t max_rpm EEMEM;
 int16_t max_engine_temp EEMEM;
+int16_t min_engine_temp EEMEM;
 volatile uint8_t fuel;	//0-100% or 0-80l
 //volatile uint8_t cons_cnt;
 volatile uint16_t cons_delta_ul;
@@ -114,12 +115,16 @@ volatile voltage_value_t v_solar_plus;
 volatile voltage_value_t v_solar_minus;
 volatile int16_t in_temperature;
 int16_t max_in_temp EEMEM;
+int16_t min_in_temp EEMEM;
 volatile int16_t gearbox_temperature;
 int16_t max_gearbox_temp EEMEM;
+int16_t min_gearbox_temp EEMEM;
 volatile int16_t ambient_temperature;
 int16_t max_ambient_temp EEMEM;
+int16_t min_ambient_temp EEMEM;
 volatile int16_t oil_temperature;
 int16_t max_oil_temp EEMEM;
+int16_t min_oil_temp EEMEM;
 uint8_t cal_water_temperature EEMEM;
 uint8_t cal_voltage EEMEM;
 uint8_t cal_speed EEMEM;
@@ -618,8 +623,39 @@ void reset_averages(void){
 	}
 }
 
-void reset_max_values(void){
+void reset_min_max_values(void){
 	//speed, rpm, temperature (eng, oil, out, gaerbox)
+	if(eeprom_read_word((uint16_t*) &max_gearbox_temp) != 0){
+		eeprom_write_word((uint16_t*) &max_gearbox_temp, 0);
+	}
+	if(eeprom_read_word((uint16_t*) &max_in_temp) != 0){
+		eeprom_write_word((uint16_t*) &max_in_temp, 0);
+	}
+	if(eeprom_read_word((uint16_t*) &max_oil_temp) != 0){
+		eeprom_write_word((uint16_t*) &max_oil_temp, 0);
+	}
+	if(eeprom_read_word((uint16_t*) &max_ambient_temp) != 0){
+		eeprom_write_word((uint16_t*) &max_ambient_temp, 0);
+	}
+	if(eeprom_read_word((uint16_t*) &max_speed) != 0){
+		eeprom_write_word((uint16_t*) &max_speed, 0);
+	}
+	if(eeprom_read_word((uint16_t*) &max_rpm)  != 0){
+		eeprom_write_word((uint16_t*) &max_rpm, 0);
+	}
+	if(eeprom_read_word((uint16_t*) &min_gearbox_temp) != 0){
+		eeprom_write_word((uint16_t*) &min_gearbox_temp, 0);
+	}
+	if(eeprom_read_word((uint16_t*) &min_in_temp) != 0){
+		eeprom_write_word((uint16_t*) &min_in_temp, 0);
+	}
+	if(eeprom_read_word((uint16_t*) &min_oil_temp) != 0){
+		eeprom_write_word((uint16_t*) &min_oil_temp, 0);
+	}
+	if(eeprom_read_word((uint16_t*) &min_ambient_temp) != 0){
+		eeprom_write_word((uint16_t*) &min_ambient_temp, 0);
+	}
+	
 	return;
 }
 
@@ -656,11 +692,55 @@ void app_task(){
 		
 		v_solar_plus = calculate_voltage(adc_value[SPANNUNG3]);
 		v_solar_minus = calculate_voltage(adc_value[SPANNUNG4]);
+
 		gearbox_temperature = calculate_oil_temperature(adc_value[GETRIEBETEMP]);
+
+		if(gearbox_temperature < 150 && gearbox_temperature > -50){
+			if((int16_t) eeprom_read_word((uint16_t*) &max_gearbox_temp) < gearbox_temperature){
+				eeprom_write_word((uint16_t*) &max_gearbox_temp, gearbox_temperature);
+			}else if((int16_t) eeprom_read_word((uint16_t*) &min_gearbox_temp) > gearbox_temperature){
+				eeprom_write_word((uint16_t*) &min_gearbox_temp, gearbox_temperature);
+			}
+		}
+
 		in_temperature = calculate_temperature(adc_value[INNENTEMP]);
-		
+		if(in_temperature < 150 && in_temperature > -50){
+			if((int16_t) eeprom_read_word((uint16_t*) &max_in_temp) < in_temperature){
+				eeprom_write_word((uint16_t*) &max_in_temp, in_temperature);
+			}else if((int16_t) eeprom_read_word((uint16_t*) &min_in_temp) > in_temperature){
+				eeprom_write_word((uint16_t*) &min_in_temp, in_temperature);
+			}
+		}
 		oil_temperature = calculate_oil_temperature(adc_value[OELTEMP]);
+		if(oil_temperature < 150 && oil_temperature > -50){
+			if((int16_t) eeprom_read_word((uint16_t*) &max_oil_temp) < oil_temperature){
+				eeprom_write_word((uint16_t*) &max_oil_temp, oil_temperature);
+			}else if((int16_t) eeprom_read_word((uint16_t*) &min_oil_temp) > oil_temperature){
+				eeprom_write_word((uint16_t*) &min_oil_temp, oil_temperature);
+			}
+		}
 		ambient_temperature = calculate_temperature(adc_value[AUSSENTEMP]);
+		if(ambient_temperature < 150 && ambient_temperature > -50){
+			if((int16_t) eeprom_read_word((uint16_t*) &max_ambient_temp) < ambient_temperature){
+				eeprom_write_word((uint16_t*) &max_ambient_temp, ambient_temperature);
+			}else if((int16_t) eeprom_read_word((uint16_t*) &min_ambient_temp) > ambient_temperature){
+				eeprom_write_word((uint16_t*) &min_ambient_temp, ambient_temperature);
+			}
+		}
+		if(engine_temperature > 25 && engine_temperature < 200){
+			if((int16_t) eeprom_read_word((uint16_t*) &max_engine_temp) < engine_temperature){
+				eeprom_write_word((uint16_t*) &max_engine_temp, engine_temperature);
+			}else if((int16_t) eeprom_read_word((uint16_t*) &min_engine_temp) > engine_temperature){
+				eeprom_write_word((uint16_t*) &min_engine_temp, engine_temperature);
+			}
+		}
+		if((int16_t) eeprom_read_word((uint16_t*) &max_speed) < speed[CUR]){
+			eeprom_write_word((uint16_t*) &max_speed, speed[CUR]);
+		}
+
+		if((int16_t) eeprom_read_word((uint16_t*) &max_rpm) < rpm){
+			eeprom_write_word((uint16_t*) &max_rpm, rpm);
+		}
 		
 		if(!(MFA_SWITCH_PIN & (1<<MFA_SWITCH_MODE))){
 			mfa.mode = CUR;
@@ -673,21 +753,27 @@ void app_task(){
 			mfa.res = 1;
 			if(mfa.res == mfa_old.res){
 				mfa_res_cnt++;
-				if (mfa_res_cnt > 10){
-					if(display_mode == SMALL_TEXT && display_value[SMALL_TEXT] == MAX_VALUES){
-						reset_max_values();
-					}else{
-						reset_averages_start();
+				if(!(display_mode & (1<<SETTINGS))){	
+					if (mfa_res_cnt > 10){
+						if(display_mode == SMALL_TEXT && display_value[SMALL_TEXT] == MIN_MAX_VALUES){
+							reset_min_max_values();
+							mfa_res_cnt = 0;
+						}else{
+							reset_averages_start();
+						}
+						dog_clear_lcd();
+						no_res_switch = 1;
+						if(mfa_res_cnt > 25){
+							// long: reset values by current display values ;)
+							reset_averages();
+							dog_set_lcd(0xFF);
+							//no_res_switch = 1;
+							mfa_res_cnt = 0;
+						}
 					}
-					dog_clear_lcd();
-					no_res_switch = 1;
-					if(mfa_res_cnt > 25){
-						// long: reset values by current display values ;)
-						reset_averages();
-						dog_set_lcd(0xFF);
-						//no_res_switch = 1;
-						mfa_res_cnt = 0;
-					}
+				}else{
+					// just increase mfa_res_cnt to be used with settings value if settings are active display
+					/* TODO: Needs to be tested ;) */ 
 				}
 			}
 		}else{
@@ -715,9 +801,12 @@ void app_task(){
 				}
 			}else{
 				display_mode++;
+				#if 0
+				// test if this is needed...
 				if(display_mode > CAN_DATA){
 					display_mode = 0;
 				}
+				#endif
 				if((navigation_status == status_routing || navigation_status == status_recalculating) && display_mode == NAVIGATION){
 					do_not_switch_to_navigation = 1;
 				}else{
