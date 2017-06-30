@@ -4,27 +4,18 @@
  * Created: 29.06.2017 09:46:23
  *  Author: robert.pohlink
  */ 
- #include <avr/io.h>
- #include <util/delay.h>
- #include <inttypes.h>
- #include "twi_slave.h"
- #include "twi_task.h"
- #include "can.h"
- #include <avr/eeprom.h>
- #include <string.h>
- #include <avr/sleep.h>
- #include <avr/pgmspace.h>
- #include "dog_display.h"
- #include "dog_symbol.h"
- #include "CAN-MFA.h"
- #include "kl58b.h"
- #include "calculation.h"
- #include <avr/sleep.h>
- #include "forum.h"
- #include "tuer.h"
- #include "uart_task.h"
- #include "navigation.h"
- #include "display_task.h"
+#include <avr/io.h>
+#include <util/delay.h>
+#include <inttypes.h>
+ //#include <avr/eeprom.h>
+#include <string.h>
+#include "dog_display.h"
+#include "dog_symbol.h"
+#include "CAN-MFA.h"
+#include "forum.h"
+#include "tuer.h"
+#include "navigation.h"
+#include "display_task.h"
  
  
  uint8_t get_text_length(char* text, uint8_t max_len){
@@ -36,7 +27,6 @@
 	 }
 	 return len;
  }
-
 
 void display_navi(void){
 	//dog_clear_lcd();
@@ -77,6 +67,18 @@ void display_navi(void){
 	
 
 #endif
+}
+
+void display_settings(void){
+	switch(display_value[SETTINGS]){
+		case 0:{
+			break;
+		}
+		default:{
+			display_value[SETTINGS] = 0;
+			break;
+		}
+	}
 }
 
 void display_small_text(void){
@@ -373,80 +375,11 @@ void display_small_text(void){
 				dog_write_mid_strings(NEW_POSITION(5,0), line3,line4);
 				break;
 			}
-			#if 0
-			case STANDARD_VALUES:{
-				/*	0123456789012345
-					RADIO TEXT
-					----------------
-					  ab reset/start
-					 42kmh  12,3lkm
-					  6,6lh  123gC
-					 1234km  12:34
-				*/
-				char line1[17] = "                "; 
-				char line2[17] = "                ";
-				char line3[17] = "                ";
-				char line4[17] = "                ";
-				dog_set_position(2,0);
-				//							"                ":"                ";
-				strcpy(line1, mfa.mode==CUR?"    ab Reset    ":"    ab Start    ");
-				
-				sprint_cur_speed(&line2[1], mfa.mode==CUR?speed[AVG]:speed_start);
-				line2[4] = KMH;
-				line2[5] = KMH + 1;
-				
-				sprint_float(&line2[7], mfa.mode==CUR?cons_l_100km[AVG]:cons_l_100km_start);
-				line2[12] = CONS;
-				line2[13] = CONS + 1;
-				line2[14] = CONS + 2;
-				
-				dog_write_mid_strings(NEW_POSITION(2,0), line1,line2);
-				
-				sprint_float(&line3[9], mfa.mode==CUR?cons_l_h[AVG]:cons_l_h_start);
-				line3[14] = CONS_PER_HOUR;
-	
-				sprint_temperature(&line3[3],ambient_temperature);
-				line3[6] = 0xF8;
-				line3[7] = 'C';
-				
-				if(ambient_temperature < AMBIENT_FROST_TEMP){
-					line3[1] = FROST;
-					line3[2] = FROST + 1;
-				}
-				
-				uint16_to_string(&line4[1], mfa.mode==CUR?distance[AVG]:distance_start);
-				
-				line4[6] = 'k';
-				line4[7] = 'm';
-				
-				uint8_t dt_hour;
-				uint8_t dt_minute;
-				if(mfa.mode == CUR){
-					dt_hour = (driving_time[AVG] / 3600);
-					dt_minute = (driving_time[AVG] % 3600) / 60;
-					
-					uint8_to_string(&line4[9], dt_hour);
-					uint8_to_string(&line4[12], dt_minute);
-				}else{
-					dt_hour = (driving_time_start / 3600);
-					dt_minute = (driving_time_start % 3600) / 60;
-					
-					uint8_to_string(&line4[9], dt_hour);
-					uint8_to_string(&line4[12], dt_minute);
-				}
-				
-				line4[12] = ':';
-				if(dt_hour < 10){
-					line4[10] = '0';
-				}
-				if(dt_minute < 10){
-					line4[13] = '0';
-				}
-				
-				dog_write_mid_strings(NEW_POSITION(5,0), line3,line4);
+			case MAX_VALUES:{
+				// speed, rpm, temperature (eng/oil/out)
 				break;
 			}
-			#endif
+			
 			default:{
 				display_value[SMALL_TEXT]=0;
 				break;
@@ -1281,37 +1214,42 @@ void display_task(){
 	}
 	
 	underlined = 0;
-	switch(display_mode){
-		case NAVIGATION:{
-			if(navigation_status == status_routing || navigation_status == status_recalculating){
-				display_navi();
+
+	if(display_mode & (1<<SETTINGS)){
+		display_settings();
+	}else{
+		switch(display_mode){
+			case NAVIGATION:{
+				if(navigation_status == status_routing || navigation_status == status_recalculating){
+					display_navi();
+					break;
+				}
+				// nav_status?
+				// fallthrough to small text
+			}
+			case SMALL_TEXT:{
+				display_small_text();
 				break;
 			}
-			// nav_status?
-			// fallthrough to small text
-		}
-		case SMALL_TEXT:{
-			display_small_text();
-			break;
-		}
-		case MED_TEXT_TOP:{
-			display_med_text();
-			break;
-		}
-		case MED_TEXT_BOT:{
-			display_med_text();
-			break;
-		}
-		case CAN_DATA:{
-			display_can_data();					
-			break;
-		}
-		default:{
-			display_mode = 0;
-			break;
-		}
+			case MED_TEXT_TOP:{
+				display_med_text();
+				break;
+			}
+			case MED_TEXT_BOT:{
+				display_med_text();
+				break;
+			}
+			case CAN_DATA:{
+				display_can_data();					
+				break;
+			}
+			default:{
+				display_mode = 0;
+				break;
+			}
 		
+		}
 	}	
 	old_display_mode = display_mode;	
-	//#warning: "TODO: display and menue"
+
 }

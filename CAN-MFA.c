@@ -69,9 +69,12 @@ volatile uint8_t id520_valid;
 
 // values from can data
 volatile int16_t speed[2]; //0-317km/h
+int16_t max_speed EEMEM;
 volatile int16_t speed_start; //0-317km/h
 volatile uint16_t rpm;	//0-16000rpm
 volatile int16_t engine_temperature;//-100-154 centigrade
+uint16_t max_rpm EEMEM;
+int16_t max_engine_temp EEMEM;
 volatile uint8_t fuel;	//0-100% or 0-80l
 //volatile uint8_t cons_cnt;
 volatile uint16_t cons_delta_ul;
@@ -110,9 +113,13 @@ volatile voltage_value_t zweitbat;
 volatile voltage_value_t v_solar_plus;
 volatile voltage_value_t v_solar_minus;
 volatile int16_t in_temperature;
+int16_t max_in_temp EEMEM;
 volatile int16_t gearbox_temperature;
+int16_t max_gearbox_temp EEMEM;
 volatile int16_t ambient_temperature;
+int16_t max_ambient_temp EEMEM;
 volatile int16_t oil_temperature;
+int16_t max_oil_temp EEMEM;
 uint8_t cal_water_temperature EEMEM;
 uint8_t cal_voltage EEMEM;
 uint8_t cal_speed EEMEM;
@@ -132,10 +139,10 @@ volatile uint8_t display_mode = 0;
 volatile uint8_t display_mode_tmp;
 volatile uint8_t old_display_mode;
 volatile uint8_t display_enable;
-volatile uint8_t display_value[5] = {0, STANDARD_VALUES, VAL_AMBIENT, VAL_CUR_CONS, 0}; // small, med_top, med_bot, navi
+volatile uint8_t display_value[7] = {0, STANDARD_VALUES, VAL_AMBIENT, VAL_CUR_CONS, 0,0,0}; // small, med_top, med_bot, navi, can, invalid, settings
 volatile uint8_t display_value_top = VAL_AMBIENT;
 volatile uint8_t display_value_bot = VAL_CUR_CONS;
-volatile uint8_t old_display_value[5] = {0,0,0,0,0};
+volatile uint8_t old_display_value[7] = {0,0,0,0,0,0,0};
 
 volatile uint8_t navigation_next_turn;
 volatile uint8_t navigation_status;
@@ -161,6 +168,8 @@ volatile int16_t old_val = 0;
 volatile int16_t new_val = 0;
 uint8_t mfa_res_cnt = 0;
 uint8_t no_res_switch = 0;
+uint8_t mfa_mfa_cnt = 0;
+uint8_t no_mfa_switch = 0;
 
 void adc_init(void);
 
@@ -609,6 +618,11 @@ void reset_averages(void){
 	}
 }
 
+void reset_max_values(void){
+	//speed, rpm, temperature (eng, oil, out, gaerbox)
+	return;
+}
+
 void reset_averages_start(void){
 	avg_cnt_start = 0;
 	speed_sum_start = 0;
@@ -660,7 +674,11 @@ void app_task(){
 			if(mfa.res == mfa_old.res){
 				mfa_res_cnt++;
 				if (mfa_res_cnt > 10){
-					reset_averages_start();
+					if(display_mode == SMALL_TEXT && display_value[SMALL_TEXT] == MAX_VALUES){
+						reset_max_values();
+					}else{
+						reset_averages_start();
+					}
 					dog_clear_lcd();
 					no_res_switch = 1;
 					if(mfa_res_cnt > 25){
@@ -685,7 +703,17 @@ void app_task(){
 		}
 		if(!(MFA_SWITCH_PIN & (1<<MFA_SWITCH_MFA))){
 			mfa.mfa = 1;
-			if(mfa.mfa != mfa_old.mfa){
+			if(mfa.mfa == mfa_old.mfa){
+				mfa_mfa_cnt++;
+				if(mfa_mfa_cnt>10){
+					if(display_mode & (1<<SETTINGS)){
+						display_mode &= ~(1<<SETTINGS);
+					}else{
+						display_mode |= (1<<SETTINGS);
+					}
+					no_mfa_switch = 1;
+				}
+			}else{
 				display_mode++;
 				if(display_mode > CAN_DATA){
 					display_mode = 0;

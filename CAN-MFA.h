@@ -2,7 +2,6 @@
 #define CAN_SNIFFER_H
 
 #include "calculation.h"
-#include "twi_task.h"
 #include <avr/eeprom.h>
 
 #define VERSION 2
@@ -95,6 +94,7 @@
 #define SMALL_TEXT		1
 #define MED_TEXT_TOP	2
 #define MED_TEXT_BOT	3
+#define SETTINGS		6
 //#define BIG_TEXT	3
 #define CAN_DATA	4//5
 // MFA MODE
@@ -149,6 +149,7 @@
 #define ADC_VALUES 1
 #define STANDARD_VALUES 2
 #define CAN_VALUES2 3
+#define MAX_VALUES 4
 
 #define LINE_SHIFT_START 128
 
@@ -188,11 +189,14 @@ extern volatile uint8_t id520_valid;
 
 // values from can data
 extern volatile int16_t speed[2]; //0-317km/h
+extern int16_t max_speed EEMEM;
 extern volatile int16_t speed_start; //0-317km/h
 //extern volatile uint16_t speed[CUR]; //0-317km/h
 //extern volatile uint16_t speed[AVG];
 extern volatile uint16_t rpm;	//0-16000rpm
+extern uint16_t max_rpm EEMEM;
 extern volatile int16_t engine_temperature;//-100-154 centigrade
+extern int16_t max_engine_temp EEMEM;
 extern volatile uint8_t fuel;	//0-100% or 0-80l
 //extern volatile uint32_t cons_time[16];
 //extern volatile uint8_t cons_cnt;
@@ -230,9 +234,13 @@ extern volatile voltage_value_t zweitbat;
 extern volatile voltage_value_t v_solar_plus;
 extern volatile voltage_value_t v_solar_minus;
 extern volatile int16_t in_temperature;
+extern int16_t max_in_temp EEMEM;
 extern volatile int16_t gearbox_temperature;
+extern int16_t max_gearbox_temp EEMEM;
 extern volatile int16_t ambient_temperature;
+extern int16_t max_ambient_temp EEMEM;
 extern volatile int16_t oil_temperature;
+extern int16_t max_oil_temp EEMEM;
 extern uint8_t cal_water_temperature EEMEM; 
 extern uint8_t cal_voltage EEMEM; // 171
 extern uint8_t cal_speed EEMEM; // 169
@@ -252,10 +260,10 @@ extern volatile uint8_t display_mode;
 extern volatile uint8_t display_mode_tmp;
 extern volatile uint8_t old_display_mode;
 extern volatile uint8_t display_enable;
-extern volatile uint8_t display_value[5];
+extern volatile uint8_t display_value[7];
 extern volatile uint8_t display_value_top;
 extern volatile uint8_t display_value_bot;
-extern volatile uint8_t old_display_value[5];
+extern volatile uint8_t old_display_value[7];
 
 extern volatile uint8_t navigation_next_turn;
 extern volatile uint8_t navigation_status;
