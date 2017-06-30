@@ -431,7 +431,7 @@ void display_small_text(void){
 				line4[7] = 'C';
 				
 				line4[9] = OILT;
-				line4[10] = ENGT + 1;
+				line4[10] = OILT + 1;
 				sprint_temperature(&line4[11],mfa.mode==CUR?(int16_t) eeprom_read_word((uint16_t*) &max_oil_temp):(int16_t) eeprom_read_word((uint16_t*) &min_oil_temp));
 				line4[14] = 0xF8;
 				line4[15] = 'C';
