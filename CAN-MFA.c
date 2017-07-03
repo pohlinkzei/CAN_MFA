@@ -909,10 +909,8 @@ ISR(TIMER2_COMP_vect){
 		start_cnt = 0;
 	}
 	enable_mfa_switch();
-	if(mfa.mfa || mfa.res){
+	if(!(MFA_SWITCH_PIN & (1<<MFA_SWITCH_RES)) || !(MFA_SWITCH_PIN & (1<<MFA_SWITCH_MFA))){
 		k15_delay_cnt = eeprom_read_byte(&cal_k15_delay);
-		mfa.res = 0;
-		mfa.mfa = 0;
 	}
 	disable_mfa_switch();
 }
