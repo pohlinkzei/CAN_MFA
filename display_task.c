@@ -380,7 +380,7 @@ void display_small_text(void){
 				/*	0123456789012345
 					RADIO TEXT
 					----------------
-					      MAX
+					  MAX    123gC
 					 42kmh  1234rpm
 					  123gC  123gC
 					  123gC  123gC
@@ -392,7 +392,7 @@ void display_small_text(void){
 
 				dog_set_position(2,0);
 				//							"                ":"                ";
-				strcpy(line1, mfa.mode==CUR?" min       ":" max       ");
+				strcpy(line1, mfa.mode==CUR?" max       ":" min       ");
 				
 				sprint_cur_speed(&line2[1],  mfa.mode==CUR?eeprom_read_word((uint16_t*) &max_speed):0);
 				line2[4] = KMH;
@@ -404,7 +404,7 @@ void display_small_text(void){
 				line2[14] = RPM + 1;
 
 				
-				sprint_temperature(&line2[11],mfa.mode==CUR?(int16_t) eeprom_read_word((uint16_t*) &max_ambient_temp):(int16_t) eeprom_read_word((uint16_t*) &min_ambient_temp));
+				sprint_temperature(&line1[11],mfa.mode==CUR?(int16_t) eeprom_read_word((uint16_t*) &max_ambient_temp):(int16_t) eeprom_read_word((uint16_t*) &min_ambient_temp));
 				line2[14] = 0xF8;
 				line2[15] = 'C';
 				

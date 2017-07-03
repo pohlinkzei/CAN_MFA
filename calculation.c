@@ -329,7 +329,7 @@ int16_t calculate_oil_temperature(uint16_t adc, uint8_t* cal_byte){//oil temp KT
 	volatile int32_t adc_temp = 6867 * (int32_t) adc;
 	adc_temp = adc_temp / 1024;
 	volatile uint16_t cal_offset = 1432;
-	cal_offset += eeprom_read_byte(&cal_byte); // 1432 - 1687
+	cal_offset += eeprom_read_byte(cal_byte); // 1432 - 1687
 	adc_temp = adc_temp - cal_offset;
 	adc_temp = adc_temp / 10;
 	return (int16_t) adc_temp;
