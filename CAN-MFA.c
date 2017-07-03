@@ -911,6 +911,7 @@ ISR(TIMER2_COMP_vect){
 	enable_mfa_switch();
 	if(!(MFA_SWITCH_PIN & (1<<MFA_SWITCH_RES)) || !(MFA_SWITCH_PIN & (1<<MFA_SWITCH_MFA))){
 		k15_delay_cnt = eeprom_read_byte(&cal_k15_delay);
+		status = IGNITION_ON;
 	}
 	disable_mfa_switch();
 }

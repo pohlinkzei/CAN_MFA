@@ -109,9 +109,11 @@ int uart_get_int(void){
 
 void uart_print_cal_menu(void){
 	uart1_puts("\n\rCalibrierung: Waehle die Variable ");
-	uart1_puts("\n\rw\tcal_water_temperature");
 	uart1_puts("\n\rv\tcal_voltage ");
 	uart1_puts("\n\rs\tcal_speed ");
+	uart1_puts("\n\rw\tcal_water_temperature");
+	uart1_puts("\n\ri\tcal_in_temperature");
+	uart1_puts("\n\rg\tcal_gearbox_temperature");
 	uart1_puts("\n\ro\tcal_oil_temperature ");
 	uart1_puts("\n\rc\tcal_consumption ");
 	uart1_puts("\n\rb\tcal_k58b ");
@@ -138,6 +140,24 @@ void uart_calibrate(void){
 					sprintf(val, "%i\n", eeprom_read_byte(&cal_water_temperature));
 					uart1_puts(val);
 					eeprom_write_byte(&cal_water_temperature, uart_get_int());
+					uart_print_cal_menu();
+					break;
+				}
+				case 'g':{
+					char val[5] = {0,};
+					uart1_puts("\n\rWert cal_gearbox_temperature: (0-255) ");
+					sprintf(val, "%i\n", eeprom_read_byte(&cal_gearbox_temperature));
+					uart1_puts(val);
+					eeprom_write_byte(&cal_gearbox_temperature, uart_get_int());
+					uart_print_cal_menu();
+					break;
+				}
+				case 'i':{
+					char val[5] = {0,};
+					uart1_puts("\n\rWert cal_in_temperature: (0-255) ");
+					sprintf(val, "%i\n", eeprom_read_byte(&cal_in_temperature));
+					uart1_puts(val);
+					eeprom_write_byte(&cal_in_temperature, uart_get_int());
 					uart_print_cal_menu();
 					break;
 				}
