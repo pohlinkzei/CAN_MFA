@@ -189,15 +189,15 @@ extern volatile uint8_t id520_valid;
 
 // values from can data
 extern volatile int16_t speed[2]; //0-317km/h
-extern int16_t max_speed EEMEM;
+extern int16_t EEMEM max_speed;
 extern volatile int16_t speed_start; //0-317km/h
 //extern volatile uint16_t speed[CUR]; //0-317km/h
 //extern volatile uint16_t speed[AVG];
 extern volatile uint16_t rpm;	//0-16000rpm
-extern uint16_t max_rpm EEMEM;
+extern uint16_t EEMEM max_rpm;
 extern volatile int16_t engine_temperature;//-100-154 centigrade
-extern int16_t max_engine_temp EEMEM;
-extern int16_t min_engine_temp EEMEM;
+extern int16_t EEMEM max_engine_temp;
+extern int16_t EEMEM min_engine_temp;
 extern volatile uint8_t fuel;	//0-100% or 0-80l
 //extern volatile uint32_t cons_time[16];
 //extern volatile uint8_t cons_cnt;
@@ -235,27 +235,28 @@ extern volatile voltage_value_t zweitbat;
 extern volatile voltage_value_t v_solar_plus;
 extern volatile voltage_value_t v_solar_minus;
 extern volatile int16_t in_temperature;
-extern int16_t max_in_temp EEMEM;
-extern int16_t min_in_temp EEMEM;
+extern int16_t EEMEM max_in_temp;
+extern int16_t EEMEM min_in_temp;
 extern volatile int16_t gearbox_temperature;
-extern int16_t max_gearbox_temp EEMEM;
-extern int16_t min_gearbox_temp EEMEM;
+extern int16_t EEMEM max_gearbox_temp;
+extern int16_t EEMEM min_gearbox_temp;
 extern volatile int16_t ambient_temperature;
-extern int16_t max_ambient_temp EEMEM;
-extern int16_t min_ambient_temp EEMEM;
+extern int16_t EEMEM max_ambient_temp;
+extern int16_t EEMEM min_ambient_temp;
 extern volatile int16_t oil_temperature;
-extern int16_t max_oil_temp EEMEM;
-extern int16_t min_oil_temp EEMEM;
-extern uint8_t cal_water_temperature EEMEM; 
-extern uint8_t cal_voltage EEMEM; // 171
-extern uint8_t cal_speed EEMEM; // 169
-extern uint8_t cal_oil_temperature EEMEM;
-extern uint8_t cal_consumption EEMEM;
-extern uint8_t cal_gearbox_temperature EEMEM;
-extern uint8_t cal_ambient_temperature EEMEM;
-extern uint8_t cal_k15_delay EEMEM;
-extern uint8_t cal_k58b_off_val EEMEM;
-extern uint8_t cal_k58b_on_val EEMEM;
+extern int16_t EEMEM max_oil_temp;
+extern int16_t EEMEM min_oil_temp;
+extern uint8_t EEMEM cal_water_temperature; 
+extern uint8_t EEMEM cal_voltage; // 171
+extern uint8_t EEMEM cal_speed; // 169
+extern uint8_t EEMEM cal_oil_temperature;
+extern uint8_t EEMEM cal_in_temperature;
+extern uint8_t EEMEM cal_consumption;
+extern uint8_t EEMEM cal_gearbox_temperature;
+extern uint8_t EEMEM cal_ambient_temperature;
+extern uint8_t EEMEM cal_k15_delay;
+extern uint8_t EEMEM cal_k58b_off_val;
+extern uint8_t EEMEM cal_k58b_on_val;
 extern volatile uint16_t avg_timer;
 extern volatile uint16_t k58b_timer;
 extern volatile uint32_t cons_timer;

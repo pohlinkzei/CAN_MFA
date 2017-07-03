@@ -63,9 +63,6 @@ void display_navi(void){
 	dog_write_small_string("                                     ");
 	dog_set_page(7);
 	dog_write_small_string("                                     ");
-	
-	
-
 #endif
 }
 
