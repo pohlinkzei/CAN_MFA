@@ -627,17 +627,17 @@ void reset_averages(void){
 
 void reset_min_max_values(void){
 	//speed, rpm, temperature (eng, oil, out, gaerbox)
-	if(eeprom_read_word((uint16_t*) &max_gearbox_temp) != 0){
-		eeprom_write_word((uint16_t*) &max_gearbox_temp, 0);
+	if(eeprom_read_word((uint16_t*) &max_gearbox_temp) != -50){
+		eeprom_write_word((uint16_t*) &max_gearbox_temp, -50);
 	}
-	if(eeprom_read_word((uint16_t*) &max_in_temp) != 0){
-		eeprom_write_word((uint16_t*) &max_in_temp, 0);
+	if(eeprom_read_word((uint16_t*) &max_in_temp) != -50){
+		eeprom_write_word((uint16_t*) &max_in_temp, -50);
 	}
-	if(eeprom_read_word((uint16_t*) &max_oil_temp) != 0){
-		eeprom_write_word((uint16_t*) &max_oil_temp, 0);
+	if(eeprom_read_word((uint16_t*) &max_oil_temp) != -50){
+		eeprom_write_word((uint16_t*) &max_oil_temp, -50);
 	}
-	if(eeprom_read_word((uint16_t*) &max_ambient_temp) != 0){
-		eeprom_write_word((uint16_t*) &max_ambient_temp, 0);
+	if(eeprom_read_word((uint16_t*) &max_ambient_temp) != -50){
+		eeprom_write_word((uint16_t*) &max_ambient_temp, -50);
 	}
 	if(eeprom_read_word((uint16_t*) &max_speed) != 0){
 		eeprom_write_word((uint16_t*) &max_speed, 0);
@@ -645,17 +645,17 @@ void reset_min_max_values(void){
 	if(eeprom_read_word((uint16_t*) &max_rpm)  != 0){
 		eeprom_write_word((uint16_t*) &max_rpm, 0);
 	}
-	if(eeprom_read_word((uint16_t*) &min_gearbox_temp) != 0){
-		eeprom_write_word((uint16_t*) &min_gearbox_temp, 0);
+	if(eeprom_read_word((uint16_t*) &min_gearbox_temp) != 150){
+		eeprom_write_word((uint16_t*) &min_gearbox_temp, 150);
 	}
-	if(eeprom_read_word((uint16_t*) &min_in_temp) != 0){
-		eeprom_write_word((uint16_t*) &min_in_temp, 0);
+	if(eeprom_read_word((uint16_t*) &min_in_temp) != 150){
+		eeprom_write_word((uint16_t*) &min_in_temp, 150);
 	}
-	if(eeprom_read_word((uint16_t*) &min_oil_temp) != 0){
-		eeprom_write_word((uint16_t*) &min_oil_temp, 0);
+	if(eeprom_read_word((uint16_t*) &min_oil_temp) != 150){
+		eeprom_write_word((uint16_t*) &min_oil_temp, 150);
 	}
-	if(eeprom_read_word((uint16_t*) &min_ambient_temp) != 0){
-		eeprom_write_word((uint16_t*) &min_ambient_temp, 0);
+	if(eeprom_read_word((uint16_t*) &min_ambient_temp) != 150){
+		eeprom_write_word((uint16_t*) &min_ambient_temp, 150);
 	}
 	
 	return;
