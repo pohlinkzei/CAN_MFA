@@ -237,7 +237,7 @@ void twi_task(void){
 		navigation_status = (rx.navigation_next_turn >> 5) & 0x07;
 	
 		distance_to_next_turn = rx.distance_to_next_turn;
-		//*
+		/*
 		uint8_t u8_tmp = eeprom_read_byte(&cal_water_temperature);
 		if(u8_tmp != rx.cal_water_temperature && rx.cal_water_temperature != 0){
 			eeprom_write_byte(&cal_water_temperature, rx.cal_water_temperature);
@@ -273,7 +273,7 @@ void twi_task(void){
 	//*
 	tx.navigation_next_turn = navigation_next_turn + (navigation_status << 5);
 	tx.distance_to_next_turn = distance_to_next_turn;
-
+/*
 	tx.cal_water_temperature = eeprom_read_byte(&cal_water_temperature);
 	tx.cal_voltage = eeprom_read_byte(&cal_voltage);
 	tx.cal_oil_temperature = eeprom_read_byte(&cal_oil_temperature);
