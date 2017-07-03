@@ -421,11 +421,11 @@ status_t get_status(status_t old){
 				;
 			}
 		}
-	}else{
+	}/*else{
 		if(status==DOOR_OPEN){
 			door_open_count++;
 		}
-	}
+	}*/
 	return status;
 }
 
@@ -740,7 +740,7 @@ void app_task(){
 			eeprom_write_word((uint16_t*) &max_speed, speed[CUR]);
 		}
 
-		if((int16_t) eeprom_read_word((uint16_t*) &max_rpm) < rpm){
+		if((uint16_t) eeprom_read_word((uint16_t*) &max_rpm) < rpm){
 			eeprom_write_word((uint16_t*) &max_rpm, rpm);
 		}
 		
@@ -908,4 +908,11 @@ ISR(TIMER2_COMP_vect){
 		reset_averages_start();
 		start_cnt = 0;
 	}
+	enable_mfa_switch();
+	if(mfa.mfa || mfa.res){
+		k15_delay_cnt = eeprom_read_byte(&cal_k15_delay);
+		mfa.res = 0;
+		mfa.mfa = 0;
+	}
+	disable_mfa_switch();
 }
