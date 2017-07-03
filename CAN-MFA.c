@@ -114,24 +114,26 @@ volatile voltage_value_t zweitbat;
 volatile voltage_value_t v_solar_plus;
 volatile voltage_value_t v_solar_minus;
 volatile int16_t in_temperature;
-int16_t max_in_temp EEMEM;
-int16_t min_in_temp EEMEM;
+int16_t EEMEM max_in_temp;
+int16_t EEMEM min_in_temp;
 volatile int16_t gearbox_temperature;
-int16_t max_gearbox_temp EEMEM;
-int16_t min_gearbox_temp EEMEM;
+int16_t EEMEM max_gearbox_temp;
+int16_t EEMEM min_gearbox_temp;
 volatile int16_t ambient_temperature;
-int16_t max_ambient_temp EEMEM;
-int16_t min_ambient_temp EEMEM;
+int16_t EEMEM max_ambient_temp;
+int16_t EEMEM min_ambient_temp;
 volatile int16_t oil_temperature;
-int16_t max_oil_temp EEMEM;
-int16_t min_oil_temp EEMEM;
-uint8_t cal_water_temperature EEMEM;
-uint8_t cal_voltage EEMEM;
-uint8_t cal_speed EEMEM;
-uint8_t cal_oil_temperature EEMEM;
-uint8_t cal_consumption EEMEM;
-uint8_t cal_gearbox_temperature EEMEM;
-uint8_t cal_ambient_temperature EEMEM;
+int16_t EEMEM max_oil_temp;
+int16_t EEMEM min_oil_temp;
+uint8_t EEMEM cal_water_temperature;
+uint8_t EEMEM cal_voltage;
+uint8_t EEMEM cal_speed;
+uint8_t EEMEM cal_oil_temperature;
+uint8_t EEMEM cal_in_temperature;
+uint8_t EEMEM cal_consumption;
+uint8_t EEMEM cal_gearbox_temperature;
+uint8_t EEMEM cal_ambient_temperature;
+uint8_t EEMEM cal_ambient_temperature;
 uint8_t cal_k15_delay EEMEM;
 uint8_t cal_k58b_off_val EEMEM;
 uint8_t cal_k58b_on_val EEMEM;
@@ -419,11 +421,11 @@ status_t get_status(status_t old){
 				;
 			}
 		}
-	}else{
+	}/*else{
 		if(status==DOOR_OPEN){
 			door_open_count++;
 		}
-	}
+	}*/
 	return status;
 }
 
@@ -693,7 +695,7 @@ void app_task(){
 		v_solar_plus = calculate_voltage(adc_value[SPANNUNG3]);
 		v_solar_minus = calculate_voltage(adc_value[SPANNUNG4]);
 
-		gearbox_temperature = calculate_oil_temperature(adc_value[GETRIEBETEMP]);
+		gearbox_temperature = calculate_oil_temperature(adc_value[GETRIEBETEMP], &cal_gearbox_temperature);
 
 		if(gearbox_temperature < 150 && gearbox_temperature > -50){
 			if((int16_t) eeprom_read_word((uint16_t*) &max_gearbox_temp) < gearbox_temperature){
@@ -703,7 +705,7 @@ void app_task(){
 			}
 		}
 
-		in_temperature = calculate_temperature(adc_value[INNENTEMP]);
+		in_temperature = calculate_temperature(adc_value[INNENTEMP], &cal_in_temperature);
 		if(in_temperature < 150 && in_temperature > -50){
 			if((int16_t) eeprom_read_word((uint16_t*) &max_in_temp) < in_temperature){
 				eeprom_write_word((uint16_t*) &max_in_temp, in_temperature);
@@ -711,7 +713,7 @@ void app_task(){
 				eeprom_write_word((uint16_t*) &min_in_temp, in_temperature);
 			}
 		}
-		oil_temperature = calculate_oil_temperature(adc_value[OELTEMP]);
+		oil_temperature = calculate_oil_temperature(adc_value[OELTEMP], &cal_oil_temperature);
 		if(oil_temperature < 150 && oil_temperature > -50){
 			if((int16_t) eeprom_read_word((uint16_t*) &max_oil_temp) < oil_temperature){
 				eeprom_write_word((uint16_t*) &max_oil_temp, oil_temperature);
@@ -719,7 +721,7 @@ void app_task(){
 				eeprom_write_word((uint16_t*) &min_oil_temp, oil_temperature);
 			}
 		}
-		ambient_temperature = calculate_temperature(adc_value[AUSSENTEMP]);
+		ambient_temperature = calculate_temperature(adc_value[AUSSENTEMP], &cal_ambient_temperature);
 		if(ambient_temperature < 150 && ambient_temperature > -50){
 			if((int16_t) eeprom_read_word((uint16_t*) &max_ambient_temp) < ambient_temperature){
 				eeprom_write_word((uint16_t*) &max_ambient_temp, ambient_temperature);
@@ -738,7 +740,7 @@ void app_task(){
 			eeprom_write_word((uint16_t*) &max_speed, speed[CUR]);
 		}
 
-		if((int16_t) eeprom_read_word((uint16_t*) &max_rpm) < rpm){
+		if((uint16_t) eeprom_read_word((uint16_t*) &max_rpm) < rpm){
 			eeprom_write_word((uint16_t*) &max_rpm, rpm);
 		}
 		
@@ -906,4 +908,9 @@ ISR(TIMER2_COMP_vect){
 		reset_averages_start();
 		start_cnt = 0;
 	}
+	enable_mfa_switch();
+	if(!(MFA_SWITCH_PIN & (1<<MFA_SWITCH_RES)) || !(MFA_SWITCH_PIN & (1<<MFA_SWITCH_MFA))){
+		k15_delay_cnt = eeprom_read_byte(&cal_k15_delay);
+	}
+	disable_mfa_switch();
 }
