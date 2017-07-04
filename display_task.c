@@ -394,42 +394,42 @@ void display_small_text(void){
 				//							"                ":"                ";
 				strcpy(line1, mfa.mode==CUR?" max       ":" min       ");
 				
-				sprint_cur_speed(&line2[1],  mfa.mode==CUR?eeprom_read_word((uint16_t*) &max_speed):0);
+				sprint_cur_speed(&line2[1],  mfa.mode==CUR?max_speed:0);
 				line2[4] = KMH;
 				line2[5] = KMH + 1;
 				
-				sprint_float(&line2[7],  mfa.mode==CUR?eeprom_read_word(&max_rpm):0);
+				sprint_float(&line2[7],  mfa.mode==CUR?max_rpm:0);
 				
 				line2[13] = RPM;
 				line2[14] = RPM + 1;
 
 				
-				sprint_temperature(&line1[11],mfa.mode==CUR?(int16_t) eeprom_read_word((uint16_t*) &max_ambient_temp):(int16_t) eeprom_read_word((uint16_t*) &min_ambient_temp));
+				sprint_temperature(&line1[11],mfa.mode==CUR?max_ambient_temp:min_ambient_temp);
 				line2[14] = 0xF8;
 				line2[15] = 'C';
 				
 				dog_write_mid_strings(NEW_POSITION(2,0), line2,line1);
 				line3[1] = GEARBOXT;
 				line3[2] = GEARBOXT + 1;
-				sprint_temperature(&line3[3],mfa.mode==CUR?(int16_t) eeprom_read_word((uint16_t*) &max_gearbox_temp):(int16_t) eeprom_read_word((uint16_t*) &min_gearbox_temp));
+				sprint_temperature(&line3[3],mfa.mode==CUR?max_gearbox_temp:min_gearbox_temp);
 				line3[6] = 0xF8;
 				line3[7] = 'C';
 				
 				line3[9] = INT;
 				line3[10] = INT + 1;
-				sprint_temperature(&line4[11],mfa.mode==CUR?(int16_t) eeprom_read_word((uint16_t*) &max_in_temp):(int16_t) eeprom_read_word((uint16_t*) &min_in_temp));
+				sprint_temperature(&line4[11],mfa.mode==CUR?max_in_temp:min_in_temp);
 				line3[14] = 0xF8;
 				line3[15] = 'C';
 				
 				line4[1] = ENGT;
 				line4[2] = ENGT + 1;
-				sprint_temperature(&line4[3],mfa.mode==CUR?(int16_t) eeprom_read_word((uint16_t*) &max_engine_temp):(int16_t) eeprom_read_word((uint16_t*) &min_engine_temp));
+				sprint_temperature(&line4[3],mfa.mode==CUR?max_engine_temp:min_engine_temp);
 				line4[6] = 0xF8;
 				line4[7] = 'C';
 				
 				line4[9] = OILT;
 				line4[10] = OILT + 1;
-				sprint_temperature(&line4[11],mfa.mode==CUR?(int16_t) eeprom_read_word((uint16_t*) &max_oil_temp):(int16_t) eeprom_read_word((uint16_t*) &min_oil_temp));
+				sprint_temperature(&line4[11],mfa.mode==CUR?max_oil_temp:min_oil_temp);
 				line4[14] = 0xF8;
 				line4[15] = 'C';
 				
