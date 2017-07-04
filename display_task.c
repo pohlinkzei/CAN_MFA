@@ -405,8 +405,8 @@ void display_small_text(void){
 
 				
 				sprint_temperature(&line1[11],mfa.mode==CUR?(int16_t) eeprom_read_word((uint16_t*) &max_ambient_temp):(int16_t) eeprom_read_word((uint16_t*) &min_ambient_temp));
-				line2[14] = 0xF8;
-				line2[15] = 'C';
+				line1[14] = 0xF8;
+				line1[15] = 'C';
 				
 				dog_write_mid_strings(NEW_POSITION(2,0), line2,line1);
 				line3[1] = GEARBOXT;
@@ -793,12 +793,14 @@ void display_tuer_closed(void){
 
 void generate_can_display_str_byte(char str[17], uint8_t index, volatile uint8_t can_data[8]){
 	str[1] = index + '0';
+	str[2] = ' ';
 	snprintf(&str[3], 5, "0x%02X    ", can_data[index]);
 	uint8_to_string(&str[8],can_data[index]);
 }
 
 void generate_can_display_str_word(char str[17], uint8_t index, volatile uint8_t can_data[8]){
 	str[1] = index + '0';
+	str[2] = ' ';
 	//rpm = (id280_data[4] + ((id280_data[3]) << 8))>>2;
 	uint16_t tmp = (can_data[index] << 8  ) + can_data[index+1];
 
@@ -957,7 +959,7 @@ void display_can_data(void){
 				generate_can_display_str_byte(str1, 7, id280_data);
 				dog_write_mid_strings(NEW_POSITION(5,0), str0, str1);
 				// check unknown values from ID 280
-				// [status] [ 1 ] [ 2 ] [rpm] [rpm] [ 5 ] [ pedal_position ] [ 7 ]
+				// [status] [ 1 ] [ 2 ] [rpm] [rpm] [ pedal_position ] [ 6 ] [ 7 ]
 				break;
 			}
 			case 2:{
@@ -988,7 +990,7 @@ void display_can_data(void){
 					str0[1] = '3';
 					str0[2] = '8';
 					str0[3] = '0';
-					generate_can_display_str_word(str1, 6, id380_data);
+					generate_can_display_str_word(str1, 0, id380_data);
 				}else{
 					generate_can_display_str_byte(str0, 0, id380_data);
 					generate_can_display_str_byte(str1, 1, id380_data);
@@ -999,7 +1001,7 @@ void display_can_data(void){
 				dog_write_mid_strings(NEW_POSITION(2,0), str0, str1);
 				if(mfa.mode){
 					generate_can_display_str_word(str0, 2, id380_data);
-					generate_can_display_str_word(str1, 6, id380_data);
+					generate_can_display_str_word(str1, 3, id380_data);
 				}else{
 					generate_can_display_str_byte(str0, 2, id380_data);
 					generate_can_display_str_byte(str1, 3, id380_data);
@@ -1046,141 +1048,6 @@ void display_can_data(void){
 				break;
 			}
 		}
-		
-	/*	#else
-		switch(display_value){
-			case 0:{
-				uint8_t i;
-				char id[2] = {0};
-				dog_set_position(2,8);
-				dog_write_tiny_string("280");
-				
-				for(i=0; i<8; i++){
-					sprintf(id, "%02X", id280_data[i]);
-					dog_transmit_data(0x00);
-					dog_write_small_string(id);		
-				}				
-				
-				dog_set_position(3,8);
-				dog_write_tiny_string("288");
-				
-				for(i=0; i<8; i++){
-					sprintf(id, "%02X", id288_data[i]);
-					
-					dog_transmit_data(0x00);
-					dog_write_small_string(id);
-				}	
-				
-				dog_set_position(4,8);
-				dog_write_tiny_string("380");
-				
-				for(i=0; i<8; i++){
-					sprintf(id, "%02X", id380_data[i]);
-					
-					dog_transmit_data(0x00);
-					dog_write_small_string(id);
-				}	
-				dog_set_position(5,8);
-				dog_write_tiny_string("480");
-				
-				for(i=0; i<8; i++){
-					sprintf(id, "%02X", id480_data[i]);
-					
-					dog_transmit_data(0x00);
-					dog_write_small_string(id);
-				}	
-				
-				dog_set_position(6,8);
-				dog_write_tiny_string("320");
-				
-				for(i=0; i<8; i++){
-					sprintf(id, "%02X", id320_data[i]);
-					
-					dog_transmit_data(0x00);
-					dog_write_small_string(id);
-				}	
-				
-				dog_set_position(7,8);
-				dog_write_tiny_string("420");
-				
-				for(i=0; i<8; i++){
-					sprintf(id, "%02X", id420_data[i]);
-					
-					dog_transmit_data(0x00);
-					dog_write_small_string(id);					
-				}	
-				break;
-			}
-			case 1:{
-				uint8_t i;
-				char id[2] = {0};
-				dog_set_position(2,8);
-				dog_write_tiny_string("520");
-				
-				for(i=0; i<8; i++){
-
-					sprintf(id, "%02X", id520_data[i]);
-					dog_transmit_data(0x00);
-					dog_write_small_string(id);
-				}
-				
-				dog_set_position(3,8);
-				dog_write_tiny_string("xxx");
-				
-				for(i=0; i<8; i++){
-					sprintf(id, "%02X", 255);
-					
-					dog_transmit_data(0x00);
-					dog_write_small_string(id);
-				}
-				
-				dog_set_position(4,8);
-				dog_write_tiny_string("xxx");
-				
-				for(i=0; i<8; i++){
-					sprintf(id, "%02X", 255);
-					
-					dog_transmit_data(0x00);
-					dog_write_small_string(id);
-				}
-				dog_set_position(5,8);
-				dog_write_tiny_string("xxx");
-				
-				for(i=0; i<8; i++){
-					sprintf(id, "%02X", 255);
-					
-					dog_transmit_data(0x00);
-					dog_write_small_string(id);
-				}
-				
-				dog_set_position(6,8);
-				dog_write_tiny_string("xxx");
-				
-				for(i=0; i<8; i++){
-					sprintf(id, "%02X", 255);
-					
-					dog_transmit_data(0x00);
-					dog_write_small_string(id);
-				}
-				
-				dog_set_position(7,8);
-				dog_write_tiny_string("xxx");
-				
-				for(i=0; i<8; i++){
-					sprintf(id, "%02X", 255);
-					
-					dog_transmit_data(0x00);
-					dog_write_small_string(id);
-				}
-				break;
-			}
-			default:{
-				display_value = 0;
-				break;
-			}
-			
-		}
-#endif		*/
 	}else{
 		uint8_t a=0,b=0,c=2;
 		for(a=0;a<6;a++){
@@ -1277,12 +1144,10 @@ void display_task(){
 	}else{
 		switch(display_mode){
 			case NAVIGATION:{
-				if(navigation_status == status_routing || navigation_status == status_recalculating){
+				//if(navigation_status == status_routing || navigation_status == status_recalculating){
 					display_navi();
 					break;
-				}
-				// nav_status?
-				// fallthrough to small text
+				//}
 			}
 			case SMALL_TEXT:{
 				display_small_text();
