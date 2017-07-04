@@ -17,6 +17,7 @@ typedef struct vol_val{
 
 voltage_value_t calculate_voltage(uint16_t adc);
 void sprint_voltage(char* str,voltage_value_t voltage);
+void sprint_voltage_precision(char* str,voltage_value_t voltage, uint8_t prec);
 void sprint_temperature(char* str,int16_t temperature);
 void uint8_to_string(char* str, uint8_t integer);
 void uint16_to_string(char* str, uint16_t integer);

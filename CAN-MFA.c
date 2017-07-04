@@ -69,13 +69,13 @@ volatile uint8_t id520_valid;
 
 // values from can data
 volatile int16_t speed[2]; //0-317km/h
-int16_t max_speed EEMEM;
+int16_t max_speed;
 volatile int16_t speed_start; //0-317km/h
 volatile uint16_t rpm;	//0-16000rpm
 volatile int16_t engine_temperature;//-100-154 centigrade
-uint16_t max_rpm EEMEM;
-int16_t max_engine_temp EEMEM;
-int16_t min_engine_temp EEMEM;
+uint16_t max_rpm;
+int16_t max_engine_temp;
+int16_t min_engine_temp;
 volatile uint8_t fuel;	//0-100% or 0-80l
 //volatile uint8_t cons_cnt;
 volatile uint16_t cons_delta_ul;
@@ -114,17 +114,17 @@ volatile voltage_value_t zweitbat;
 volatile voltage_value_t v_solar_plus;
 volatile voltage_value_t v_solar_minus;
 volatile int16_t in_temperature;
-int16_t EEMEM max_in_temp;
-int16_t EEMEM min_in_temp;
+int16_t max_in_temp;
+int16_t min_in_temp;
 volatile int16_t gearbox_temperature;
-int16_t EEMEM max_gearbox_temp;
-int16_t EEMEM min_gearbox_temp;
+int16_t max_gearbox_temp;
+int16_t min_gearbox_temp;
 volatile int16_t ambient_temperature;
-int16_t EEMEM max_ambient_temp;
-int16_t EEMEM min_ambient_temp;
+int16_t max_ambient_temp;
+int16_t min_ambient_temp;
 volatile int16_t oil_temperature;
-int16_t EEMEM max_oil_temp;
-int16_t EEMEM min_oil_temp;
+int16_t max_oil_temp;
+int16_t min_oil_temp;
 uint8_t EEMEM cal_water_temperature;
 uint8_t EEMEM cal_voltage;
 uint8_t EEMEM cal_speed;
@@ -627,35 +627,35 @@ void reset_averages(void){
 
 void reset_min_max_values(void){
 	//speed, rpm, temperature (eng, oil, out, gaerbox)
-	if(eeprom_read_word((uint16_t*) &max_gearbox_temp) != -50){
-		eeprom_write_word((uint16_t*) &max_gearbox_temp, -50);
+	if((max_gearbox_temp) != -50){
+		max_gearbox_temp= -50;
 	}
-	if(eeprom_read_word((uint16_t*) &max_in_temp) != -50){
-		eeprom_write_word((uint16_t*) &max_in_temp, -50);
+	if((max_in_temp) != -50){
+		max_in_temp=-50;
 	}
-	if(eeprom_read_word((uint16_t*) &max_oil_temp) != -50){
-		eeprom_write_word((uint16_t*) &max_oil_temp, -50);
+	if((max_oil_temp) != -50){
+		max_oil_temp=-50;
 	}
-	if(eeprom_read_word((uint16_t*) &max_ambient_temp) != -50){
-		eeprom_write_word((uint16_t*) &max_ambient_temp, -50);
+	if((max_ambient_temp) != -50){
+		max_ambient_temp = -50;
 	}
-	if(eeprom_read_word((uint16_t*) &max_speed) != 0){
-		eeprom_write_word((uint16_t*) &max_speed, 0);
+	if(max_speed != 0){
+		max_speed= 0;
 	}
-	if(eeprom_read_word((uint16_t*) &max_rpm)  != 0){
-		eeprom_write_word((uint16_t*) &max_rpm, 0);
+	if(max_rpm != 0){
+		max_rpm = 0;
 	}
-	if(eeprom_read_word((uint16_t*) &min_gearbox_temp) != 150){
-		eeprom_write_word((uint16_t*) &min_gearbox_temp, 150);
+	if(min_gearbox_temp != 150){
+		min_gearbox_temp= 150;
 	}
-	if(eeprom_read_word((uint16_t*) &min_in_temp) != 150){
-		eeprom_write_word((uint16_t*) &min_in_temp, 150);
+	if(min_in_temp != 150){
+		min_in_temp = 150;
 	}
-	if(eeprom_read_word((uint16_t*) &min_oil_temp) != 150){
-		eeprom_write_word((uint16_t*) &min_oil_temp, 150);
+	if(min_oil_temp != 150){
+		min_oil_temp = 150;
 	}
-	if(eeprom_read_word((uint16_t*) &min_ambient_temp) != 150){
-		eeprom_write_word((uint16_t*) &min_ambient_temp, 150);
+	if(min_ambient_temp != 150){
+		min_ambient_temp = 150;
 	}
 	
 	return;

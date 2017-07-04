@@ -117,7 +117,8 @@ void sprint_avg_speed(char* str, uint16_t integer){
 	}
 }
 
-void sprint_voltage(char* str,voltage_value_t voltage){
+
+void sprint_voltage_precision(char* str,voltage_value_t voltage, uint8_t prec){
 	uint8_t tenner = 0;
 	uint8_t singles = 0;
 	singles = voltage.integer % 10;
@@ -126,7 +127,37 @@ void sprint_voltage(char* str,voltage_value_t voltage){
 	if(tenner == 0){
 		str[1] = str[0];
 		str[0] = ' ';
-	}else{
+		}else{
+		str[1] = tenner + '0';
+	}
+	str[2] = singles + '0';
+	if(prec!=0){ // 12,x
+		tenner = 0;
+		singles = 0;
+		str[3] = ',';
+		if(prec==2){ // 12,34
+			singles = voltage.fraction % 10;
+			str[5] = singles + '0';
+		}else{
+			singles = -5; // round
+		}
+		tenner = (voltage.fraction - singles) / 10;
+		str[4] = tenner + '0';
+	}
+}
+
+void sprint_voltage(char* str,voltage_value_t voltage){
+	sprint_voltage_precision(str,voltage, 2);
+	#if 0
+	uint8_t tenner = 0;
+	uint8_t singles = 0;
+	singles = voltage.integer % 10;
+	tenner = (voltage.integer - singles) / 10;
+	str[0] = ' ';
+	if(tenner == 0){
+		str[1] = str[0];
+		str[0] = ' ';
+		}else{
 		str[1] = tenner + '0';
 	}
 	str[2] = singles + '0';
@@ -137,6 +168,7 @@ void sprint_voltage(char* str,voltage_value_t voltage){
 	tenner = (voltage.fraction - singles) / 10;
 	str[4] = tenner + '0';
 	str[5] = singles + '0';
+	#endif
 }
 
 void sprint_temperature(char* str,int16_t temperature){
@@ -147,7 +179,7 @@ void sprint_temperature(char* str,int16_t temperature){
 		str[0] = '-';
 		_signed = 1;
 	}
-	if(temperature > 199 || (temperature > 99 && _signed)){
+	if(temperature > 149 || (temperature > 49 && _signed)){
 		str[0]=' ';
 		str[1]='-';
 		str[2]='-';	
