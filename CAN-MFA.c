@@ -698,50 +698,50 @@ void app_task(){
 		gearbox_temperature = calculate_oil_temperature(adc_value[GETRIEBETEMP], &cal_gearbox_temperature);
 
 		if(gearbox_temperature < 150 && gearbox_temperature > -50){
-			if((int16_t) eeprom_read_word((uint16_t*) &max_gearbox_temp) < gearbox_temperature){
-				eeprom_write_word((uint16_t*) &max_gearbox_temp, gearbox_temperature);
-			}else if((int16_t) eeprom_read_word((uint16_t*) &min_gearbox_temp) > gearbox_temperature){
-				eeprom_write_word((uint16_t*) &min_gearbox_temp, gearbox_temperature);
+			if(max_gearbox_temp < gearbox_temperature){
+				max_gearbox_temp = gearbox_temperature;
+			}else if(min_gearbox_temp > gearbox_temperature){
+				min_gearbox_temp = gearbox_temperature;
 			}
 		}
 
 		in_temperature = calculate_temperature(adc_value[INNENTEMP], &cal_in_temperature);
 		if(in_temperature < 150 && in_temperature > -50){
-			if((int16_t) eeprom_read_word((uint16_t*) &max_in_temp) < in_temperature){
-				eeprom_write_word((uint16_t*) &max_in_temp, in_temperature);
-			}else if((int16_t) eeprom_read_word((uint16_t*) &min_in_temp) > in_temperature){
-				eeprom_write_word((uint16_t*) &min_in_temp, in_temperature);
+			if(max_in_temp < in_temperature){
+				max_in_temp = in_temperature;
+			}else if(min_in_temp > in_temperature){
+				min_in_temp = in_temperature;
 			}
 		}
 		oil_temperature = calculate_oil_temperature(adc_value[OELTEMP], &cal_oil_temperature);
 		if(oil_temperature < 150 && oil_temperature > -50){
-			if((int16_t) eeprom_read_word((uint16_t*) &max_oil_temp) < oil_temperature){
-				eeprom_write_word((uint16_t*) &max_oil_temp, oil_temperature);
-			}else if((int16_t) eeprom_read_word((uint16_t*) &min_oil_temp) > oil_temperature){
-				eeprom_write_word((uint16_t*) &min_oil_temp, oil_temperature);
+			if(max_oil_temp < oil_temperature){
+				max_oil_temp = oil_temperature;
+			}else if(min_oil_temp > oil_temperature){
+				min_oil_temp = oil_temperature;
 			}
 		}
 		ambient_temperature = calculate_temperature(adc_value[AUSSENTEMP], &cal_ambient_temperature);
 		if(ambient_temperature < 150 && ambient_temperature > -50){
-			if((int16_t) eeprom_read_word((uint16_t*) &max_ambient_temp) < ambient_temperature){
-				eeprom_write_word((uint16_t*) &max_ambient_temp, ambient_temperature);
-			}else if((int16_t) eeprom_read_word((uint16_t*) &min_ambient_temp) > ambient_temperature){
-				eeprom_write_word((uint16_t*) &min_ambient_temp, ambient_temperature);
+			if(max_ambient_temp < ambient_temperature){
+				max_ambient_temp = ambient_temperature;
+			}else if(min_ambient_temp > ambient_temperature){
+				min_ambient_temp = ambient_temperature;
 			}
 		}
 		if(engine_temperature > 25 && engine_temperature < 200){
-			if((int16_t) eeprom_read_word((uint16_t*) &max_engine_temp) < engine_temperature){
-				eeprom_write_word((uint16_t*) &max_engine_temp, engine_temperature);
-			}else if((int16_t) eeprom_read_word((uint16_t*) &min_engine_temp) > engine_temperature){
-				eeprom_write_word((uint16_t*) &min_engine_temp, engine_temperature);
+			if(max_engine_temp < engine_temperature){
+				max_engine_temp = engine_temperature;
+			}else if(min_engine_temp > engine_temperature){
+				min_engine_temp = engine_temperature;
 			}
 		}
-		if((int16_t) eeprom_read_word((uint16_t*) &max_speed) < speed[CUR]){
-			eeprom_write_word((uint16_t*) &max_speed, speed[CUR]);
+		if(max_speed < speed[CUR]){
+			max_speed = speed[CUR];
 		}
 
-		if((uint16_t) eeprom_read_word((uint16_t*) &max_rpm) < rpm){
-			eeprom_write_word((uint16_t*) &max_rpm, rpm);
+		if(max_rpm < rpm){
+			max_rpm = rpm;
 		}
 		
 		if(!(MFA_SWITCH_PIN & (1<<MFA_SWITCH_MODE))){

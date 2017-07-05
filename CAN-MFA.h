@@ -246,7 +246,7 @@ extern int16_t min_ambient_temp;
 extern volatile int16_t oil_temperature;
 extern int16_t max_oil_temp;
 extern int16_t min_oil_temp;
-extern uint8_t EEMEM cal_water_temperature //85; 
+extern uint8_t EEMEM cal_water_temperature; //85; 
 extern uint8_t EEMEM cal_voltage; // 171
 extern uint8_t EEMEM cal_speed; // 169
 extern uint8_t EEMEM cal_oil_temperature;
