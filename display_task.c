@@ -392,24 +392,21 @@ void display_small_text(void){
 
 				dog_set_position(2,0);
 				//							"                ":"                ";
-				strcpy(line1, mfa.mode==CUR?" max       ":" min       ");
-				
-				sprint_cur_speed(&line2[1],  mfa.mode==CUR?max_speed:0);
-				line2[4] = KMH;
-				line2[5] = KMH + 1;
-				
-				sprint_float(&line2[7],  mfa.mode==CUR?max_rpm:0);
-				
-				line2[13] = RPM;
-				line2[14] = RPM + 1;
-
-				
+				strcpy(line1, mfa.mode==CUR?" max            ":" min            ");
 				line1[14] = 0xF8;
 				line1[15] = 'C';
 
 				sprint_temperature(&line1[11],mfa.mode==CUR?max_ambient_temp:min_ambient_temp);
 				
+				sprint_cur_speed(&line2[1],  mfa.mode==CUR?max_speed:0);
+				line2[4] = KMH;
+				line2[5] = KMH + 1;
 				
+				uint16_to_string(&line2[7],  mfa.mode==CUR?max_rpm:0);
+				
+				line2[13] = RPM;
+				line2[14] = RPM + 1;
+
 				dog_write_mid_strings(NEW_POSITION(2,0), line2,line1);
 				line3[1] = GEARBOXT;
 				line3[2] = GEARBOXT + 1;

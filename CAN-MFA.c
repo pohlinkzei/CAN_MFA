@@ -90,7 +90,7 @@ volatile uint8_t pedal_position; //id280D6
 volatile uint8_t eng_status0; //id280D1
 volatile uint8_t eng_status1; //id288D2
 volatile uint8_t do_not_switch_to_navigation;
-
+volatile uint8_t button_irq = 0;
 
 #define MAX_AVG_CNT 1
 uint8_t first_run = 1;
@@ -185,6 +185,21 @@ void init_spi_lcd(void){
 	SPCR = 0;
 	SPCR = (1<<SPE) | (1<<MSTR) | (1<<SPR0) | (1<<SPR1) | (0<<DORD) | (1<<CPOL) | (1<<CPHA);// | (1<<SPR1);// | (1<<SPR0);
 	SPSR = (1<<SPI2X);
+}
+
+void enable_mfa_switch(void){
+	MFA_SWITCH_DDR &= ~(1<<MFA_SWITCH_MFA) & ~(1<<MFA_SWITCH_MODE) & ~(1<<MFA_SWITCH_RES);
+	MFA_SWITCH_DDR |= (1<<MFA_SWITCH_GND);
+	MFA_SWITCH_PORT |= (1<<MFA_SWITCH_MFA) | (1<<MFA_SWITCH_MODE) | (1<<MFA_SWITCH_RES);
+	MFA_SWITCH_PORT &= ~(1<<MFA_SWITCH_GND);
+}
+
+void disable_mfa_switch(void){
+	return;
+	MFA_SWITCH_DDR &= ~(1<<MFA_SWITCH_MFA) & ~(1<<MFA_SWITCH_MODE) & ~(1<<MFA_SWITCH_RES);
+	MFA_SWITCH_DDR &= ~(1<<MFA_SWITCH_GND);
+	MFA_SWITCH_PORT &= ~(1<<MFA_SWITCH_MFA) & ~(1<<MFA_SWITCH_MODE) & ~(1<<MFA_SWITCH_RES);
+	MFA_SWITCH_PORT &= ~(1<<MFA_SWITCH_GND);
 }
 
 void reset_values(void){
@@ -356,7 +371,7 @@ void avr_init(){
 status_t get_status(status_t old){
 	status_t status = OFF;
 	if(!(TKML_PIN & (1<<TKML))) status = DOOR_OPEN;
-	if(K15_PIN & (1<<K15)) status = IGNITION_ON;
+	if(K15_PIN & (1<<K15) || (button_irq?button_irq--:button_irq)) status = IGNITION_ON;
 
 	if(old != status){
 		switch(status){
@@ -387,22 +402,24 @@ status_t get_status(status_t old){
 				LED_DDR |= (1<<LED);
 				LED_PORT |= (1<<LED);
 				dog_init();
-				char t4forum[] = "  www.t4forum.de  ";
-				dog_home();
-				dog_clear_lcd();					//0123456789012345678901
-				underlined = 1;
-				dog_write_mid_string(NEW_POSITION(0,0), t4forum);
-				underlined = 0;
-				for(a=0;a<6;a++){
-					dog_set_position(a+2,4);
-					for(b=0;b<128; b++){
-						dog_transmit_data(pgm_read_byte(&(sym_t4forum_bmp[a*128 + b])));
+				if(button_irq == 0){
+					char t4forum[] = "  www.t4forum.de  ";
+					dog_home();
+					dog_clear_lcd();					//0123456789012345678901
+					underlined = 1;
+					dog_write_mid_string(NEW_POSITION(0,0), t4forum);
+					underlined = 0;
+					for(a=0;a<6;a++){
+						dog_set_position(a+2,4);
+						for(b=0;b<128; b++){
+							dog_transmit_data(pgm_read_byte(&(sym_t4forum_bmp[a*128 + b])));
+						}
 					}
-				}
-				PCA_PORT &= ~(1<<DISABLE_PCA);
-				uint64_t count = 1000;
-				while(count-- && (K15_PIN & (1<<K15))){
-					_delay_ms(3);
+					PCA_PORT &= ~(1<<DISABLE_PCA);
+					uint64_t count = 1000;
+					while(count-- && (K15_PIN & (1<<K15))){
+						_delay_ms(3);
+					}
 				}
 				line_shift_timer = LINE_SHIFT_START;
 				dog_clear_lcd();
@@ -446,7 +463,7 @@ int main(void){
 
 	status = get_status(OFF);
 	
-	
+	enable_mfa_switch();
 	
     while(1)
     {
@@ -627,38 +644,16 @@ void reset_averages(void){
 
 void reset_min_max_values(void){
 	//speed, rpm, temperature (eng, oil, out, gaerbox)
-	if((max_gearbox_temp) != -50){
-		max_gearbox_temp= -50;
-	}
-	if((max_in_temp) != -50){
-		max_in_temp=-50;
-	}
-	if((max_oil_temp) != -50){
-		max_oil_temp=-50;
-	}
-	if((max_ambient_temp) != -50){
-		max_ambient_temp = -50;
-	}
-	if(max_speed != 0){
-		max_speed= 0;
-	}
-	if(max_rpm != 0){
-		max_rpm = 0;
-	}
-	if(min_gearbox_temp != 150){
-		min_gearbox_temp= 150;
-	}
-	if(min_in_temp != 150){
-		min_in_temp = 150;
-	}
-	if(min_oil_temp != 150){
-		min_oil_temp = 150;
-	}
-	if(min_ambient_temp != 150){
-		min_ambient_temp = 150;
-	}
-	
-	return;
+	max_gearbox_temp= -50;
+	max_in_temp=-50;
+	max_oil_temp=-50;
+	max_ambient_temp = -50;
+	max_speed= 0;
+	max_rpm = 0;
+	min_gearbox_temp= 150;
+	min_in_temp = 150;
+	min_oil_temp = 150;
+	min_ambient_temp = 150;
 }
 
 void reset_averages_start(void){
@@ -672,19 +667,7 @@ void reset_averages_start(void){
 	driving_time_start = 0;
 }
 
-void enable_mfa_switch(void){
-	MFA_SWITCH_DDR &= ~(1<<MFA_SWITCH_MFA) & ~(1<<MFA_SWITCH_MODE) & ~(1<<MFA_SWITCH_RES);
-	MFA_SWITCH_DDR |= (1<<MFA_SWITCH_GND);
-	MFA_SWITCH_PORT |= (1<<MFA_SWITCH_MFA) | (1<<MFA_SWITCH_MODE) | (1<<MFA_SWITCH_RES);
-	MFA_SWITCH_PORT &= ~(1<<MFA_SWITCH_GND);
-}
 
-void disable_mfa_switch(void){
-	MFA_SWITCH_DDR &= ~(1<<MFA_SWITCH_MFA) & ~(1<<MFA_SWITCH_MODE) & ~(1<<MFA_SWITCH_RES);
-	MFA_SWITCH_DDR &= ~(1<<MFA_SWITCH_GND);
-	MFA_SWITCH_PORT &= ~(1<<MFA_SWITCH_MFA) & ~(1<<MFA_SWITCH_MODE) & ~(1<<MFA_SWITCH_RES);
-	MFA_SWITCH_PORT &= ~(1<<MFA_SWITCH_GND);
-}
 
 void app_task(){
 		enable_mfa_switch();
@@ -908,11 +891,9 @@ ISR(TIMER2_COMP_vect){
 		reset_averages_start();
 		start_cnt = 0;
 	}
-	if(status == OFF){
-		enable_mfa_switch();
+	if(status == OFF || status == DOOR_OPEN){
 		if(!(MFA_SWITCH_PIN & (1<<MFA_SWITCH_RES)) || !(MFA_SWITCH_PIN & (1<<MFA_SWITCH_MFA))){
-			status = IGNITION_ON;
+			button_irq = 255;
 		}
-		disable_mfa_switch();
 	}
 }
