@@ -519,6 +519,11 @@ int main(void){
 						display_tuer_closed();
 						break;
 					}
+
+					if(!(MFA_SWITCH_PIN & (1<<MFA_SWITCH_RES)) || !(MFA_SWITCH_PIN & (1<<MFA_SWITCH_MFA))){
+						button_irq = 255;
+						break;
+					}
 					//*/
 					uint8_t i;
 					k58b_pw = 0;
@@ -891,11 +896,4 @@ ISR(TIMER2_COMP_vect){
 		reset_averages_start();
 		start_cnt = 0;
 	}
-	/*
-	if(status == OFF || status == DOOR_OPEN){
-		if(!(MFA_SWITCH_PIN & (1<<MFA_SWITCH_RES)) || !(MFA_SWITCH_PIN & (1<<MFA_SWITCH_MFA))){
-			button_irq = 255;
-		}
-	}
-	*/
 }
