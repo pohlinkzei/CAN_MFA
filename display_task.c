@@ -7,7 +7,6 @@
 #include <avr/io.h>
 #include <util/delay.h>
 #include <inttypes.h>
- //#include <avr/eeprom.h>
 #include <string.h>
 #include "dog_display.h"
 #include "dog_symbol.h"
@@ -18,6 +17,12 @@
 #include "display_task.h"
  
  
+ void fill_str(char* str, char element, uint8_t length){
+	while(length--){
+		*str++ = element;
+	}
+ }
+
  uint8_t get_text_length(char* text, uint8_t max_len){
 	 uint8_t len = 0;
 	 for(len = 0; len < max_len; len++){
@@ -79,91 +84,69 @@ void display_navigation_status(position_t position, int8_t status){
 }
 
 void display_navigation_symbol(position_t position, int8_t next_turn,  uint64_t distance){
+	const uint8_t str_length = 1 + ((COLUMNS - position.column - 48) / 8);
 	uint8_t line = 0;
 	uint8_t symbol_width_index = 0;
 	uint8_t column = 0;
-	char distance_str[7] = {0,};
+
+	char str0[] = {0,0,0,0,0,0,0,0,0,0,0};
+	char str1[] = {0,0,0,0,0,0,0,0,0,0,0};
 	if(next_turn<0){
 		display_mode++;
 		return;
 	}	
-
+	fill_str(str0, ' ', str_length);
+	fill_str(str1, ' ', str_length);
 	for(line=0;line<6;line++){
 		dog_set_position(line+position.page, 0);
 		for(column=0; column<position.column;column++){
 			dog_transmit_data(0x00);
 		}
-		//dog_set_position(a+position.page, position.column);			
 		for(symbol_width_index=0;symbol_width_index<48; symbol_width_index++){
 			dog_transmit_data(pgm_read_byte(&(nav_48x48[next_turn][line*48 + symbol_width_index])));
 		}
-		/*
-		//dog_set_position(a+position.page, position.column + 48);
-		for(c=position.column + 48; c<132;c++){
-			dog_transmit_data(0x00);
-		}
-		*/
+		
 		column=position.column + 48;
 					
 	}
-	column=position.column + 48;
-	sprint_distance(distance_str, round_distance(distance));
-	dog_set_position(position.page, position.column + 48);
-	for(line=column; line<132; line++){
-		dog_transmit_data(0x00);
-	}
-	dog_set_position(position.page + 1, position.column + 48);
-	for(line=column; line<132; line++){
-		dog_transmit_data(0x00);
-	}
-	
-	dog_set_position(position.page +2, position.column + 48);
-	for(line=column; line<132; line++){
-		dog_transmit_data(0x00);
-	}
-	
-	dog_set_position(position.page + 4, position.column + 48);
-	for(line=column; line<132; line++){
-		dog_transmit_data(0x00);
-	}
-	
-	dog_write_mid_string(NEW__POSITION(position.page + 4,position.column + 48,2), distance_str);
-	dog_set_position(position.page + 4, position.column + 104);
-	for(line=column; line<132; line++){
-		dog_transmit_data(0x00);
-	}
-	
-	
-/*	uint8_t i,j;
-	uint8_t temp[6][48];
 
-	for(i=0;i<48;i++){
-		temp[0][i]	= pgm_read_byte(&(nav_48x48[next_turn][(i*6)]));
-		temp[1][i]	= pgm_read_byte(&(nav_48x48[next_turn][(i*6)+1]));
-		temp[2][i]	= pgm_read_byte(&(nav_48x48[next_turn][(i*6)+2]));
-		temp[3][i]	= pgm_read_byte(&(nav_48x48[next_turn][(i*6)+3]));
-		temp[4][i]	= pgm_read_byte(&(nav_48x48[next_turn][(i*6)+4]));
-		temp[5][i]	= pgm_read_byte(&(nav_48x48[next_turn][(i*6)+5]));
-	}	
+	if(mfa.mode == CUR && speed[CUR] < 100){
+		sprint_float(&str0[1],cons_l_h[mfa.mode]);
+		str0[6] = ' ';
+		str0[7] = CONS_PER_HOUR;
+		str0[8] = ' ';
+	}else{
+		sprint_float(&str0[1],cons_l_100km[mfa.mode]);
+		str0[6] = CONS;
+		str0[7] = CONS + 1;
+		str0[8] = CONS + 2;
+	}
+	
+	if(mfa.mode == CUR){
+		str0[0] = ' ';
+	}else{
+		str0[0] = 0x9D;	
+	}
+	
+	if(ambient_temperature < AMBIENT_FROST_TEMP){
+		str1[1] = FROST;
+		str1[1] = FROST + 1;
+	}
+	
+	sprint_temperature(&str1[4],ambient_temperature);
+	str1[7] = CENTIGRADE;
 
-	//dog_set_position(position.page, position.column);
-	for(j = 0; j < 6; j++){
-		dog_set_position(position.page + j, position.column);
-		for(i = 0; i < 48; i++){
-			dog_transmit_data(temp[j][i]);
-		}
-	}	
-	*/
+	dog_write_mid_strings(NEW_POSITION(position.page,position.column + 48), str0, str1);
+	fill_str(str0, ' ', str_length);
+	fill_str(str1, ' ', str_length);
+	sprint_distance(&str1[1], round_distance(distance));
+	dog_write_mid_strings(NEW_POSITION(position.page+3,position.column + 48), str0, str1);
+
 }
 //*/
 
 
 void display_navi(void){
-	//dog_clear_lcd();
-	//display_mode++;
-	//return;
-#if 1	//max_display_value = 26;
-
 	if(navigation_status == status_routing || navigation_status == status_recalculating){
 		uint8_t navi = 16;
 		display_navigation_symbol(NEW_POSITION(2,navi), navigation_next_turn, distance_to_next_turn);
@@ -172,28 +155,6 @@ void display_navi(void){
 		uint8_t navi = 42;
 		display_navigation_status(NEW_POSITION(2,navi), navigation_status);
 	}
-	
-
-#else
-	dog_set_page(2);
-	char str[32] = {0,};
-	// 0123456789012345678901234567890
-	//" 0x00 0x00 0x00 0x00 0x00 0x00 " 	
-	sprintf(str, " 0x%02X 0x%02X 0x%02X 0x%02X   ", rx.cal_consumption, rx.cal_oil_temperature, rx.cal_water_temperature, rx.cal_speed);
-	dog_write_small_string(str);
-	sprintf(str, " %u  ", (uint32_t) rx.distance_to_next_turn);  
-	dog_set_page(3);
-	dog_write_small_string(str);
-	dog_set_page(4);
-	dog_write_small_string(rx.radio_text);
-	dog_set_page(5);
-	sprint_distance(&str[2], rx.distance_to_next_turn);
-	dog_write_small_string(str);
-	dog_set_page(6);
-	dog_write_small_string("                                     ");
-	dog_set_page(7);
-	dog_write_small_string("                                     ");
-#endif
 }
 
 void display_settings(void){
