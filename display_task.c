@@ -435,6 +435,66 @@ void display_small_text(void){
 				dog_write_mid_strings(NEW_POSITION(5,0), line3,line4);
 				break;
 			}
+			case TEMPERATURE_VALUES:{
+				// speed, rpm, temperature (eng/oil/out/gearbox)
+				/*	0123456789012345
+					RADIO TEXT
+					----------------
+					  MAX    123gC
+					 42kmh  1234rpm
+					  123gC  123gC
+					  123gC  123gC
+				*/
+				char line1[17] = "                "; 
+				char line2[17] = "                ";
+				char line3[17] = "                ";
+				char line4[17] = "                ";
+
+				dog_set_position(2,0);
+				//							"                ":"                ";
+				strcpy(line1, mfa.mode==CUR?" max            ":" min            ");
+				line1[14] = 0xF8;
+				line1[15] = 'C';
+
+				sprint_temperature(&line1[11],mfa.mode==CUR?max_ambient_temp:min_ambient_temp);
+				
+				sprint_cur_speed(&line2[1],  mfa.mode==CUR?max_speed:0);
+				line2[4] = KMH;
+				line2[5] = KMH + 1;
+				
+				uint16_to_string(&line2[7],  mfa.mode==CUR?max_rpm:0);
+				
+				line2[13] = RPM;
+				line2[14] = RPM + 1;
+
+				dog_write_mid_strings(NEW_POSITION(2,0), line2,line1);
+				line3[1] = GEARBOXT;
+				line3[2] = GEARBOXT + 1;
+				sprint_temperature(&line3[3],mfa.mode==CUR?max_gearbox_temp:min_gearbox_temp);
+				line3[6] = 0xF8;
+				line3[7] = 'C';
+				
+				line3[9] = INT;
+				line3[10] = INT + 1;
+				sprint_temperature(&line4[11],mfa.mode==CUR?max_in_temp:min_in_temp);
+				line3[14] = 0xF8;
+				line3[15] = 'C';
+				
+				line4[1] = ENGT;
+				line4[2] = ENGT + 1;
+				sprint_temperature(&line4[3],mfa.mode==CUR?max_engine_temp:min_engine_temp);
+				line4[6] = 0xF8;
+				line4[7] = 'C';
+				
+				line4[9] = OILT;
+				line4[10] = OILT + 1;
+				sprint_temperature(&line4[11],mfa.mode==CUR?max_oil_temp:min_oil_temp);
+				line4[14] = 0xF8;
+				line4[15] = 'C';
+				
+				dog_write_mid_strings(NEW_POSITION(5,0), line3,line4);
+				break;
+			}
 			
 			default:{
 				display_value[SMALL_TEXT]=0;
