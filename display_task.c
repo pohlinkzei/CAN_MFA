@@ -229,8 +229,7 @@ void display_small_text(void){
 			can_line3[4] = ENGT;
 			can_line3[5] = ENGT + 1;
 			sprint_temperature(&can_line3[6],engine_temperature>25?engine_temperature:200);
-			can_line3[9] = 0xF8;
-			can_line3[10] = 'C';
+			can_line3[9] = CENTIGRADE;
 			uint16_to_string(&can_line4[5], rpm);
 			can_line4[10] = RPM;
 			can_line4[11] = RPM + 1;
@@ -291,8 +290,7 @@ void display_small_text(void){
 			can_line3[0] = ENGT;
 			can_line3[1] = ENGT + 1;
 			sprint_temperature(&can_line3[2],engine_temperature);
-			can_line3[5] = 0xF8;
-			can_line3[6] = 'C';
+			can_line3[5] = CENTIGRADE;
 			
 			uint16_to_string(&can_line3[9], rpm);
 			can_line3[14] = RPM;
@@ -376,16 +374,14 @@ void display_small_text(void){
 				adc_line4[4] = OILT;
 				adc_line4[5] = OILT + 1;
 				sprint_temperature(&adc_line4[7],oil_temperature);
-				adc_line4[10] = 0xF8;
-				adc_line4[11] = 'C';
+				adc_line4[10] = CENTIGRADE;
 				if(ambient_temperature < AMBIENT_FROST_TEMP){
 					adc_line5[4] = FROST;
 					adc_line5[5] = FROST + 1;
 				}
 						
 				sprint_temperature(&adc_line5[7],ambient_temperature);
-				adc_line5[10] = 0xF8;
-				adc_line5[11] = 'C';
+				adc_line5[10] = CENTIGRADE;
 				dog_write_mid_strings(NEW_POSITION(2,0),adc_line2, adc_line3);
 						
 				dog_write_mid_strings(NEW_POSITION(5,0),adc_line4, adc_line5);
@@ -418,14 +414,12 @@ void display_small_text(void){
 				adc_line4[4] = GEARBOXT + 1;
 				adc_line4[5] = 'C';
 				sprint_temperature(&adc_line4[7],gearbox_temperature);
-				adc_line4[10] = 0xF8;
-				adc_line4[11] = 'C';
+				adc_line4[10] = CENTIGRADE;
 				
 				adc_line5[4] = INT;
 				adc_line5[5] = INT + 1;
 				sprint_temperature(&adc_line5[7],in_temperature);
-				adc_line5[10] = 0xF8;
-				adc_line5[11] = 'C';
+				adc_line5[10] = CENTIGRADE;
 				dog_write_mid_strings(NEW_POSITION(2,0),adc_line2, adc_line3);
 				
 				dog_write_mid_strings(NEW_POSITION(5,0),adc_line4, adc_line5);
@@ -465,8 +459,7 @@ void display_small_text(void){
 				line3[14] = CONS_PER_HOUR;
 	
 				sprint_temperature(&line3[3],ambient_temperature);
-				line3[6] = 0xF8;
-				line3[7] = 'C';
+				line3[6] = CENTIGRADE;
 				
 				if(ambient_temperature < AMBIENT_FROST_TEMP){
 					line3[1] = FROST;
@@ -523,8 +516,7 @@ void display_small_text(void){
 				dog_set_position(2,0);
 				//							"                ":"                ";
 				strcpy(line1, mfa.mode==CUR?" max            ":" min            ");
-				line1[14] = 0xF8;
-				line1[15] = 'C';
+				line1[14] = CENTIGRADE;
 
 				sprint_temperature(&line1[11],mfa.mode==CUR?max_ambient_temp:min_ambient_temp);
 				
@@ -541,26 +533,22 @@ void display_small_text(void){
 				line3[1] = GEARBOXT;
 				line3[2] = GEARBOXT + 1;
 				sprint_temperature(&line3[3],mfa.mode==CUR?max_gearbox_temp:min_gearbox_temp);
-				line3[6] = 0xF8;
-				line3[7] = 'C';
+				line3[6] = CENTIGRADE;
 				
 				line3[9] = INT;
 				line3[10] = INT + 1;
 				sprint_temperature(&line4[11],mfa.mode==CUR?max_in_temp:min_in_temp);
-				line3[14] = 0xF8;
-				line3[15] = 'C';
+				line3[14] = CENTIGRADE;
 				
 				line4[1] = ENGT;
 				line4[2] = ENGT + 1;
 				sprint_temperature(&line4[3],mfa.mode==CUR?max_engine_temp:min_engine_temp);
-				line4[6] = 0xF8;
-				line4[7] = 'C';
+				line4[6] = CENTIGRADE;
 				
 				line4[9] = OILT;
 				line4[10] = OILT + 1;
 				sprint_temperature(&line4[11],mfa.mode==CUR?max_oil_temp:min_oil_temp);
-				line4[14] = 0xF8;
-				line4[15] = 'C';
+				line4[14] = CENTIGRADE;
 				
 				dog_write_mid_strings(NEW_POSITION(5,0), line3,line4);
 				break;
@@ -583,8 +571,7 @@ void display_small_text(void){
 				dog_set_position(2,0);
 				//							"                ":"                ";
 				strcpy(line1, mfa.mode==CUR?" max            ":" min            ");
-				line1[14] = 0xF8;
-				line1[15] = 'C';
+				line1[14] = CENTIGRADE;
 
 				sprint_temperature(&line1[11],mfa.mode==CUR?max_ambient_temp:min_ambient_temp);
 				
@@ -601,26 +588,22 @@ void display_small_text(void){
 				line3[1] = GEARBOXT;
 				line3[2] = GEARBOXT + 1;
 				sprint_temperature(&line3[3],mfa.mode==CUR?max_gearbox_temp:min_gearbox_temp);
-				line3[6] = 0xF8;
-				line3[7] = 'C';
+				line3[6] = CENTIGRADE;
 				
 				line3[9] = INT;
 				line3[10] = INT + 1;
 				sprint_temperature(&line4[11],mfa.mode==CUR?max_in_temp:min_in_temp);
-				line3[14] = 0xF8;
-				line3[15] = 'C';
+				line3[14] = CENTIGRADE;
 				
 				line4[1] = ENGT;
 				line4[2] = ENGT + 1;
 				sprint_temperature(&line4[3],mfa.mode==CUR?max_engine_temp:min_engine_temp);
-				line4[6] = 0xF8;
-				line4[7] = 'C';
+				line4[6] = CENTIGRADE;
 				
 				line4[9] = OILT;
 				line4[10] = OILT + 1;
 				sprint_temperature(&line4[11],mfa.mode==CUR?max_oil_temp:min_oil_temp);
-				line4[14] = 0xF8;
-				line4[15] = 'C';
+				line4[14] = CENTIGRADE;
 				
 				dog_write_mid_strings(NEW_POSITION(5,0), line3,line4);
 				break;
@@ -751,8 +734,7 @@ void display_med_row(volatile uint8_t* dv, uint8_t page, uint8_t row){
 			
 			sprint_temperature(&str[4], oil_temperature);
 			str[2] = OILT+1;
-			str[8] = 0xF8;
-			str[9] = 'C';
+			str[8] = CENTIGRADE;
 			for(i=0; i<12; i++){
 				dog_write_big_digit(NEW__POSITION(page,i*12,row),str[i]);
 				str[i] = ' ';
@@ -764,8 +746,7 @@ void display_med_row(volatile uint8_t* dv, uint8_t page, uint8_t row){
 				
 			sprint_temperature(&str[4], engine_temperature>25?engine_temperature:200);
 			str[2] = ENGT+1;
-			str[8] = 0xF8;
-			str[9] = 'C';
+			str[8] = CENTIGRADE;
 			for(i=0; i<12; i++){
 				dog_write_big_digit(NEW__POSITION(page,i*12,row),str[i]);
 				str[i] = ' ';
@@ -781,8 +762,7 @@ void display_med_row(volatile uint8_t* dv, uint8_t page, uint8_t row){
 					str[2] = FROST +1;
 				}
 				sprint_temperature(&str[4], ambient_temperature);
-				str[8] = 0xF8;
-				str[9] = 'C';
+				str[8] = CENTIGRADE;
 				for(i=0; i<12; i++){
 					dog_write_big_digit(NEW__POSITION(page,i*12,row),str[i]);
 					str[i] = ' ';
@@ -805,8 +785,7 @@ void display_med_row(volatile uint8_t* dv, uint8_t page, uint8_t row){
 			
 			sprint_temperature(&str[4], gearbox_temperature);
 
-			str[8] = 0xF8;
-			str[9] = 'C';
+			str[8] = CENTIGRADE;
 
 			for(i=0; i<12; i++){
 				dog_write_big_digit(NEW__POSITION(page,i*12,row),str[i]);
@@ -825,8 +804,7 @@ void display_med_row(volatile uint8_t* dv, uint8_t page, uint8_t row){
 			
 			sprint_temperature(&str[4], in_temperature);
 
-			str[8] = 0xF8;
-			str[9] = 'C';
+			str[8] = CENTIGRADE;
 
 			for(i=0; i<12; i++){
 				dog_write_big_digit(NEW__POSITION(page,i*12,row),str[i]);
