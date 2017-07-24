@@ -521,6 +521,7 @@ int main(void){
 					}
 
 					if(!(MFA_SWITCH_PIN & (1<<MFA_SWITCH_RES)) || !(MFA_SWITCH_PIN & (1<<MFA_SWITCH_MFA))){
+						_delay_ms(300);
 						button_irq = 255;
 						break;
 					}
