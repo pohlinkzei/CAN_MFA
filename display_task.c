@@ -530,17 +530,17 @@ void display_small_text(void){
 				char line4[17] = "                ";
 
 				dog_set_position(2,0);
-				//							"                ":"                ";
-				strcpy(line1, mfa.mode==CUR?" max            ":" min            ");
+
+				strcpy(line1, =" cur            ");
 				line1[14] = CENTIGRADE;
 
-				sprint_temperature(&line1[11],mfa.mode==CUR?max_ambient_temp:min_ambient_temp);
+				sprint_temperature(&line1[11], ambient_temperature);
 				
-				sprint_cur_speed(&line2[1],  mfa.mode==CUR?max_speed:0);
+				sprint_cur_speed(&line2[1],  speed);
 				line2[4] = KMH;
 				line2[5] = KMH + 1;
 				
-				uint16_to_string(&line2[7],  mfa.mode==CUR?max_rpm:0);
+				uint16_to_string(&line2[7], rpm);
 				
 				line2[13] = RPM;
 				line2[14] = RPM + 1;
@@ -548,22 +548,22 @@ void display_small_text(void){
 				dog_write_mid_strings(NEW_POSITION(2,0), line2,line1);
 				line3[1] = GEARBOXT;
 				line3[2] = GEARBOXT + 1;
-				sprint_temperature(&line3[3],mfa.mode==CUR?max_gearbox_temp:min_gearbox_temp);
+				sprint_temperature(&line3[3],gearbox_temperature);
 				line3[6] = CENTIGRADE;
 				
 				line3[9] = INT;
 				line3[10] = INT + 1;
-				sprint_temperature(&line4[11],mfa.mode==CUR?max_in_temp:min_in_temp);
+				sprint_temperature(&line4[11],in_temperature);
 				line3[14] = CENTIGRADE;
 				
 				line4[1] = ENGT;
 				line4[2] = ENGT + 1;
-				sprint_temperature(&line4[3],mfa.mode==CUR?max_engine_temp:min_engine_temp);
+				sprint_temperature(&line4[3], engine_temperature);
 				line4[6] = CENTIGRADE;
 				
 				line4[9] = OILT;
 				line4[10] = OILT + 1;
-				sprint_temperature(&line4[11],mfa.mode==CUR?max_oil_temp:min_oil_temp);
+				sprint_temperature(&line4[11], oil_temperature);
 				line4[14] = CENTIGRADE;
 				
 				dog_write_mid_strings(NEW_POSITION(5,0), line3,line4);
