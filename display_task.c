@@ -152,7 +152,7 @@ void display_navi(void){
 		uint8_t navi = 16;
 		display_navigation_symbol(NEW_POSITION(2,navi), navigation_next_turn, distance_to_next_turn);
 		navi_old = navigation_next_turn;
-	}else if(navigation_status != status_invalid){
+	}else /*if(navigation_status != status_invalid)*/{
 		uint8_t navi = 42;
 		display_navigation_status(NEW_POSITION(2,navi), navigation_status);
 	}
@@ -532,12 +532,12 @@ void display_small_text(void){
 
 				dog_set_position(2,0);
 
-				strcpy(line1, =" cur            ");
+				strcpy(line1, " cur            ");
 				line1[14] = CENTIGRADE;
 
 				sprint_temperature(&line1[11], ambient_temperature);
 				
-				sprint_cur_speed(&line2[1],  speed);
+				sprint_cur_speed(&line2[1], (uint16_t) speed);
 				line2[4] = KMH;
 				line2[5] = KMH + 1;
 				
