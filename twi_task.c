@@ -30,6 +30,8 @@ extern uint8_t cal_speed EEMEM;
 extern uint8_t cal_oil_temperature EEMEM;
 extern uint8_t cal_consumption EEMEM;
 
+uint16_t i2ctimeout = 0; 
+
 uint8_t calculateID(char* name){
 	//calculate an ID from the first 3 Letter of its name
 	uint8_t ID;
@@ -222,8 +224,27 @@ uint8_t twi_tx_task(void){
 	return 1;
 }
 
+void clear_rx_data(rx_t rx){
+	memset(&rx, 0x00, sizeof(rx_t));
+}
+
+void clear_tx_data(tx_t tx){
+	memset(&tx, 0x00, sizeof(tx_t));
+}
+
 void twi_task(void){
 	// process data received
+	if(!i2crxready){
+		i2ctimeout++;
+		if(i2ctimeout > 1500){
+			clear_rx_data(rx);
+			clear_tx_data(tx);
+			return;
+		}
+	}else{
+		i2ctimeout = 0;
+	}
+
 	if(twi_rx_task()){
 		if(rx.radio_text[0] != 0)
 			strncpy((char*) radio_text, (char*) rx.radio_text, AUDIO_STR_LENGTH);
