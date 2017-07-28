@@ -33,57 +33,8 @@
 	 return len;
  }
 
-void display_navigation_status(position_t position, int8_t status){
-	uint8_t a = 0;
-	uint8_t b = 0;
-	uint8_t c = 0;
-	if(status<0){
-		display_mode++;
-		return;
-	}	
-
-	for(a=0;a<6;a++){
-		dog_set_position(a+position.page, 0);
-		for(c=0; c<position.column;c++){
-			dog_transmit_data(0x00);
-		}
-			
-		for(b=0;b<48; b++){
-			dog_transmit_data(pgm_read_byte(&(nav_status_48x48[status][a*48 + b])));
-		}
-
-		c=position.column + 48;
-					
-	}
-	c=position.column + 48;
-	dog_set_position(position.page, position.column + 48);
-	for(a=c; a<132; a++){
-		dog_transmit_data(0x00);
-	}
-	dog_set_position(position.page + 1, position.column + 48);
-	for(a=c; a<132; a++){
-		dog_transmit_data(0x00);
-	}
-	dog_set_position(position.page + 2, position.column + 48);
-	for(a=c; a<132; a++){
-		dog_transmit_data(0x00);
-	}
-	dog_set_position(position.page + 3, position.column + 48);
-	for(a=c; a<132; a++){
-		dog_transmit_data(0x00);
-	}
-	dog_set_position(position.page + 4, position.column + 48);
-	for(a=c; a<132; a++){
-		dog_transmit_data(0x00);
-	}
-	dog_set_position(position.page + 5, position.column + 48);
-	for(a=c; a<132; a++){
-		dog_transmit_data(0x00);
-	}
-	
-}
-
-void display_navigation_symbol(position_t position, int8_t next_turn,  uint64_t distance){
+void display_navi(void){
+	position_t position = NEW_POSITION(2,16);
 	const uint8_t str_length = 1 + ((COLUMNS - position.column - 48) / 8);
 	uint8_t line = 0;
 	uint8_t symbol_width_index = 0;
@@ -91,10 +42,7 @@ void display_navigation_symbol(position_t position, int8_t next_turn,  uint64_t 
 
 	char str0[] = {0,0,0,0,0,0,0,0,0,0,0};
 	char str1[] = {0,0,0,0,0,0,0,0,0,0,0};
-	if(next_turn<0){
-		display_mode++;
-		return;
-	}	
+
 	fill_str(str0, ' ', str_length);
 	fill_str(str1, ' ', str_length);
 	for(line=0;line<6;line++){
@@ -103,12 +51,19 @@ void display_navigation_symbol(position_t position, int8_t next_turn,  uint64_t 
 			dog_transmit_data(0x00);
 		}
 		for(symbol_width_index=0;symbol_width_index<48; symbol_width_index++){
-			dog_transmit_data(pgm_read_byte(&(nav_48x48[next_turn][line*48 + symbol_width_index])));
+
+			if(navigation_status == status_routing || navigation_status == status_recalculating){
+				dog_transmit_data(pgm_read_byte(&(nav_48x48[navigation_next_turn][line*48 + symbol_width_index])));
+				navi_old = navigation_next_turn;
+			}else /*if(navigation_status != status_invalid)*/{
+				dog_transmit_data(pgm_read_byte(&(nav_status_48x48[navigation_status][line*48 + symbol_width_index])));
+			}
+			
 		}
 		dog_transmit_data(0x00);
 		dog_transmit_data(0x00);
 		column=position.column + 48;
-					
+		
 	}
 
 	if(mfa.mode == CUR && speed[CUR] < 100){
@@ -116,7 +71,7 @@ void display_navigation_symbol(position_t position, int8_t next_turn,  uint64_t 
 		str0[5] = ' ';
 		str0[6] = CONS_PER_HOUR;
 		str0[7] = ' ';
-	}else{
+		}else{
 		sprint_float(&str0[0],cons_l_100km[mfa.mode]);
 		str0[5] = CONS;
 		str0[6] = CONS + 1;
@@ -125,8 +80,8 @@ void display_navigation_symbol(position_t position, int8_t next_turn,  uint64_t 
 	
 	if(mfa.mode == CUR){
 		str0[0] = ' ';
-	}else{
-		str0[0] = 0x9D;	
+		}else{
+		str0[0] = 0x9D;
 	}
 	
 	if(ambient_temperature < AMBIENT_FROST_TEMP){
@@ -140,22 +95,15 @@ void display_navigation_symbol(position_t position, int8_t next_turn,  uint64_t 
 	dog_write_mid_strings(NEW_POSITION(position.page,position.column + 48), str0, str1);
 	fill_str(str0, ' ', str_length);
 	fill_str(str1, ' ', str_length);
-	sprint_distance(&str1[1], round_distance(distance));
+	if(distance_to_next_turn<65000){
+		sprint_distance(&str1[1],round_distance(distance_to_next_turn));
+	}else{
+		sprint_temperature(&str1[1], 255);
+	}
 	dog_write_mid_strings(NEW_POSITION(position.page+3,position.column + 48), str0, str1);
 
-}
-//*/
-
-
-void display_navi(void){
-	if(navigation_status == status_routing || navigation_status == status_recalculating){
-		uint8_t navi = 16;
-		display_navigation_symbol(NEW_POSITION(2,navi), navigation_next_turn, distance_to_next_turn);
-		navi_old = navigation_next_turn;
-	}else /*if(navigation_status != status_invalid)*/{
-		uint8_t navi = 42;
-		display_navigation_status(NEW_POSITION(2,navi), navigation_status);
-	}
+	
+	
 }
 
 void display_settings(void){
