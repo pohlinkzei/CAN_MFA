@@ -236,9 +236,10 @@ void twi_task(void){
 	// process data received
 	if(!i2crxready){
 		i2ctimeout++;
-		if(i2ctimeout > 1500){
+		if(i2ctimeout > 150){
 			clear_rx_data(rx);
 			clear_tx_data(tx);
+			strncpy((char*) radio_text, "   CANmfa v1.1 ", 15);
 			return;
 		}
 	}else{
