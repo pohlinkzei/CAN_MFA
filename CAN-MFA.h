@@ -113,6 +113,8 @@
 #define ID320 4
 #define ID420 5
 #define ID520 6
+#define ID666 7
+#define ID667 8
 
 #define SPANNUNG1 2
 #define SPANNUNG2 3
@@ -145,16 +147,30 @@
 #define VAL_RANGE 17 
 
 // display value small
-#define CAN_VALUES 0
+#define CAN_VALUES 2
 #define ADC_VALUES 1
-#define STANDARD_VALUES 2
+#define STANDARD_VALUES 0
 #define CAN_VALUES2 3
 #define MIN_MAX_VALUES 4
 #define TEMPERATURE_VALUES 5
+#define STARTSTOP 6
 
 #define LINE_SHIFT_START 128
 
 #define AVG_DIGIT 0x9D
+
+/* Engine Cut Status*/
+#define STARTING 1
+#define RUNNING 2
+#define CUTTING 3
+#define CUT 4
+#define DISABLED 5
+
+#define BRAKE 0x03 // status2
+#define THROTTLE 0x01 // status1
+#define CLUTCH 0x08 // status1
+#define AC 0x08 // status2
+#define STARTED 0x10 // status2
 
 typedef struct{
 	uint8_t mfa;
@@ -179,6 +195,8 @@ extern volatile uint8_t id480_data[8];
 extern volatile uint8_t id320_data[8];
 extern volatile uint8_t id420_data[8];
 extern volatile uint8_t id520_data[8];
+extern volatile uint8_t id666_data[8];
+extern volatile uint8_t id667_data[8];
 
 extern volatile uint8_t id280_valid;
 extern volatile uint8_t id288_valid;
@@ -187,6 +205,8 @@ extern volatile uint8_t id480_valid;
 extern volatile uint8_t id320_valid;
 extern volatile uint8_t id420_valid;
 extern volatile uint8_t id520_valid;
+extern volatile uint8_t id666_valid;
+extern volatile uint8_t id667_valid;
 
 // values from can data
 extern volatile int16_t speed[2]; //0-317km/h
@@ -262,6 +282,7 @@ extern volatile uint16_t avg_timer;
 extern volatile uint16_t k58b_timer;
 extern volatile uint32_t cons_timer;
 extern volatile uint8_t can_status;
+extern volatile uint8_t engine_cut;
 
 extern volatile uint8_t display_mode;
 extern volatile uint8_t display_mode_tmp;
@@ -293,6 +314,8 @@ extern volatile uint16_t line5timer;
 extern volatile uint16_t line6timer;
 extern volatile uint16_t line7timer;
 */
+extern volatile uint8_t send_can_message;
+extern volatile uint8_t send_can_lock;
 
 extern volatile uint8_t reversed;
 extern volatile uint8_t underlined;
