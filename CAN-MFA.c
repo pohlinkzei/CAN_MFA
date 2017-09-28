@@ -60,7 +60,7 @@ volatile uint8_t id420_data[8];
 volatile uint8_t id520_data[8];
 volatile uint8_t id666_data[8];
 volatile uint8_t id667_data[8];
-
+ 
 volatile uint8_t id280_valid;
 volatile uint8_t id288_valid;
 volatile uint8_t id380_valid;
@@ -129,14 +129,13 @@ int16_t min_ambient_temp;
 volatile int16_t oil_temperature;
 int16_t max_oil_temp;
 int16_t min_oil_temp;
-uint8_t EEMEM cal_water_temperature;
+uint8_t EEMEM cal_ambient_temperature;
 uint8_t EEMEM cal_voltage;
 uint8_t EEMEM cal_speed;
 uint8_t EEMEM cal_oil_temperature;
 uint8_t EEMEM cal_in_temperature;
 uint8_t EEMEM cal_consumption;
 uint8_t EEMEM cal_gearbox_temperature;
-uint8_t EEMEM cal_ambient_temperature;
 uint8_t EEMEM cal_ambient_temperature;
 uint8_t cal_k15_delay EEMEM;
 uint8_t cal_k58b_off_val EEMEM;
@@ -195,10 +194,17 @@ void init_spi_lcd(void){
 }
 
 void enable_mfa_switch(void){
+#if MFA_BUTTONS_ACTIVE_LOW
 	MFA_SWITCH_DDR &= ~(1<<MFA_SWITCH_MFA) & ~(1<<MFA_SWITCH_MODE) & ~(1<<MFA_SWITCH_RES);
 	MFA_SWITCH_DDR |= (1<<MFA_SWITCH_GND);
 	MFA_SWITCH_PORT |= (1<<MFA_SWITCH_MFA) | (1<<MFA_SWITCH_MODE) | (1<<MFA_SWITCH_RES);
 	MFA_SWITCH_PORT &= ~(1<<MFA_SWITCH_GND);
+#else
+	MFA_SWITCH_DDR &= ~(1<<MFA_SWITCH_MFA) & ~(1<<MFA_SWITCH_MODE) & ~(1<<MFA_SWITCH_RES);
+	MFA_SWITCH_PORT &= ~(1<<MFA_SWITCH_MFA) & ~(1<<MFA_SWITCH_MODE) & ~(1<<MFA_SWITCH_RES);
+	MFA_SWITCH_DDR |= (1<<MFA_SWITCH_GND);
+	MFA_SWITCH_PORT |= (1<<MFA_SWITCH_GND);
+#endif
 }
 
 void disable_mfa_switch(void){
@@ -207,6 +213,14 @@ void disable_mfa_switch(void){
 	MFA_SWITCH_DDR &= ~(1<<MFA_SWITCH_GND);
 	MFA_SWITCH_PORT &= ~(1<<MFA_SWITCH_MFA) & ~(1<<MFA_SWITCH_MODE) & ~(1<<MFA_SWITCH_RES);
 	MFA_SWITCH_PORT &= ~(1<<MFA_SWITCH_GND);
+}
+
+static inline uint8_t read_mfa_switch(uint8_t button){
+#if MFA_BUTTONS_ACTIVE_LOW
+	return !(MFA_SWITCH_PIN & (1<<button));
+#else
+	return MFA_SWITCH_PIN & (1<<button);
+#endif
 }
 
 void reset_values(void){
@@ -527,7 +541,7 @@ int main(void){
 						break;
 					}
 
-					if(!(MFA_SWITCH_PIN & (1<<MFA_SWITCH_RES)) || !(MFA_SWITCH_PIN & (1<<MFA_SWITCH_MFA))){
+					if(read_mfa_switch(MFA_SWITCH_RES) || read_mfa_switch(MFA_SWITCH_MFA)){
 						_delay_ms(300);
 						button_irq = 255;
 						break;
@@ -693,7 +707,7 @@ void app_task(){
 		v_solar_plus = calculate_voltage(adc_value[SPANNUNG3]);
 		v_solar_minus = calculate_voltage(adc_value[SPANNUNG4]);
 
-		gearbox_temperature = calculate_oil_temperature(adc_value[GETRIEBETEMP], &cal_gearbox_temperature);
+		gearbox_temperature = calculate_gearbox_temperature(adc_value[GETRIEBETEMP]);
 
 		if(gearbox_temperature < 150 && gearbox_temperature > -50){
 			if(max_gearbox_temp < gearbox_temperature){
@@ -703,7 +717,7 @@ void app_task(){
 			}
 		}
 
-		in_temperature = calculate_temperature(adc_value[INNENTEMP], &cal_in_temperature);
+		in_temperature = calculate_in_temperature(adc_value[INNENTEMP]);
 		if(in_temperature < 150 && in_temperature > -50){
 			if(max_in_temp < in_temperature){
 				max_in_temp = in_temperature;
@@ -711,7 +725,7 @@ void app_task(){
 				min_in_temp = in_temperature;
 			}
 		}
-		oil_temperature = calculate_oil_temperature(adc_value[OELTEMP], &cal_oil_temperature);
+		oil_temperature = calculate_oil_temperature(adc_value[OELTEMP]);
 		if(oil_temperature < 150 && oil_temperature > -50){
 			if(max_oil_temp < oil_temperature){
 				max_oil_temp = oil_temperature;
@@ -719,7 +733,7 @@ void app_task(){
 				min_oil_temp = oil_temperature;
 			}
 		}
-		ambient_temperature = calculate_temperature(adc_value[AUSSENTEMP], &cal_ambient_temperature);
+		ambient_temperature = calculate_ambient_temperature(adc_value[AUSSENTEMP]);
 		if(ambient_temperature < 150 && ambient_temperature > -50){
 			if(max_ambient_temp < ambient_temperature){
 				max_ambient_temp = ambient_temperature;
@@ -742,13 +756,13 @@ void app_task(){
 			max_rpm = rpm;
 		}
 		
-		if(!(MFA_SWITCH_PIN & (1<<MFA_SWITCH_MODE))){
+		if(read_mfa_switch(MFA_SWITCH_MODE)){
 			mfa.mode = CUR;
 		}else{
 			mfa.mode = AVG;
 		}			
 
-		if(!(MFA_SWITCH_PIN & (1<<MFA_SWITCH_RES))){
+		if(read_mfa_switch(MFA_SWITCH_RES)){
 			//sprintf(radio_text, "%i           " ,mfa_res_cnt);
 			mfa.res = 1;
 			if(mfa.res == mfa_old.res){
@@ -787,7 +801,7 @@ void app_task(){
 				}
 			}
 		}
-		if(!(MFA_SWITCH_PIN & (1<<MFA_SWITCH_MFA))){
+		if(read_mfa_switch(MFA_SWITCH_MFA)){
 			mfa.mfa = 1;
 			if(mfa.mfa == mfa_old.mfa){
 				mfa_mfa_cnt++;

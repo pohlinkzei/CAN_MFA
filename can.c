@@ -247,7 +247,7 @@ void can_send_data(void){
 				//send_can_lock++;
 				return;
 			}
-			_delay_ms(1);
+			_delay_us(10);
 		}
 		CANSTMOB &= ~(1 << TXOK);
 		CANCDMOB &= 0x00;

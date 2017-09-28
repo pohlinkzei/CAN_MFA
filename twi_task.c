@@ -24,7 +24,7 @@ extern volatile uint8_t i2ctxdata[i2c_buffer_size];
 extern volatile uint8_t buffer_adr;
 extern volatile uint8_t i2crxready;
 
-extern uint8_t cal_water_temperature EEMEM;
+extern uint8_t cal_ambient_temperature EEMEM;
 extern uint8_t cal_voltage EEMEM;
 extern uint8_t cal_speed EEMEM;
 extern uint8_t cal_oil_temperature EEMEM;
@@ -71,7 +71,7 @@ uint8_t serialize_rxdata(uint8_t size, volatile uint8_t buffer[size]){
 	uint32_t distance_to_next_turn;
 	char radio_text[AUDIO_STR_LENGTH];
 	uint8_t navigation_next_turn;
-	uint8_t cal_water_temperature;
+	uint8_t cal_ambient_temperature;
 	uint8_t cal_voltage;
 	uint8_t cal_oil_temperature;
 	uint8_t cal_consumption;
@@ -86,7 +86,7 @@ uint8_t serialize_rxdata(uint8_t size, volatile uint8_t buffer[size]){
 		buffer[i + 4] = rx.radio_text[i];
 	}
 	buffer[AUDIO_STR_LENGTH + 4] = rx.navigation_next_turn;
-	buffer[AUDIO_STR_LENGTH + 5] = rx.cal_water_temperature;
+	buffer[AUDIO_STR_LENGTH + 5] = rx.cal_ambient_temperature;
 	buffer[AUDIO_STR_LENGTH + 6] = rx.cal_voltage;
 	buffer[AUDIO_STR_LENGTH + 7] = rx.cal_oil_temperature;
 	buffer[AUDIO_STR_LENGTH + 8] = rx.cal_consumption;
@@ -109,7 +109,7 @@ uint8_t deserialize_rxdata(uint8_t size, volatile uint8_t buffer[size]){
 		rx.radio_text[i] = buffer[i+4];
 	}
 	rx.navigation_next_turn =	buffer[AUDIO_STR_LENGTH + 4];	
-	rx.cal_water_temperature =	buffer[AUDIO_STR_LENGTH + 5];
+	rx.cal_ambient_temperature =	buffer[AUDIO_STR_LENGTH + 5];
 	rx.cal_voltage =			buffer[AUDIO_STR_LENGTH + 6];
 	rx.cal_oil_temperature =	buffer[AUDIO_STR_LENGTH + 7];
 	rx.cal_consumption =		buffer[AUDIO_STR_LENGTH + 8];
@@ -132,7 +132,7 @@ uint8_t serialize_txdata(tx_t tx, uint8_t size, volatile uint8_t buffer[size]){
 	int16_t rpm;
 	uint8_t radio_text[AUDIO_STR_LENGTH];
 	uint8_t navigation_next_turn;	//navigation active?
-	uint8_t cal_water_temperature;
+	uint8_t cal_ambient_temperature;
 	uint8_t cal_voltage;
 	uint8_t cal_oil_temperature;
 	uint8_t cal_consumption;
@@ -170,7 +170,7 @@ uint8_t serialize_txdata(tx_t tx, uint8_t size, volatile uint8_t buffer[size]){
 		buffer[i + 18] = tx.radio_text[i];
 	}
 	buffer[AUDIO_STR_LENGTH + 18] = tx.navigation_next_turn;
-	buffer[AUDIO_STR_LENGTH + 19] = tx.cal_water_temperature;
+	buffer[AUDIO_STR_LENGTH + 19] = tx.cal_ambient_temperature;
 	buffer[AUDIO_STR_LENGTH + 20] = tx.cal_voltage;
 	buffer[AUDIO_STR_LENGTH + 21] = tx.cal_oil_temperature;
 	buffer[AUDIO_STR_LENGTH + 22] = tx.cal_consumption;
@@ -259,9 +259,9 @@ void twi_task(void){
 	
 		distance_to_next_turn = rx.distance_to_next_turn;
 		/*
-		uint8_t u8_tmp = eeprom_read_byte(&cal_water_temperature);
-		if(u8_tmp != rx.cal_water_temperature && rx.cal_water_temperature != 0){
-			eeprom_write_byte(&cal_water_temperature, rx.cal_water_temperature);
+		uint8_t u8_tmp = eeprom_read_byte(&cal_ambient_temperature);
+		if(u8_tmp != rx.cal_ambient_temperature && rx.cal_ambient_temperature != 0){
+			eeprom_write_byte(&cal_ambient_temperature, rx.cal_ambient_temperature);
 		}
 
 		u8_tmp = eeprom_read_byte(&cal_oil_temperature);
@@ -270,7 +270,7 @@ void twi_task(void){
 		}
 		u8_tmp = eeprom_read_byte(&cal_consumption);
 		if(u8_tmp != rx.cal_consumption && rx.cal_consumption != 0){
-			eeprom_write_byte(&cal_consumption, rx.cal_water_temperature);
+			eeprom_write_byte(&cal_consumption, rx.cal_ambient_temperature);
 		}
 		u8_tmp = eeprom_read_byte(&cal_voltage);
 		if(u8_tmp != rx.cal_voltage && rx.cal_voltage != 0){
@@ -288,14 +288,14 @@ void twi_task(void){
 	}
 	//prepare data for transmission
 	/*
-	sprintf(val, "%i\n", eeprom_read_byte(&cal_water_temperature));
-	eeprom_write_byte(&cal_water_temperature, uart_get_int());
+	sprintf(val, "%i\n", eeprom_read_byte(&cal_ambient_temperature));
+	eeprom_write_byte(&cal_ambient_temperature, uart_get_int());
 	//*/
 	//*
 	tx.navigation_next_turn = navigation_next_turn + (navigation_status << 5);
 	tx.distance_to_next_turn = distance_to_next_turn;
 /*
-	tx.cal_water_temperature = eeprom_read_byte(&cal_water_temperature);
+	tx.cal_ambient_temperature = eeprom_read_byte(&cal_ambient_temperature);
 	tx.cal_voltage = eeprom_read_byte(&cal_voltage);
 	tx.cal_oil_temperature = eeprom_read_byte(&cal_oil_temperature);
 	tx.cal_consumption = eeprom_read_byte(&cal_consumption);

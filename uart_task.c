@@ -15,7 +15,7 @@
 #include "uart.h"
 #include "dog_display.h"
 
-extern uint8_t cal_water_temperature EEMEM;
+extern uint8_t cal_ambient_temperature EEMEM;
 extern uint8_t cal_voltage EEMEM;
 extern uint8_t cal_speed EEMEM;
 extern uint8_t cal_oil_temperature EEMEM;
@@ -111,7 +111,7 @@ void uart_print_cal_menu(void){
 	uart1_puts("\n\rCalibrierung: Waehle die Variable ");
 	uart1_puts("\n\rv\tcal_voltage ");
 	uart1_puts("\n\rs\tcal_speed ");
-	uart1_puts("\n\rw\tcal_water_temperature");
+	uart1_puts("\n\ra\tcal_ambient_temperature");
 	uart1_puts("\n\ri\tcal_in_temperature");
 	uart1_puts("\n\rg\tcal_gearbox_temperature");
 	uart1_puts("\n\ro\tcal_oil_temperature ");
@@ -134,12 +134,12 @@ void uart_calibrate(void){
 		{
 			switch( (unsigned char)c)
 			{
-				case 'w':{
+				case 'a':{
 					char val[5] = {0,};
-					uart1_puts("\n\rWert cal_water_temperature: (0-255) ");
-					sprintf(val, "%i\n", eeprom_read_byte(&cal_water_temperature));
+					uart1_puts("\n\rWert cal_ambient_temperature: (0-255) ");
+					sprintf(val, "%i\n", eeprom_read_byte(&cal_ambient_temperature));
 					uart1_puts(val);
-					eeprom_write_byte(&cal_water_temperature, uart_get_int());
+					eeprom_write_byte(&cal_ambient_temperature, uart_get_int());
 					uart_print_cal_menu();
 					break;
 				}
@@ -233,7 +233,7 @@ void uart_calibrate(void){
 				default:{ 
 					/*
 					uart1_puts("\n\rCalibrierung: Waehle die variable ");
-					uart1_puts("\n\rw\tcal_water_temperature");
+					uart1_puts("\n\rw\tcal_ambient_temperature");
 					uart1_puts("\n\rv\tcal_voltage ");
 					uart1_puts("\n\rs\tcal_speed ");
 					uart1_puts("\n\ro\tcal_oil_temperature ");

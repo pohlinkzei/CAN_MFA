@@ -343,25 +343,49 @@ void sprint_distance(char* str, uint64_t distance){
 }
 */
 
-int16_t calculate_temperature(uint16_t adc, uint8_t* cal_byte){//kty 81-110
+int16_t calculate_ambient_temperature(uint16_t adc){//kty 81-110
 	//t=((840*adc)/128-1557)/10
-	volatile int32_t adc_temp = 840 * (int32_t) adc;
+	volatile int32_t adc_temp = 840 * adc;
 	adc_temp = adc_temp / 128;
 	volatile uint16_t cal_offset = 1429;
-	cal_offset += eeprom_read_byte(cal_byte); // 1429 - 1684
-	adc_temp = adc_temp - cal_offset;//((1557 * eeprom_read_byte(&cal_water_temperature))/128);
+	cal_offset += eeprom_read_byte(&cal_ambient_temperature); // 1429 - 1684
+	adc_temp = adc_temp - cal_offset;
 	adc_temp = adc_temp / 10;
 	return (int16_t) adc_temp;
 }
 
 
-int16_t calculate_oil_temperature(uint16_t adc, uint8_t* cal_byte){//oil temp KTY19-6
+int16_t calculate_in_temperature(uint16_t adc){//kty 81-110
+	//t=((840*adc)/128-1557)/10
+	volatile int32_t adc_temp = 840 * adc;
+	adc_temp = adc_temp / 128;
+	volatile uint16_t cal_offset = 1429;
+	cal_offset += eeprom_read_byte(&cal_in_temperature); // 1429 - 1684
+	adc_temp = adc_temp - cal_offset;//((1557 * eeprom_read_byte(&cal_ambient_temperature))/128);
+	adc_temp = adc_temp / 10;
+	return (int16_t) adc_temp;
+}
+
+
+int16_t calculate_oil_temperature(uint16_t adc){//oil temp KTY19-6
 	//t=((1715*adc)/256-1560)/10 alt
 	//t=((6867 * adc)/1024-1560)/10 neu
-	volatile int32_t adc_temp = 6867 * (int32_t) adc;
+	volatile int32_t adc_temp = 6867 * adc;
 	adc_temp = adc_temp / 1024;
 	volatile uint16_t cal_offset = 1432;
-	cal_offset += eeprom_read_byte(cal_byte); // 1432 - 1687
+	cal_offset += eeprom_read_byte(&cal_oil_temperature); // 1432 - 1687
+	adc_temp = adc_temp - cal_offset;
+	adc_temp = adc_temp / 10;
+	return (int16_t) adc_temp;
+}
+
+int16_t calculate_gearbox_temperature(uint16_t adc){//oil temp KTY19-6
+	//t=((1715*adc)/256-1560)/10 alt
+	//t=((6867 * adc)/1024-1560)/10 neu
+	volatile int32_t adc_temp = 6867 * adc;
+	adc_temp = adc_temp / 1024;
+	volatile uint16_t cal_offset = 1432;
+	cal_offset += eeprom_read_byte(&cal_gearbox_temperature); // 1432 - 1687
 	adc_temp = adc_temp - cal_offset;
 	adc_temp = adc_temp / 10;
 	return (int16_t) adc_temp;

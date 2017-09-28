@@ -4,6 +4,7 @@
 #include "calculation.h"
 #include <avr/eeprom.h>
 
+#define MFA_BUTTONS_ACTIVE_LOW 1
 #define VERSION 2
 #if VERSION == 1
 #undef HAVE_MCP_ADC
