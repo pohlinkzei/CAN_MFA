@@ -3,53 +3,19 @@
 
 #include "calculation.h"
 #include <avr/eeprom.h>
-
+#define NO_CAN 1
+#define CAN 0
 #define MFA_BUTTONS_ACTIVE_LOW 1
-#define VERSION 2
-#if VERSION == 1
-#undef HAVE_MCP_ADC
-#undef HAVE_PWM_BACKLIGHT
-// io
-#define TKML PC7
-#define TKML_PORT PORTC
-#define TKML_PIN PINC
-#define REVERSE_PORT PORTC
-#define REVERSE_PIN PINC
-#define REVERSE_GEAR PC6
-#define K15_PORT PORTE
-#define K15_PIN PINE
-#define K15 PE7
-#define LED_PORT PORTE
-#define LED_DDR DDRE
-#define LED PE2
-#define CAN_PORT PORTD
-#define CAN_DDR DDRD
-#define TX_CAN PD5
-#define RX_CAN PD6
-#define CAN_RS PD7
 
-#define MFA_SWITCH_PIN PINA
-#define MFA_SWITCH_PORT PORTA
-#define MFA_SWITCH_DDR DDRA
-#define MFA_SWITCH_MODE PINA7
-#define MFA_SWITCH_RES PINA6
-#define MFA_SWITCH_MFA PINA5
-//#define MFA_SWITCH_GND PINA7
-
-#define PCA_PORT PORTG
-#define PCA_DDR DDRG
-#define DISABLE_PCA PG0
-
-#elif VERSION == 2 
 #define HAVE_MCP_ADC 1
 #define HAVE_PWM_BACKLIGHT 1
 // io
 #define TKML PC7
 #define TKML_PORT PORTC
 #define TKML_PIN PINC
-#define REVERSE_PORT PORTC
-#define REVERSE_PIN PINC
-#define REVERSE_GEAR PC6
+#define DPLUS_PORT PORTC
+#define DPLUS_PIN PINC
+#define DPLUS PC6
 #define K15_PORT PORTE
 #define K15_PIN PINE
 #define K15 PE7
@@ -81,23 +47,21 @@
 #define MFA_SWITCH_MFA /*PINA6 //*/PINA5
 #define MFA_SWITCH_GND PINA7///*PINA5 //*/PINA6
 
-
 #define PCA_PORT PORTD
 #define PCA_DDR DDRD
 #define DISABLE_PCA PD7
 
-#else
-#error "Version definition error!"
-#endif
+#define MKL_NOCAN 7 // adc7
 
-//Display mode
-#define NAVIGATION		0
-#define SMALL_TEXT		1
-#define MED_TEXT_TOP	2
-#define MED_TEXT_BOT	3
-#define SETTINGS		6
-//#define BIG_TEXT	3
-#define CAN_DATA	4//5
+enum displaymode {
+	NAVIGATION=0,
+	SMALL_TEXT,
+	MED_TEXT_TOP,
+	MED_TEXT_BOT,
+	CAN_DATA,
+	SETTINGS,
+};
+
 // MFA MODE
 #define STARTUP 2
 #define MODE1	0
@@ -128,34 +92,40 @@
 
 
 // display value med
-#define VAL_CUR_SPEED 0
-#define VAL_AVG_SPEED 1
-#define VAL_CUR_CONS 2
-#define VAL_AVG_CONS 3
-#define VAL_VOLTA 4 //2
-#define VAL_VOLTB 5
-#define VAL_VOLTC 6 //2
-#define VAL_VOLTD 7
-#define VAL_ENGT 8 //4
-#define	VAL_OIL 9
-#define VAL_AMBIENT 10 //6
-#define VAL_INT 11
-#define VAL_GEARBXT 12
-#define VAL_TIME 13
-#define VAL_RPM 14
-#define VAL_MANIFOLD 15
-#define VAL_FUEL 16
-#define VAL_RANGE 17 
+enum med_value {
+	 VAL_CUR_SPEED,
+	 VAL_AVG_SPEED,
+	 VAL_CUR_CONS,
+	 VAL_AVG_CONS,
+	 VAL_CONS_START,
+	 VAL_CONS_KM_L_CUR,
+	 VAL_CONS_KM_L_AVG,
+	 VAL_CONS_KM_L_START,
+	 VAL_VOLTA,
+	 VAL_VOLTB,
+	 VAL_VOLTC,
+	 VAL_VOLTD,
+	 VAL_ENGT,
+	 VAL_OIL,
+	 VAL_AMBIENT,
+	 VAL_INT,
+	 VAL_GEARBXT,
+	 VAL_TIME,
+	 VAL_RPM,
+	 VAL_MANIFOLD,
+	 VAL_FUEL,
+	 VAL_RANGE,
+};
 
-// display value small
-#define CAN_VALUES 2
-#define ADC_VALUES 1
-#define STANDARD_VALUES 0
-#define CAN_VALUES2 3
-#define MIN_MAX_VALUES 4
-#define TEMPERATURE_VALUES 5
-#define STARTSTOP 6
-
+enum small_value {
+	CAN_VALUES,
+	ADC_VALUES,
+	STANDARD_VALUES,
+	CAN_VALUES2,
+	MIN_MAX_VALUES,
+	TEMPERATURE_VALUES,
+	STARTSTOP,
+};
 #define LINE_SHIFT_START 128
 
 #define AVG_DIGIT 0x9D
@@ -228,6 +198,8 @@ extern volatile uint16_t cons_delta_timer;
 //extern volatile uint32_t cons_ul[16];
 extern volatile float cons_l_h[2];
 extern volatile float cons_l_h_start;
+extern volatile float cons_km_l[2];
+extern volatile float cons_km_l_start;
 extern volatile float cons_l_100km[2];
 extern volatile float cons_l_100km_start;
 extern volatile int16_t gra_speed; //id380D4
@@ -279,6 +251,8 @@ extern uint8_t EEMEM cal_ambient_temperature;
 extern uint8_t EEMEM cal_k15_delay;
 extern uint8_t EEMEM cal_k58b_off_val;
 extern uint8_t EEMEM cal_k58b_on_val;
+extern uint8_t EEMEM cal_can_mode;
+extern volatile uint8_t mkl;
 extern volatile uint16_t avg_timer;
 extern volatile uint16_t k58b_timer;
 extern volatile uint32_t cons_timer;
@@ -300,6 +274,7 @@ extern volatile uint8_t navigation_status_old;
 extern volatile uint32_t distance_to_next_turn;
 
 extern volatile uint8_t radio_text[AUDIO_STR_LENGTH];
+extern volatile uint8_t can_mode;
 
 extern volatile uint8_t navi_old;
 extern volatile uint16_t timer2_cnt;

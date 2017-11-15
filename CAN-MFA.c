@@ -85,6 +85,8 @@ volatile uint8_t fuel;	//0-100% or 0-80l
 volatile uint16_t cons_delta_ul;
 volatile uint16_t cons_delta_timer;
 volatile float cons_l_h[2];
+volatile float cons_km_l[2];
+volatile float cons_km_l_start;
 volatile float cons_l_h_start;
 volatile float cons_l_100km[2];
 volatile float cons_l_100km_start;
@@ -137,6 +139,8 @@ uint8_t EEMEM cal_in_temperature;
 uint8_t EEMEM cal_consumption;
 uint8_t EEMEM cal_gearbox_temperature;
 uint8_t EEMEM cal_ambient_temperature;
+uint8_t EEMEM cal_can_mode;
+volatile uint8_t mkl;
 uint8_t cal_k15_delay EEMEM;
 uint8_t cal_k58b_off_val EEMEM;
 uint8_t cal_k58b_on_val EEMEM;
@@ -145,11 +149,17 @@ extern volatile uint16_t k58b_timer;
 volatile uint32_t cons_timer;
 volatile uint8_t can_status = 0x00;
 volatile uint8_t engine_cut;
+volatile uint8_t can_mode;
 
 volatile uint8_t display_mode = 0;
 volatile uint8_t display_mode_tmp;
 volatile uint8_t old_display_mode;
 volatile uint8_t display_enable;
+volatile uint8_t t0cnt = 0;
+volatile uint16_t tmp_rpm;
+volatile uint16_t rpm_cnt;
+volatile uint16_t hg_cnt;
+volatile uint16_t cons_cnt;
 volatile uint8_t display_value[7] = {0, STANDARD_VALUES, VAL_AMBIENT, VAL_CUR_CONS, 0,0,0}; // small, med_top, med_bot, navi, can, invalid, settings
 volatile uint8_t display_value_top = VAL_AMBIENT;
 volatile uint8_t display_value_bot = VAL_CUR_CONS;
@@ -289,14 +299,14 @@ void timer0_init(void){
 	
 	TCCR0A = 0x00;
 	//*
-	// 1ms für alles mögliche
-	TCCR0A |= (1<<WGM01) | (1<<CS01) | (1<<CS00); //ctc, prescaler 64
+	// 0.1ms für alles mögliche
+	TCCR0A |= (1<<WGM01) | (1<<CS01);// prescaler 8 | (1<<CS00); //ctc, prescaler 64
 	
 	#if K58B_POLL
 	//0.1ms timer fuer pwm messung
-	OCR0A = F_CPU / 64 / 10000; //250 
+	OCR0A = F_CPU / 64 / 1000; //25
 	#else
-	OCR0A = F_CPU / 64 / 1000; //250
+	OCR0A = F_CPU / 8 / 10000; //200
 	#endif
 	TIMSK0 |= (1<<OCIE0A);
 	//*/
@@ -326,7 +336,7 @@ void timer2_init(void){
 void io_init(void){
 	// PORTD |= (1<<PD1) | (1<<PD0);
 	// init_twi_slave(calculateID("MFA"));
-	#if VERSION == 2
+
 	// PORTA:
 	DDRA = (1<<EN_ADC6) | (1<<EN_ADC7) /* | (1<<PA0) | (1<<PA1)*/;
 	PORTA = 0x00;
@@ -348,9 +358,7 @@ void io_init(void){
 	// PORTG
 	DDRG = 0x00;
 	PORTG = 0x00;
-	#else
-	DDRE |= (1<<PE2);
-	#endif
+
 	PCA_PORT |= (1<<DISABLE_PCA);
 	PCA_DDR |= (1<<DISABLE_PCA);
 }
@@ -372,19 +380,32 @@ void avr_init(){
 	adc_init();
 #endif
 //*/	
-	//can_init();
-	uint8_t addr = calculateID("MFA");
-	init_twi_slave(addr);
-	
+	if(eeprom_read_byte(&cal_can_mode) == NO_CAN){
+		can_mode = NO_CAN;
+		can_init_nocan();
+		can_status = 0;
+		//init int 0/1 all/rising edge
+		EICRA = /*(1<<ISC11) |*/ (1<<ISC10) | (1<<ISC01) | (1<<ISC00); //rpm @ int1 -> int on toggle, cons @ int 1 on rising edge
+		//init HG int (rising edge)
+		EICRB = (1<<ISC51) | (1<<ISC50);
+		//enable
+		EIMSK = (1<<INT5) | (1<<INT1) | (1<<INT0);
+		
+	}else{
+		can_mode = CAN;
+		can_init();
+		can_status = 0;
+		uint8_t addr = calculateID("MFA");
+		init_twi_slave(addr);
+	}
+
 	dog_spi_init();
 	dog_init();
-	#if VERSION == 2
+
 	uart_bootloader_init(UART_BAUD_RATE);
 	set_sleep_mode(SLEEP_MODE_PWR_SAVE);
 	initk58_pwm();
-	#else
-	set_sleep_mode(SLEEP_MODE_IDLE);
-	#endif
+
 	sleep_enable();
 	//#warning: "TODO: inits" done ;) 
 }
@@ -397,12 +418,12 @@ status_t get_status(status_t old){
 	if(old != status){
 		switch(status){
 			case DOOR_OPEN:{
-#if VERSION == 2
+
 				PORTC |= (1<<EN3V3);
 				//k58b_pw = 100;
 				dog_spi_init();
 				initk58_pwm();	
-#endif				
+			
 				LED_DDR |= (1<<LED);
 				LED_PORT |= (1<<LED);
 				dog_init();
@@ -412,14 +433,14 @@ status_t get_status(status_t old){
 			}
 			case IGNITION_ON:{
 				uint8_t a, b;
-	#if VERSION == 2
+
 				PORTE |= (1<<EN_ADC0) | (1<<EN_ADC1);
 				PORTA |= (1<<EN_ADC6) | (1<<EN_ADC7);
 				PORTC |= (1<<EN3V3);
 				//k58b_pw = 100;
 				dog_spi_init();
 				initk58_pwm();	
-	#endif			
+		
 				LED_DDR |= (1<<LED);
 				LED_PORT |= (1<<LED);
 				dog_init();
@@ -471,8 +492,6 @@ int main(void){
 	status = OFF;
 	cli();
 	avr_init();
-	can_init();	
-	can_status = 0;
 	
 	sei();
 	K15_PORT &= ~(1<<K15);
@@ -552,16 +571,14 @@ int main(void){
 					// disable CAN receiver
 					PCA_PORT |= (1<<DISABLE_PCA);
 					dog_transmit(LCD_OFF);
-#if VERSION == 2
+
 					PORTE &= ~(1<<EN_ADC0) & ~(1<<EN_ADC1) & ~(1<<PE3);
 					PORTA &= ~(1<<EN_ADC6) & ~(1<<EN_ADC7);
 					PORTC &= ~(1<<EN3V3);
 					DDRE &= ~(1<<PE3);
 					TCCR3B = 0x00;
 					TCCR3A = 0x00;
-#else
-					PORTE &= ~(1<<PE2);
-#endif
+
 					for(i=0;i<8;i++){
 						id280_data[i] = 0;
 						id288_data[i] = 0;
@@ -698,56 +715,77 @@ void reset_averages_start(void){
 
 
 
+
 void app_task(){
 		enable_mfa_switch();
 		read_adc_values();
 		starterbat = calculate_voltage(adc_value[SPANNUNG1]);
 		zweitbat = calculate_voltage(adc_value[SPANNUNG2]);
+		if(can_mode == NO_CAN){
+			voltage_value_t v_mkl = calculate_voltage(adc_value[MKL_NOCAN]);
+			mkl = (uint8_t) (v_mkl.integer < 8); // mkl is active low!
+
+
+			// TODO: Calculate RPM
+			if(rpm_cnt < 3001)
+				rpm = (uint16_t) ((uint32_t) (600000 / tmp_rpm));
+			else
+				rpm = 0;
+			rpm_cnt = 0;
+				// TODO: Set can send timing dependent (10ms / 100ms / ...)
+			
+
+
+		}else{
+			v_solar_plus = calculate_voltage(adc_value[SPANNUNG3]);
+			v_solar_minus = calculate_voltage(adc_value[SPANNUNG4]);
+
+			if(engine_temperature > 25 && engine_temperature < 200){
+				if(max_engine_temp < engine_temperature){
+					max_engine_temp = engine_temperature;
+					}else if(min_engine_temp > engine_temperature){
+					min_engine_temp = engine_temperature;
+				}
+			}
+
+			gearbox_temperature = calculate_gearbox_temperature(adc_value[GETRIEBETEMP]);
+			if(gearbox_temperature < 150 && gearbox_temperature > -50){
+				if(max_gearbox_temp < gearbox_temperature){
+					max_gearbox_temp = gearbox_temperature;
+				}else if(min_gearbox_temp > gearbox_temperature){
+					min_gearbox_temp = gearbox_temperature;
+				}
+			}
+
+			in_temperature = calculate_in_temperature(adc_value[INNENTEMP]);
+			if(in_temperature < 150 && in_temperature > -50){
+				if(max_in_temp < in_temperature){
+					max_in_temp = in_temperature;
+				}else if(min_in_temp > in_temperature){
+					min_in_temp = in_temperature;
+				}
+			}
+			oil_temperature = calculate_oil_temperature(adc_value[OELTEMP]);
+			if(oil_temperature < 150 && oil_temperature > -50){
+				if(max_oil_temp < oil_temperature){
+					max_oil_temp = oil_temperature;
+				}else if(min_oil_temp > oil_temperature){
+					min_oil_temp = oil_temperature;
+				}
+			}
+			
+			
+		}
 		
-		v_solar_plus = calculate_voltage(adc_value[SPANNUNG3]);
-		v_solar_minus = calculate_voltage(adc_value[SPANNUNG4]);
-
-		gearbox_temperature = calculate_gearbox_temperature(adc_value[GETRIEBETEMP]);
-
-		if(gearbox_temperature < 150 && gearbox_temperature > -50){
-			if(max_gearbox_temp < gearbox_temperature){
-				max_gearbox_temp = gearbox_temperature;
-			}else if(min_gearbox_temp > gearbox_temperature){
-				min_gearbox_temp = gearbox_temperature;
-			}
-		}
-
-		in_temperature = calculate_in_temperature(adc_value[INNENTEMP]);
-		if(in_temperature < 150 && in_temperature > -50){
-			if(max_in_temp < in_temperature){
-				max_in_temp = in_temperature;
-			}else if(min_in_temp > in_temperature){
-				min_in_temp = in_temperature;
-			}
-		}
-		oil_temperature = calculate_oil_temperature(adc_value[OELTEMP]);
-		if(oil_temperature < 150 && oil_temperature > -50){
-			if(max_oil_temp < oil_temperature){
-				max_oil_temp = oil_temperature;
-			}else if(min_oil_temp > oil_temperature){
-				min_oil_temp = oil_temperature;
-			}
-		}
 		ambient_temperature = calculate_ambient_temperature(adc_value[AUSSENTEMP]);
 		if(ambient_temperature < 150 && ambient_temperature > -50){
 			if(max_ambient_temp < ambient_temperature){
 				max_ambient_temp = ambient_temperature;
-			}else if(min_ambient_temp > ambient_temperature){
+				}else if(min_ambient_temp > ambient_temperature){
 				min_ambient_temp = ambient_temperature;
 			}
 		}
-		if(engine_temperature > 25 && engine_temperature < 200){
-			if(max_engine_temp < engine_temperature){
-				max_engine_temp = engine_temperature;
-			}else if(min_engine_temp > engine_temperature){
-				min_engine_temp = engine_temperature;
-			}
-		}
+
 		if(max_speed < speed[CUR]){
 			max_speed = speed[CUR];
 		}
@@ -849,56 +887,68 @@ void app_task(){
 }
 
 
-ISR(TIMER0_COMP_vect){//1ms timer
-	if(K58B_PIN & (1<<K58B)){
-		k58b_timer=15;
-	}else{
-		if(k58b_timer > 0)
-		k58b_timer--;
+ISR(TIMER0_COMP_vect){//0.1ms timer
+	t0cnt++;
+	if(t0cnt == 10){//1ms
+		t0cnt = 0;
+		if(K58B_PIN & (1<<K58B)){
+			k58b_timer=15;
+		}else{
+			if(k58b_timer > 0)
+			k58b_timer--;
+		}
+		//*
+		if(door_delay){
+			door_delay--;
+		}
+		//*/
+		set_backlight(k58b_pw);
+		line_ms_timer++;
+		if(line_ms_timer > 400){
+			display_enable = 1;
+			line_ms_timer = 0;
+			line_shift_timer += 5;
+			if(line_shift_timer > 0xFFF) line_shift_timer = 0;
+		}
+		if(send_can_lock < 20)
+			if(!(line_ms_timer % 100))
+				send_can_message = 1;
+	
+		if(can_mode == NO_CAN){
+			// TODO: Calculate RPM
+			if(rpm_cnt < 3001)
+				rpm = (uint16_t) ((uint32_t) (600000 / tmp_rpm));
+			else
+				rpm = 0;
+			rpm_cnt = 0;
+			// TODO: Set can send timing dependent (10ms / 100ms / ...)
+		}
 	}
-	//*
-	if(door_delay){
-		door_delay--;
-	}
-	//*/
-	set_backlight(k58b_pw);
-	line_ms_timer++;
-	if(line_ms_timer > 400){
-		display_enable = 1;
-		line_ms_timer = 0;
-		line_shift_timer += 5;
-		if(line_shift_timer > 0xFFF) line_shift_timer = 0;
-	}
-	if(send_can_lock < 20)
-		if(!(line_ms_timer % 100))
-			send_can_message = 1;
-
-
 }
 
 ISR(TIMER1_COMPA_vect){
-	
 	if(status == IGNITION_ON){
 		driving_time[CUR]++;
 		driving_time[AVG]++;
 		driving_time_start++;
-		new_val = ((id480_data[3] & 0x7F) << 8) + id480_data[2];
 		uint32_t delta = 0;
-		if(new_val < old_val){
-			delta = new_val - old_val + 0x7FFF;
+		if(can_mode == CAN){
+			new_val = ((id480_data[3] & 0x7F) << 8) + id480_data[2];
+			if(new_val < old_val){
+				delta = new_val - old_val + 0x7FFF;
+			}else{
+				delta = new_val - old_val;
+			}
+			old_val = new_val;
 		}else{
-			delta = new_val - old_val;
+			delta = (cons_cnt * 125) >> 1;
+			speed_sum = hg_cnt; 
 		}
-		old_val = new_val;
 		calculate_consumption((uint16_t) delta, 1000);
 		calculate_averages();
 		old_val = new_val;
 		start_cnt = 0;
-		/*
-		display_value[display_mode]++;
-		if(display_value > 31)
-			display_value = 0;
-		*/
+		
 	}else{
 		if(k15_delay_cnt){
 			k15_delay_cnt--;
@@ -909,13 +959,6 @@ ISR(TIMER1_COMPA_vect){
 			door_open_count=0;
 		}
 	}
-	/*
-	cnt++;
-	if(cnt >10){
-		K15_PORT ^= (1<<K15);
-		cnt = 0;
-	}
-	//*/
 }
 
 ISR(TIMER2_COMP_vect){
@@ -925,3 +968,16 @@ ISR(TIMER2_COMP_vect){
 		start_cnt = 0;
 	}
 }
+
+ISR(INT1_vect){ //SDA -> RPM
+	rpm_cnt++;
+}
+
+ISR(INT0_vect){ //SCL -> CONS
+	cons_cnt++;
+}
+
+ISR(INT5_vect){ //EN_ADC1 -> HG
+	hg_cnt++;
+}
+

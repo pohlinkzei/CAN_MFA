@@ -233,6 +233,9 @@ void clear_tx_data(tx_t tx){
 }
 
 void twi_task(void){
+
+	if(can_mode == NO_CAN) return;
+
 	// process data received
 	if(!i2crxready){
 		i2ctimeout++;
@@ -288,7 +291,7 @@ void twi_task(void){
 	}
 	//prepare data for transmission
 	/*
-	sprintf(val, "%i\n", eeprom_read_byte(&cal_ambient_temperature));
+	sprintf(val, "%i\n\r", eeprom_read_byte(&cal_ambient_temperature));
 	eeprom_write_byte(&cal_ambient_temperature, uart_get_int());
 	//*/
 	//*

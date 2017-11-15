@@ -118,6 +118,7 @@ void uart_print_cal_menu(void){
 	uart1_puts("\n\rc\tcal_consumption ");
 	uart1_puts("\n\rb\tcal_k58b ");
 	uart1_puts("\n\rd\tcal_k15_delay ");
+	uart1_puts("\n\rm\tcal_can_mode ");
 	uart1_puts("\n\re\tEnde ");
 }
 
@@ -137,16 +138,25 @@ void uart_calibrate(void){
 				case 'a':{
 					char val[5] = {0,};
 					uart1_puts("\n\rWert cal_ambient_temperature: (0-255) ");
-					sprintf(val, "%i\n", eeprom_read_byte(&cal_ambient_temperature));
+					sprintf(val, "%i\n\r", eeprom_read_byte(&cal_ambient_temperature));
 					uart1_puts(val);
 					eeprom_write_byte(&cal_ambient_temperature, uart_get_int());
+					uart_print_cal_menu();
+					break;
+				}
+				case 'm':{
+					char val[5] = {0,};
+					uart1_puts("\n\rWert cal_can_mode: (0|1) ");
+					sprintf(val, "%i\n\r", eeprom_read_byte(&cal_can_mode));
+					uart1_puts(val);
+					eeprom_write_byte(&cal_can_mode, uart_get_int());
 					uart_print_cal_menu();
 					break;
 				}
 				case 'g':{
 					char val[5] = {0,};
 					uart1_puts("\n\rWert cal_gearbox_temperature: (0-255) ");
-					sprintf(val, "%i\n", eeprom_read_byte(&cal_gearbox_temperature));
+					sprintf(val, "%i\n\r", eeprom_read_byte(&cal_gearbox_temperature));
 					uart1_puts(val);
 					eeprom_write_byte(&cal_gearbox_temperature, uart_get_int());
 					uart_print_cal_menu();
@@ -155,7 +165,7 @@ void uart_calibrate(void){
 				case 'i':{
 					char val[5] = {0,};
 					uart1_puts("\n\rWert cal_in_temperature: (0-255) ");
-					sprintf(val, "%i\n", eeprom_read_byte(&cal_in_temperature));
+					sprintf(val, "%i\n\r", eeprom_read_byte(&cal_in_temperature));
 					uart1_puts(val);
 					eeprom_write_byte(&cal_in_temperature, uart_get_int());
 					uart_print_cal_menu();
