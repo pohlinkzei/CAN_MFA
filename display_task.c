@@ -1327,32 +1327,107 @@ void display_can_data(void){
 
 }
 
+void display_top_line(void){
+	
+	if(!(TKML_PIN & (1<<TKML))){
+		//				.012345678901.
+		char _str[] =	"            ";
+		_str[4] = DOOR;
+		_str[5] = DOOR + 1;
+		_str[6] = DOOR2;
+		dog_write_big_string(NEW_POSITION(0,4),_str);
+		line_shift_timer = LINE_SHIFT_START;
+		return;
+	}
+	underlined = 1;
+	switch(display_value[TOP_LINE]){
+		case RADIO_TEXT:{
+			// radio data from mfd or canMFA text
+			dog_write_rotating(
+				NEW_POSITION(0,5),
+				(char*) &radio_text[0], 
+				get_text_length((char*) 
+				&radio_text[0], 
+				sizeof(radio_text)),
+				SIZE8X12,
+				line_shift_timer);
+			break;
+		}
+		case VOLTAGES:{
+			//				0123456789012345
+			//				 12,3V BB 12,3V
+			char str[17] = "                ";
+			sprint_voltage_precision(&str[1], starterbat, 1);
+			sprint_voltage_precision(&str[10], zweitbat, 1);
+			str[5] = 'V';
+			str[14] = 'V';
+			str[7] = BAT;
+			str[8] = BAT+1;
+			dog_write_mid_string(NEW_POSITION(0,0),str);
+			break;
+		}
+		case TEMPERATURES0:{
+			// eng temp, oil temp
+			char str[17] = "                ";
+			
+			str[1] = ENGT;
+			str[2] = ENGT + 1;
+			sprint_temperature(&str[3],engine_temperature>25?engine_temperature:200);
+			str[6] = CENTIGRADE;
+
+			sprint_temperature(&str[10],oil_temperature);
+			str[13] = CENTIGRADE;
+
+			str[8] = OILT;
+			str[9] = OILT + 1;
+			dog_write_mid_string(NEW_POSITION(0,0),str);
+			break;
+		}
+		case TEMPERATURES1:{
+			//oil temp, gb temp,
+			char str[17] = "                ";
+			
+			str[1] = OILT;
+			str[2] = OILT + 1;
+			sprint_temperature(&str[3],oil_temperature);
+			str[6] = CENTIGRADE;
+
+			sprint_temperature(&str[10],gearbox_temperature);
+			str[13] = CENTIGRADE;
+
+			str[8] = GETRIEBETEMP;
+			str[9] = GETRIEBETEMP + 1;
+			dog_write_mid_string(NEW_POSITION(0,0),str);
+			break;
+		}
+		case TEMPERATURES2:{
+			// gb temp, eng temp
+			char str[17] = "                ";
+			
+			str[1] = GETRIEBETEMP;
+			str[2] = GETRIEBETEMP + 1;
+			sprint_temperature(&str[3],gearbox_temperature);
+			str[6] = CENTIGRADE;
+
+			sprint_temperature(&str[10],engine_temperature>25?engine_temperature:200);
+			str[13] = CENTIGRADE;
+
+			str[8] = ENGT;
+			str[9] = ENGT + 1;
+			dog_write_mid_string(NEW_POSITION(0,0),str);
+			break;
+		}
+		default:{
+			display_value[TOP_LINE]++;
+			break;
+		}
+	}
+	underlined = 0;
+}
+
 void display_task(){
-	/* 0123456789012345 *	* 012345678901234567890 *
-	 - ---------------- -	* 
-	 * Musiktitel (16)	*	*
-	 - ---------------- -	*
-	 * Fahrzeit/Strecke *	*
-	 * Geschwindigkeit  *	*
-	 *		Verbrauch	*	*
-	 *		Temperatur	*	*
-	 --------------------	*
-	 *						*
-	 */
-	
-	
-	/* 0123456789012345 *	* 012345678901234567890 *
-	 - ---------------- -	* 
-	 * Musiktitel (16)	*	*
-	 - ---------------- -	*
-	 *  Sym1 NAVI Sym2  *	*
-	 *  VAL1 NAVI VAL2  *	*
-	 *		 NAVI		*	*
-	 *		 NAVI		*	*
-	 --------------------	*
-	 *						*
-	 */
-	
+
+#if 0
 	if(!(TKML_PIN & (1<<TKML))){
 		//				.012345678901.
 		char _str[] =	"            ";
@@ -1381,7 +1456,9 @@ void display_task(){
 	}
 	
 	underlined = 0;
+#endif
 
+	display_top_line();
 	if(display_mode & (1<<SETTINGS)){
 		display_settings();
 	}else{

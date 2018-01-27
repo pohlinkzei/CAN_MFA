@@ -59,7 +59,9 @@ enum displaymode {
 	MED_TEXT_TOP,
 	MED_TEXT_BOT,
 	CAN_DATA,
+	TOP_LINE,
 	SETTINGS,
+	INVALID,
 };
 
 // MFA MODE
@@ -90,7 +92,13 @@ enum displaymode {
 #define GETRIEBETEMP 7
 #define INNENTEMP 6
 
-
+enum top_value {
+	RADIO_TEXT,
+	VOLTAGES,
+	TEMPERATURES0,
+	TEMPERATURES1,
+	TEMPERATURES2,
+};
 // display value med
 enum med_value {
 	 VAL_CUR_SPEED,
@@ -263,10 +271,10 @@ extern volatile uint8_t display_mode;
 extern volatile uint8_t display_mode_tmp;
 extern volatile uint8_t old_display_mode;
 extern volatile uint8_t display_enable;
-extern volatile uint8_t display_value[7];
+extern volatile uint8_t display_value[8];
 extern volatile uint8_t display_value_top;
 extern volatile uint8_t display_value_bot;
-extern volatile uint8_t old_display_value[7];
+extern volatile uint8_t old_display_value[8];
 
 extern volatile uint8_t navigation_next_turn;
 extern volatile uint8_t navigation_status;

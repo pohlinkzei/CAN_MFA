@@ -160,10 +160,10 @@ volatile uint16_t tmp_rpm;
 volatile uint16_t rpm_cnt;
 volatile uint16_t hg_cnt;
 volatile uint16_t cons_cnt;
-volatile uint8_t display_value[7] = {0, STANDARD_VALUES, VAL_AMBIENT, VAL_CUR_CONS, 0,0,0}; // small, med_top, med_bot, navi, can, invalid, settings
+volatile uint8_t display_value[8] = {0, STANDARD_VALUES, VAL_AMBIENT, VAL_CUR_CONS, RADIO_TEXT,0,0,0}; // navi, small, med_top, med_bot, can, top_line, settings, invalid
 volatile uint8_t display_value_top = VAL_AMBIENT;
 volatile uint8_t display_value_bot = VAL_CUR_CONS;
-volatile uint8_t old_display_value[7] = {0,0,0,0,0,0,0};
+volatile uint8_t old_display_value[8] = {0,0,0,0,0,0,0,0};
 
 volatile uint8_t navigation_next_turn;
 volatile uint8_t navigation_status;
