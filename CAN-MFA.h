@@ -75,8 +75,8 @@ enum displaymode {
 //CAN 
 #define ID280 0
 #define ID288 1
-#define ID380 2
-#define ID480 3
+#define ID480 2
+#define ID380 3
 #define ID320 4
 #define ID420 5
 #define ID520 6

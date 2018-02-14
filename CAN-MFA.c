@@ -489,6 +489,7 @@ status_t get_status(status_t old){
 }
 
 int main(void){
+	int dcnt = 0;
 	status = OFF;
 	cli();
 	avr_init();
@@ -497,8 +498,13 @@ int main(void){
 	K15_PORT &= ~(1<<K15);
 	//K15_PORT |= (1<<K15); // zündung an, bitte ;)
 	line_shift_timer = LINE_SHIFT_START;
+	#if 0
 	display_mode = SMALL_TEXT;
 	display_value[SMALL_TEXT] = STANDARD_VALUES;
+	#else
+	display_mode = CAN_DATA;
+	display_value[CAN_DATA] = 0;
+	#endif
 	//strcpy( (char*) radio_text, "  CAN Test        ");
 
 	status = get_status(OFF);
@@ -597,8 +603,12 @@ int main(void){
 			}
 			case IGNITION_ON:{
 				door_delay = 0;
-				display_task();
-				uart_bootloader_task();
+				dcnt++;
+				if(dcnt==100){
+					dcnt=0;
+					display_task();
+					uart_bootloader_task();
+				}
 				can_task();
 				app_task();
 				twi_task();
@@ -942,7 +952,7 @@ ISR(TIMER1_COMPA_vect){
 			old_val = new_val;
 		}else{
 			delta = (cons_cnt * 125) >> 1;
-			speed_sum = hg_cnt; 
+			speed_sum = hg_cnt;
 		}
 		calculate_consumption((uint16_t) delta, 1000);
 		calculate_averages();
@@ -975,6 +985,7 @@ ISR(INT1_vect){ //SDA -> RPM
 
 ISR(INT0_vect){ //SCL -> CONS
 	cons_cnt++;
+	cons_delta_ul += 62;
 }
 
 ISR(INT5_vect){ //EN_ADC1 -> HG

@@ -348,7 +348,9 @@ void can_send_data_nocan(void){
 				id480_valid = 1;
 				break;
 			}
-
+			default:
+				continue;
+		}
 			CANCDMOB |= ( 1 << CONMOB0 );
 			while ( ! ( CANSTMOB & ( 1 << TXOK ) ) ){
 				timeout++;
@@ -361,7 +363,7 @@ void can_send_data_nocan(void){
 			}
 			CANSTMOB &= ~(1 << TXOK);
 			CANCDMOB &= 0x00;
-		}
+		
 	}
 }
 
@@ -557,12 +559,15 @@ void can_task_nocan(void){
 			id288_valid = 0;
 			can_status |= (1<<ID288);
 		}
-		if(id288_valid){
+		if(id480_valid){
 			// [ 0 ] [ mkl ] [ verbrauch ] [ verbrauch ] [ 4 ] [ 5 ] [ 6 ] [ 7 ]
 			id480_data[1] = (uint8_t) (mkl?0x04:0x00);
+			id480_data[2] = (uint8_t) (cons_delta_ul>>8);
+			id480_data[3] = (uint8_t) (cons_delta_ul);
 			id480_valid = 0;
 			can_status |= (1<<ID480);
 		}
+		
 	}
 	else
 	{
@@ -578,6 +583,7 @@ void can_task_nocan(void){
 			id666_data[i] = 0;
 			id667_data[i] = 0;
 		}
+		can_status = 0;
 	}
 	if(send_can_message){
 		can_send_data_nocan();
