@@ -413,7 +413,7 @@ void calculate_averages(void){
 			cons_l_100km[AVG] = 99.9;
 		}
 		
-		cons_km_l[AVG] = speed[AVG] / cons_l_h[AVG];
+		cons_km_l[AVG] = (float) speed[AVG] / (10.0 * cons_l_h[AVG]);
 		
 		speed_sum_start += speed[CUR];
 		cons_sum_start += (uint16_t) (cons_l_h[CUR]);
@@ -421,7 +421,7 @@ void calculate_averages(void){
 		speed_start = speed_sum_start / avg_cnt_start;
 		distance_start = (uint32_t) ((speed_start * driving_time_start) / 36000);
 
-		cons_km_l_start = speed_start / cons_l_h_start;
+		cons_km_l_start = (float) speed_start / (10.0 * cons_l_h_start);
 
 		if(speed_start > 0.0){
 			cons_l_100km_start = cons_l_h_start * 1000 / speed_start;
@@ -470,7 +470,7 @@ void calculate_consumption(uint16_t delta_ul, uint32_t delta_ms){
 	}else{
 		cons_l_100km[CUR] = cons_l_h[CUR];
 	}
-	cons_km_l[CUR] = speed[CUR] / cons_l_h[CUR];
+	cons_km_l[CUR] = (float) speed[CUR] / (10.0 * cons_l_h[CUR]);
 	
 }
 
