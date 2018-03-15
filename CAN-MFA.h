@@ -7,38 +7,15 @@
 #define CAN 0
 #define MFA_BUTTONS_ACTIVE_LOW 1
 
-#define HAVE_MCP_ADC 1
+#define HAVE_MCP_ADC 0
 #define HAVE_PWM_BACKLIGHT 1
 // io
-#define TKML PC7
-#define TKML_PORT PORTC
-#define TKML_PIN PINC
-#define DPLUS_PORT PORTC
-#define DPLUS_PIN PINC
-#define DPLUS PC6
-#define K15_PORT PORTE
-#define K15_PIN PINE
-#define K15 PE7
-#define K58B_PORT PORTE
-#define K58B_PIN PINE
-#define K58B PE6
-#define LED_PORT PORTE
-#define LED_DDR DDRE
-#define LED PE3
-#define CAN_PORT PORTD
-#define CAN_DDR DDRD
-#define TX_CAN PD5
-#define RX_CAN PD6
-#define CAN_RS PD7
 
-#define EN3V3 PC5
-#define CS_DOG PD4
-#define CS_ADC PF0
-#define EN_ADC0 PE4
-#define EN_ADC1 PE5
-#define EN_ADC6 PA3
-#define EN_ADC7 PA2	 
+// UART0: K-Line
+// UART1: USB-Serial
+// ACD: choose DogM132 or DogM128
 
+// PORTA
 #define MFA_SWITCH_PIN PINA
 #define MFA_SWITCH_PORT PORTA
 #define MFA_SWITCH_DDR DDRA
@@ -47,11 +24,52 @@
 #define MFA_SWITCH_MFA /*PINA6 //*/PINA5
 #define MFA_SWITCH_GND PINA7///*PINA5 //*/PINA6
 
+// PORTB
+#define LED_PORT PORTB
+#define LED_DDR DDRB
+#define LED PB6 // OC1B
+#define CS_DOG PB5
+
+// PORTC
+#define K15_PORT PORTC
+#define K15_PIN PINC
+#define K15 PC0
+#define TKML PC2
+#define TKML_PORT PORTC
+#define TKML_PIN PINC
+#define DPLUS_PORT PORTC
+#define DPLUS_PIN PINC
+#define DPLUS PC3
+#define MKL PC6
+#define MKL_PORT PORTC
+#define MKL_PIN PINC
+
+// PORTD
+#define CAN_PORT PORTD
+#define CAN_DDR DDRD
+#define TX_CAN PD5
+#define RX_CAN PD6
+#define CAN_RS PD7
+#define USB_PORT PORTD
+#define USB_DDR DDRD
+#define USB_ACTIVE PD4 // ICP4
 #define PCA_PORT PORTD
 #define PCA_DDR DDRD
 #define DISABLE_PCA PD7
 
-#define MKL_NOCAN 7 // adc7
+// PORTE
+#define K58B_PORT PORTE
+#define K58B_PIN PINE
+#define K58B PE4
+#define CONS_PORT PORTE
+#define CONS_PIN PINE
+#define CONS PE6
+#define RPM_PORT PORTE
+#define RPM_PIN PINE
+#define RPM PE5
+#define HG_PORT PORTE
+#define HG_PIN PINE
+#define HG PE5
 
 enum displaymode {
 	NAVIGATION=0,
@@ -88,9 +106,9 @@ enum displaymode {
 #define OELTEMP 0
 #define AUSSENTEMP 1
 #define SPANNUNG3 4
-#define SPANNUNG4 5
-#define GETRIEBETEMP 7
-#define INNENTEMP 6
+
+#define GETRIEBETEMP 6
+#define MANIFOLD 7
 
 enum top_value {
 	RADIO_TEXT,

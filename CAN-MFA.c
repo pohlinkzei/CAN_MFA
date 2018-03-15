@@ -338,23 +338,23 @@ void io_init(void){
 	// init_twi_slave(calculateID("MFA"));
 
 	// PORTA:
-	DDRA = (1<<EN_ADC6) | (1<<EN_ADC7) /* | (1<<PA0) | (1<<PA1)*/;
+	DDRA = 0x00;
 	PORTA = 0x00;
 	// PORTB
 	DDRB = 0x00;
 	PORTB = 0x00;
 	// PORTC
-	DDRC = (1<<EN3V3) /*| 0x1F*/;
+	DDRC = 0x00 /*| 0x1F*/;
 	PORTC = 0x00;
 	// PORTD
 	DDRD = (1<<CS_DOG) | (1<<CAN_RS);
 	PORTD = (1<<CS_DOG) | 3;
 	// PORTE
 	PORTE = 0x00;
-	DDRE = (1<<EN_ADC0) | (1<<EN_ADC1);
+	DDRE = 0x00;
 	// PORTF
-	DDRF = (1<<CS_ADC);
-	PORTF |= (1<<CS_ADC);
+	DDRF = 0x00;
+	PORTF |= 0x00;
 	// PORTG
 	DDRG = 0x00;
 	PORTG = 0x00;
@@ -419,7 +419,6 @@ status_t get_status(status_t old){
 		switch(status){
 			case DOOR_OPEN:{
 
-				PORTC |= (1<<EN3V3);
 				//k58b_pw = 100;
 				dog_spi_init();
 				initk58_pwm();	
@@ -433,10 +432,6 @@ status_t get_status(status_t old){
 			}
 			case IGNITION_ON:{
 				uint8_t a, b;
-
-				PORTE |= (1<<EN_ADC0) | (1<<EN_ADC1);
-				PORTA |= (1<<EN_ADC6) | (1<<EN_ADC7);
-				PORTC |= (1<<EN3V3);
 				//k58b_pw = 100;
 				dog_spi_init();
 				initk58_pwm();	
@@ -578,9 +573,7 @@ int main(void){
 					PCA_PORT |= (1<<DISABLE_PCA);
 					dog_transmit(LCD_OFF);
 
-					PORTE &= ~(1<<EN_ADC0) & ~(1<<EN_ADC1) & ~(1<<PE3);
-					PORTA &= ~(1<<EN_ADC6) & ~(1<<EN_ADC7);
-					PORTC &= ~(1<<EN3V3);
+					PORTE &= ~(1<<PE3);
 					DDRE &= ~(1<<PE3);
 					TCCR3B = 0x00;
 					TCCR3A = 0x00;
@@ -732,8 +725,9 @@ void app_task(){
 		starterbat = calculate_voltage(adc_value[SPANNUNG1]);
 		zweitbat = calculate_voltage(adc_value[SPANNUNG2]);
 		if(can_mode == NO_CAN){
-			voltage_value_t v_mkl = calculate_voltage(adc_value[MKL_NOCAN]);
-			mkl = (uint8_t) (v_mkl.integer < 8); // mkl is active low!
+			#warning "MKL"
+			//voltage_value_t v_mkl = calculate_voltage(adc_value[MKL_NOCAN]);
+			//mkl = (uint8_t) (v_mkl.integer < 8); // mkl is active low!
 
 
 			// TODO: Calculate RPM
@@ -748,7 +742,8 @@ void app_task(){
 
 		}else{
 			v_solar_plus = calculate_voltage(adc_value[SPANNUNG3]);
-			v_solar_minus = calculate_voltage(adc_value[SPANNUNG4]);
+			#warning "v_solar_minus"
+			/*v_solar_minus = calculate_voltage(adc_value[SPANNUNG4]);*/
 
 			if(engine_temperature > 25 && engine_temperature < 200){
 				if(max_engine_temp < engine_temperature){
@@ -766,7 +761,8 @@ void app_task(){
 					min_gearbox_temp = gearbox_temperature;
 				}
 			}
-
+#warning "innentemp"
+/*
 			in_temperature = calculate_in_temperature(adc_value[INNENTEMP]);
 			if(in_temperature < 150 && in_temperature > -50){
 				if(max_in_temp < in_temperature){
@@ -774,7 +770,7 @@ void app_task(){
 				}else if(min_in_temp > in_temperature){
 					min_in_temp = in_temperature;
 				}
-			}
+			}*/
 			oil_temperature = calculate_oil_temperature(adc_value[OELTEMP]);
 			if(oil_temperature < 150 && oil_temperature > -50){
 				if(max_oil_temp < oil_temperature){

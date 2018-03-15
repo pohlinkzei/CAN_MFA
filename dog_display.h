@@ -49,10 +49,10 @@
 #define DOG_A0_PORT PORTB
 
 #define CS 1
-#define DOG_CS PD4
+#define DOG_CS PB5
 #if CS
-#define DOG_CS_DDR DDRD
-#define DOG_CS_PORT PORTD
+#define DOG_CS_DDR DDRB
+#define DOG_CS_PORT PORTB
 #endif
 
 #define DOG_RST PB4
