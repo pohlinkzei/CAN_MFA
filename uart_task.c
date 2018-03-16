@@ -146,7 +146,7 @@ void uart_calibrate(void){
 				}
 				case 'm':{
 					char val[5] = {0,};
-					uart1_puts("\n\rWert cal_can_mode: (0|1) ");
+					uart1_puts("\n\rWert cal_can_mode: (0: CAN | 1: NO_CAN ) ");
 					sprintf(val, "%i\n\r", eeprom_read_byte(&cal_can_mode));
 					uart1_puts(val);
 					eeprom_write_byte(&cal_can_mode, uart_get_int());
