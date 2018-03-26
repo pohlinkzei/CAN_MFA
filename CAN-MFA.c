@@ -118,10 +118,10 @@ volatile uint16_t range[2];
 volatile voltage_value_t starterbat;
 volatile voltage_value_t zweitbat;
 volatile voltage_value_t v_solar_plus;
-volatile voltage_value_t v_solar_minus;
-volatile int16_t in_temperature;
-int16_t max_in_temp;
-int16_t min_in_temp;
+// volatile voltage_value_t v_solar_minus;
+// volatile int16_t in_temperature;
+// int16_t max_in_temp;
+// int16_t min_in_temp;
 volatile int16_t gearbox_temperature;
 int16_t max_gearbox_temp;
 int16_t min_gearbox_temp;
@@ -312,11 +312,11 @@ void timer0_init(void){
 	//*/
 }
 
-void timer1_init(void){
+void timer3_init(void){
 	// 1s for consumption calculation
-	TCCR1B |= (1<<WGM12) | (1<<CS10) | (1<<CS12);// ctc prescaler 1024
-	OCR1A = F_CPU / 1024;
-	TIMSK1 = (1<<OCIE1A);
+	TCCR3B |= (1<<WGM32) | (1<<CS30) | (1<<CS32);// ctc prescaler 1024
+	OCR3A = F_CPU / 1024;
+	TIMSK3 = (1<<OCIE3A);
 }
 
 void timer2_init(void){
@@ -371,7 +371,7 @@ void avr_init(){
 	io_init();
 	
 	timer0_init();
-	timer1_init();
+	timer3_init();
 
 #if HAVE_MCP_ADC
 	timer2_init();
@@ -385,11 +385,11 @@ void avr_init(){
 		can_init_nocan();
 		can_status = 0;
 		//init int 0/1 all/rising edge
-		EICRA = /*(1<<ISC11) |*/ (1<<ISC10) | (1<<ISC01) | (1<<ISC00); //rpm @ int1 -> int on toggle, cons @ int 1 on rising edge
-		//init HG int (rising edge)
-		EICRB = (1<<ISC51) | (1<<ISC50);
+		//rpm @ int5 -> int on toggle, cons @ int6 on rising edge, HG @ int7 (rising edge)
+
+		EICRB = /*(1<<ISC51) |*/ (1<<ISC50) | (1<<ISC61) | (1<<ISC60) | (1<<ISC71) | (1<<ISC70);
 		//enable
-		EIMSK = (1<<INT5) | (1<<INT1) | (1<<INT0);
+		EIMSK = (1<<INT5) | (1<<INT6) | (1<<INT7);
 		
 	}else{
 		can_mode = CAN;
@@ -694,13 +694,13 @@ void reset_averages(void){
 void reset_min_max_values(void){
 	//speed, rpm, temperature (eng, oil, out, gaerbox)
 	max_gearbox_temp= -50;
-	max_in_temp=-50;
+	//max_in_temp=-50;
 	max_oil_temp=-50;
 	max_ambient_temp = -50;
 	max_speed= 0;
 	max_rpm = 0;
 	min_gearbox_temp= 150;
-	min_in_temp = 150;
+	//min_in_temp = 150;
 	min_oil_temp = 150;
 	min_ambient_temp = 150;
 }
@@ -728,7 +728,7 @@ void app_task(){
 			#warning "MKL"
 			//voltage_value_t v_mkl = calculate_voltage(adc_value[MKL_NOCAN]);
 			//mkl = (uint8_t) (v_mkl.integer < 8); // mkl is active low!
-
+			mkl = (MKL_PIN & (1<<MKL));
 
 			// TODO: Calculate RPM
 			if(rpm_cnt < 3001)
@@ -932,7 +932,7 @@ ISR(TIMER0_COMP_vect){//0.1ms timer
 	}
 }
 
-ISR(TIMER1_COMPA_vect){
+ISR(TIMER3_COMPA_vect){
 	if(status == IGNITION_ON){
 		driving_time[CUR]++;
 		driving_time[AVG]++;
@@ -975,16 +975,16 @@ ISR(TIMER2_COMP_vect){
 	}
 }
 
-ISR(INT1_vect){ //SDA -> RPM
+ISR(INT6_vect){ //SDA -> RPM
 	rpm_cnt++;
 }
 
-ISR(INT0_vect){ //SCL -> CONS
+ISR(INT5_vect){ //SCL -> CONS
 	cons_cnt++;
 	cons_delta_ul += 62;
 }
 
-ISR(INT5_vect){ //EN_ADC1 -> HG
+ISR(INT7_vect){ //EN_ADC1 -> HG
 	hg_cnt++;
 }
 

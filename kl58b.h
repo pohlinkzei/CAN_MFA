@@ -12,8 +12,8 @@
 #include <inttypes.h>
 #include <avr/interrupt.h>
 
-#define INT6_RISING 0x30
-#define INT6_FALLING 0x20
+#define INT4_RISING 0x03
+#define INT4_FALLING 0x02
 
 
 #define K58B_POLL 0

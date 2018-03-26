@@ -260,7 +260,12 @@ void display_small_text(void){
 			if(can_mode == NO_CAN){
 				display_value[SMALL_TEXT]++;
 			}else{
-				if(starterbat.integer == 0 && zweitbat.integer == 0 && (oil_temperature > 300 || oil_temperature < -50) && (ambient_temperature > 200 || ambient_temperature <-50) && v_solar_plus.integer == 0 && v_solar_minus.integer == 0 && (gearbox_temperature > 300 || gearbox_temperature < -50) && (in_temperature > 200 || in_temperature <-50)){
+				if(starterbat.integer == 0
+						&& zweitbat.integer == 0 
+						&& (oil_temperature > 300 || oil_temperature < -50) 
+						&& (ambient_temperature > 200 || ambient_temperature <-50) 
+						&& v_solar_plus.integer == 0 
+						&& (gearbox_temperature > 300 || gearbox_temperature < -50)){
 					display_value[SMALL_TEXT]++;
 					break;
 				}
@@ -325,7 +330,8 @@ void display_small_text(void){
 					adc_line3[3] = BAT;
 					adc_line3[4] = BAT+1;
 					adc_line3[5] = '4';
-					sprint_voltage(&adc_line3[6], v_solar_minus);
+					#warning "cleanup"
+					sprint_voltage(&adc_line3[6], v_solar_plus);
 					adc_line3[12] = 'V';
 				
 					adc_line4[3] = GEARBOXT;
@@ -336,7 +342,7 @@ void display_small_text(void){
 				
 					adc_line5[4] = INT;
 					adc_line5[5] = INT + 1;
-					sprint_temperature(&adc_line5[7],in_temperature);
+					sprint_temperature(&adc_line5[7],gearbox_temperature);
 					adc_line5[10] = CENTIGRADE;
 					dog_write_mid_strings(NEW_POSITION(2,0),adc_line2, adc_line3);
 				
@@ -460,7 +466,8 @@ void display_small_text(void){
 				
 				line3[9] = INT;
 				line3[10] = INT + 1;
-				sprint_temperature(&line4[11],mfa.mode==CUR?max_in_temp:min_in_temp);
+				#warning "Cleanup"
+				sprint_temperature(&line4[11],mfa.mode==CUR?0:0);
 				line3[14] = CENTIGRADE;
 				
 				line4[1] = ENGT;
@@ -519,7 +526,7 @@ void display_small_text(void){
 				
 				line3[9] = INT;
 				line3[10] = INT + 1;
-				sprint_temperature(&line4[11],in_temperature);
+				sprint_temperature(&line4[11],0);
 				line3[14] = CENTIGRADE;
 				
 				line4[1] = ENGT;
@@ -781,19 +788,10 @@ void display_med_row(volatile uint8_t* dv, uint8_t page, uint8_t row){
 			break;
 		}
 		case VAL_VOLTD:{
-			if(v_solar_minus.integer == 0 || can_mode == NO_CAN){
-				display_value++;
-				break;
-			}
-			dog_write_big_digit(NEW__POSITION(page,0,row),' ');
-			dog_write_numbered_bat_symbol(NEW__POSITION(page,12,row),'4');
-			sprint_voltage(&str[0], v_solar_minus);
-			str[6] = 'V';
-			for(i=0; i<7; i++){
-				dog_write_big_digit(NEW__POSITION(page,36+i*12,row),str[i]);
-				str[i] = ' ';
-			}
+			#warning "Cleanup"
+			display_value++;
 			break;
+			
 		}
 		case VAL_OIL:{
 			if(oil_temperature > 150 || oil_temperature < -50 || can_mode == NO_CAN){
@@ -870,23 +868,8 @@ void display_med_row(volatile uint8_t* dv, uint8_t page, uint8_t row){
 			break;
 		}
 		case VAL_INT:{
-			//*
-			if(in_temperature > 300 && in_temperature < -50){
-				display_value++;
-				break;
-			}
-			//*/
-			str[1] = 'i';
-			str[2] = 'n';
-			
-			sprint_temperature(&str[4], in_temperature);
-
-			str[8] = CENTIGRADE;
-
-			for(i=0; i<12; i++){
-				dog_write_big_digit(NEW__POSITION(page,i*12,row),str[i]);
-				str[i] = ' ';
-			}
+			#warning "Cleanup"
+			display_value++;
 			break;
 		}
 		//*

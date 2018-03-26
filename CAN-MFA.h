@@ -63,10 +63,10 @@
 #define K58B PE4
 #define CONS_PORT PORTE
 #define CONS_PIN PINE
-#define CONS PE6
+#define CONS_IN PE6
 #define RPM_PORT PORTE
 #define RPM_PIN PINE
-#define RPM PE5
+#define RPM_IN PE5
 #define HG_PORT PORTE
 #define HG_PIN PINE
 #define HG PE5
@@ -253,10 +253,10 @@ extern volatile uint32_t start_cnt;
 extern volatile voltage_value_t starterbat;
 extern volatile voltage_value_t zweitbat;
 extern volatile voltage_value_t v_solar_plus;
-extern volatile voltage_value_t v_solar_minus;
-extern volatile int16_t in_temperature;
-extern int16_t max_in_temp;
-extern int16_t min_in_temp;
+// extern volatile voltage_value_t v_solar_minus;
+// extern volatile int16_t in_temperature;
+// extern int16_t max_in_temp;
+// extern int16_t min_in_temp;
 extern volatile int16_t gearbox_temperature;
 extern int16_t max_gearbox_temp;
 extern int16_t min_gearbox_temp;
