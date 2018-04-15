@@ -498,7 +498,7 @@ int main(void){
 	K15_PORT &= ~(1<<K15);
 	//K15_PORT |= (1<<K15); // zündung an, bitte ;)
 	line_shift_timer = LINE_SHIFT_START;
-	#if 0
+	#if 1
 	display_mode = SMALL_TEXT;
 	display_value[SMALL_TEXT] = STANDARD_VALUES;
 	#else
@@ -603,12 +603,17 @@ int main(void){
 			}
 			case IGNITION_ON:{
 				door_delay = 0;
+#if 0
 				dcnt++;
 				if(dcnt==100){
 					dcnt=0;
 					display_task();
 					uart_bootloader_task();
 				}
+#else
+				display_task();
+				uart_bootloader_task();
+#endif
 				can_task();
 				app_task();
 				twi_task();
