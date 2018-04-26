@@ -145,7 +145,7 @@ void dog_write_small_string(const char *string){
 }
 #endif
 /**-----------------------------------------------------------------------------------------------------------------------------**/
-void dog_write_numbered_bat_symbol(position_t position, uint8_t num){
+void dog_write_big_numbered_bat_symbol(position_t position, uint8_t num){
 	//if(num>9) return;
 	
 	uint8_t temp[3][24] = {{0}};
@@ -350,6 +350,80 @@ void dog_write_mid_strings(position_t pos, const char *str0, const char *str1){
 		dog_transmit_data(line2[i]);
 	}
 
+}
+
+
+/**-----------------------------------------------------------------------------------------------------------------------------**/
+void dog_write_mid_numbered_bat_symbol(position_t position, uint8_t num){
+	//if(num>9) return;
+
+	uint8_t temp[3][24] = {{0}};
+	//uint8_t upper[12];
+	//uint8_t lower[12];
+	position.row = position.row % 8;
+	uint32_t temprow = 0;
+
+
+	//char frame[48] = {0};
+	for(i=0; i<8; i++){
+		//lower
+		temp[1][i] = pgm_read_byte(&(font8x12[BAT][2*i]));
+		//upper
+		temp[0][i] = pgm_read_byte(&(font8x12[BAT][2*i+1]));
+
+		//frame[2*i] 		= pgm_read_byte(&(font12x16[BAT][2*i+1]));
+		//frame[2*i+1]	= pgm_read_byte(&(font12x16[BAT][2*i]));
+	}
+	for(i=8; i<16; i++){
+		//lower
+		temp[1][i] = pgm_read_byte(&(font8x12[BAT][2*i]));
+		//upper
+		temp[0][i] = pgm_read_byte(&(font8x12[BAT][2*i+1]));
+	}
+	char number[16] = {0};
+	for(i=0; i<8; i++){
+		uint16_t temp = pgm_read_byte(&(font6x8[num][2*i+1]));
+		temp = temp << 3;
+		number[2*i+1]	= (uint8_t) temp;
+		number[2*i]		= (uint8_t) (temp>>8);
+	}
+	for(i=0; i<6; i++){
+
+		temp[1][5+i] ^= number[2*i];
+		temp[0][5+i] ^= number[2*i+1];
+	}
+	if(position.row != 0){
+		for(i=0; i<16; i++){
+			temprow = 0;
+			temprow = ((temp[0][i]) + ((uint16_t) temp[1][i] << 8) + ((uint32_t) temp[2][i] << 16));
+			temprow = temprow << position.row;
+			temp[0][i] = (uint8_t) ((temprow) & 0x000000FF);
+			temp[1][i] = (uint8_t) ((temprow>>8) & 0x000000FF);
+			temp[2][i] = (uint8_t) ((temprow>>16) & 0x000000FF);
+		}
+
+		dog_set_position(position.page, position.column);
+		for(i=0; i<16; i++){
+			dog_transmit_data(temp[0][i]);
+		}
+		dog_set_position(position.page+1, position.column);
+		for(i=0; i<16; i++){
+			dog_transmit_data(temp[1][i]);
+		}
+		dog_set_position(position.page+2, position.column);
+		for(i=0; i<16; i++){
+			dog_transmit_data(temp[2][i]);
+		}
+	}else{
+		dog_set_position(position.page,position.column);
+		for(i=0;i<16;i++){
+			dog_transmit_data(temp[0][i]);
+		}
+		dog_set_position(position.page+1,position.column);
+		for(i=0;i<16;i++){
+			dog_transmit_data(temp[1][i]);
+		}
+	}
 }
 #endif
 /**-----------------------------------------------------------------------------------------------------------------------------**/

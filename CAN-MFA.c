@@ -118,7 +118,7 @@ volatile uint16_t range[2];
 volatile voltage_value_t starterbat;
 volatile voltage_value_t zweitbat;
 volatile voltage_value_t v_solar_plus;
-volatile voltage_value_t v_solar_minus;
+volatile voltage_value_t entlastungsbat;
 volatile int16_t in_temperature;
 int16_t max_in_temp;
 int16_t min_in_temp;
@@ -753,7 +753,7 @@ void app_task(){
 
 		}else{
 			v_solar_plus = calculate_voltage(adc_value[SPANNUNG3]);
-			v_solar_minus = calculate_voltage(adc_value[SPANNUNG4]);
+			entlastungsbat = calculate_voltage(adc_value[SPANNUNG4]);
 
 			if(engine_temperature > 25 && engine_temperature < 200){
 				if(max_engine_temp < engine_temperature){

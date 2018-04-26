@@ -94,7 +94,10 @@ enum displaymode {
 
 enum top_value {
 	RADIO_TEXT,
-	VOLTAGES,
+	VOLTAGES0,
+	VOLTAGES1,
+	VOLTAGES2,
+	VOLTAGES3,
 	TEMPERATURES0,
 	TEMPERATURES1,
 	TEMPERATURES2,
@@ -235,7 +238,7 @@ extern volatile uint32_t start_cnt;
 extern volatile voltage_value_t starterbat;
 extern volatile voltage_value_t zweitbat;
 extern volatile voltage_value_t v_solar_plus;
-extern volatile voltage_value_t v_solar_minus;
+extern volatile voltage_value_t entlastungsbat;
 extern volatile int16_t in_temperature;
 extern int16_t max_in_temp;
 extern int16_t min_in_temp;

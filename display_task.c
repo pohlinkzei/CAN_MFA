@@ -260,7 +260,7 @@ void display_small_text(void){
 			if(can_mode == NO_CAN){
 				display_value[SMALL_TEXT]++;
 			}else{
-				if(starterbat.integer == 0 && zweitbat.integer == 0 && (oil_temperature > 300 || oil_temperature < -50) && (ambient_temperature > 200 || ambient_temperature <-50) && v_solar_plus.integer == 0 && v_solar_minus.integer == 0 && (gearbox_temperature > 300 || gearbox_temperature < -50) && (in_temperature > 200 || in_temperature <-50)){
+				if(starterbat.integer == 0 && zweitbat.integer == 0 && (oil_temperature > 300 || oil_temperature < -50) && (ambient_temperature > 200 || ambient_temperature <-50) && v_solar_plus.integer == 0 && entlastungsbat.integer == 0 && (gearbox_temperature > 300 || gearbox_temperature < -50) && (in_temperature > 200 || in_temperature <-50)){
 					display_value[SMALL_TEXT]++;
 					break;
 				}
@@ -325,7 +325,7 @@ void display_small_text(void){
 					adc_line3[3] = BAT;
 					adc_line3[4] = BAT+1;
 					adc_line3[5] = '4';
-					sprint_voltage(&adc_line3[6], v_solar_minus);
+					sprint_voltage(&adc_line3[6], entlastungsbat);
 					adc_line3[12] = 'V';
 				
 					adc_line4[3] = GEARBOXT;
@@ -739,7 +739,7 @@ void display_med_row(volatile uint8_t* dv, uint8_t page, uint8_t row){
 			}
 			//*/
 			dog_write_big_digit(NEW__POSITION(page,0,row),' ');
-			dog_write_numbered_bat_symbol(NEW__POSITION(page,12,row),'1');
+			dog_write_big_numbered_bat_symbol(NEW__POSITION(page,12,row),'1');
 			sprint_voltage(&str[0], starterbat);
 			str[6] = 'V';
 			for(i=0; i<7; i++){
@@ -756,7 +756,7 @@ void display_med_row(volatile uint8_t* dv, uint8_t page, uint8_t row){
 			}
 			//*/
 			dog_write_big_digit(NEW__POSITION(page,0,row),' ');
-			dog_write_numbered_bat_symbol(NEW__POSITION(page,12,row),'2');
+			dog_write_big_numbered_bat_symbol(NEW__POSITION(page,12,row),'2');
 			sprint_voltage(&str[0], zweitbat);
 			str[6] = 'V';
 			for(i=0; i<7; i++){
@@ -771,7 +771,7 @@ void display_med_row(volatile uint8_t* dv, uint8_t page, uint8_t row){
 				break;
 			}
 			dog_write_big_digit(NEW__POSITION(page,0,row),' ');
-			dog_write_numbered_bat_symbol(NEW__POSITION(page,12,row),'3');
+			dog_write_big_numbered_bat_symbol(NEW__POSITION(page,12,row),'3');
 			sprint_voltage(&str[0], v_solar_plus);
 			str[6] = 'V';
 			for(i=0; i<7; i++){
@@ -781,13 +781,13 @@ void display_med_row(volatile uint8_t* dv, uint8_t page, uint8_t row){
 			break;
 		}
 		case VAL_VOLTD:{
-			if(v_solar_minus.integer == 0 || can_mode == NO_CAN){
+			if(entlastungsbat.integer == 0 || can_mode == NO_CAN){
 				display_value++;
 				break;
 			}
 			dog_write_big_digit(NEW__POSITION(page,0,row),' ');
-			dog_write_numbered_bat_symbol(NEW__POSITION(page,12,row),'4');
-			sprint_voltage(&str[0], v_solar_minus);
+			dog_write_big_numbered_bat_symbol(NEW__POSITION(page,12,row),'4');
+			sprint_voltage(&str[0], entlastungsbat);
 			str[6] = 'V';
 			for(i=0; i<7; i++){
 				dog_write_big_digit(NEW__POSITION(page,36+i*12,row),str[i]);
@@ -1330,12 +1330,38 @@ void display_top_line(void){
 				line_shift_timer);
 			break;
 		}
-		case VOLTAGES:{
+		case VOLTAGES1:{
+			//				0123456789012345
+			//				 12,3V BB 12,3V
+			char str[17] = "                ";
+			sprint_voltage(&str[0], zweitbat);
+			sprint_voltage(&str[9], v_solar_plus);
+			str[5] = 'V';
+			str[14] = 'V';
+			str[7] = BAT;
+			str[8] = BAT+1;
+			dog_write_mid_string(NEW_POSITION(0,4),str);
+			break;
+		}
+		case VOLTAGES2:{
+			//				0123456789012345
+			//				 12,3V BB 12,3V
+			char str[17] = "                ";
+			sprint_voltage(&str[0], v_solar_plus);
+			sprint_voltage(&str[9], entlastungsbat);
+			str[5] = 'V';
+			str[14] = 'V';
+			str[7] = BAT;
+			str[8] = BAT+1;
+			dog_write_mid_string(NEW_POSITION(0,4),str);
+			break;
+		}
+		case VOLTAGES3:{
 			//				0123456789012345
 			//				 12,3V BB 12,3V
 			char str[17] = "                ";
 			sprint_voltage(&str[0], starterbat);
-			sprint_voltage(&str[9], zweitbat);
+			sprint_voltage(&str[9], entlastungsbat);
 			str[5] = 'V';
 			str[14] = 'V';
 			str[7] = BAT;

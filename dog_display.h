@@ -107,11 +107,13 @@ void dog_write_small_string(const char *data);
 #ifdef USE_BIG_FONT
 void dog_write_big_digit(position_t position,uint8_t digit);
 void dog_write_big_string(position_t position,const char *data);
+void dog_write_big_numbered_bat_symbol(position_t position, uint8_t num);
 #endif
 #ifdef USE_MID_FONT
 void dog_write_mid_digit(position_t position,uint8_t digit);
 void dog_write_mid_string(position_t position,const char *data);
 void dog_write_mid_strings(position_t pos,const  char* str0, const char* str1);
+void dog_write_mid_numbered_bat_symbol(position_t position, uint8_t num);
 #endif
 #ifdef USE_TINY_FONT
 void dog_write_tiny_digit(uint8_t digit);
@@ -125,7 +127,7 @@ void dog_clear_lcd(void);
 void dog_set_lcd(uint8_t value);
 void dog_home(void);
 void dog_write_empty_line(position_t p);
-void dog_write_numbered_bat_symbol(position_t position, uint8_t num);
+
 void dog_write_rotating(position_t position,const char* text, uint8_t length, uint8_t type, volatile uint16_t tim);
 /** PROGMEM **********************************************************************************************************************/
 static const char font4x6[CHARSET][4] PROGMEM ={
