@@ -92,11 +92,13 @@
 typedef struct position {uint8_t page; uint8_t column; uint8_t row;} position_t;
 extern volatile uint8_t reversed;
 extern volatile uint8_t underlined;
+extern volatile uint8_t dog_initialized; 
 /** FUNCTIONS ********************************************************************************************************************/
 void dog_init(void);
+void dog_disable(void);
 void dog_spi_init(void);
 //void dog_uart_spi_init(uint16_t baud);
-uint8_t dog_transmit(uint8_t data);
+//uint8_t dog_transmit(uint8_t data);
 void dog_enable_io(void);
 void dog_disable_io(void);
 void dog_transmit_data(uint8_t data);

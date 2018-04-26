@@ -11,13 +11,14 @@ volatile uint8_t init128[] = {0x40 ,0xA0 ,0xC8 ,0xA6 ,0xA2 ,0x2F ,0xF8 ,0x00 ,0x
 volatile uint16_t k,h,i;
 volatile uint8_t reversed = 0;
 volatile uint8_t underlined = 0;
+volatile uint8_t dog_initialized = 0;
 uint8_t count;
 uint8_t n,m;
 uint8_t do_rot = 1;
 uint8_t do_rot_cnt = 0;
 uint8_t do_not_rot_cnt = 0;
 
-
+uint8_t dog_transmit(uint8_t data);
 /** FUNCTIONS ********************************************************************************************************************/
 void dog_spi_init(void){
 	SPI_DDR |= (1<<MOSI) | (1<<MISO) | (1<<SCK);
@@ -44,8 +45,6 @@ void dog_spi_init(void){
 		// 1M / 8 = 125k
 		SPCR |= (1<<SPR0)  | (1<<SPI2X);
 	}
-	
-	//SPSR = (1<<SPI2X);
 
 	uint8_t dummy = (SPSR);
 	dummy=dummy;
@@ -675,8 +674,16 @@ position_t NEW__POSITION(uint8_t page,uint8_t column, uint8_t row){
 	return pos;
 }
 /**-----------------------------------------------------------------------------------------------------------------------------**/
+
+void dog_disable(void){
+	dog_transmit(LCD_OFF);
+	dog_initialized = 0;
+}
+/**-----------------------------------------------------------------------------------------------------------------------------**/
 void dog_init(void){
 	uint8_t i = 0;
+	if(dog_initialized)
+		return;
 #if CS
 	DOG_CS_PORT &= ~(1<<DOG_CS);
 #endif
@@ -692,4 +699,5 @@ void dog_init(void){
 	for(i=0;i<14;i++){
 		dog_transmit(init128[i]);
 	}
+	dog_initialized = 1;
 }

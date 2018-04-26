@@ -468,12 +468,27 @@ status_t get_status(status_t old){
 				break;
 			}
 			case OFF:{
+				uint8_t i;
 				if(old == IGNITION_ON){
 					k15_delay_cnt = eeprom_read_byte(&cal_k15_delay) + 1;
 				}
 				if(old == DOOR_OPEN){
 					door_delay = 1000; //ms
 				}
+
+				for(i=0;i<8;i++){
+					id280_data[i] = 0;
+					id288_data[i] = 0;
+					id380_data[i] = 0;
+					id480_data[i] = 0;
+					id320_data[i] = 0;
+					id420_data[i] = 0;
+					id520_data[i] = 0;
+					id666_data[i] = 0;
+					id667_data[i] = 0;
+				}
+				id280_valid = 1;
+
 				break;
 			}
 			default:{
@@ -576,7 +591,7 @@ int main(void){
 					k58b_pw = 0;
 					// disable CAN receiver
 					PCA_PORT |= (1<<DISABLE_PCA);
-					dog_transmit(LCD_OFF);
+					dog_disable();
 
 					PORTE &= ~(1<<EN_ADC0) & ~(1<<EN_ADC1) & ~(1<<PE3);
 					PORTA &= ~(1<<EN_ADC6) & ~(1<<EN_ADC7);
