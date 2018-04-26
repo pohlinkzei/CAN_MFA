@@ -1330,43 +1330,60 @@ void display_top_line(void){
 				line_shift_timer);
 			break;
 		}
+		case VOLTAGES0:{
+			//				0123456789012345
+			//				 12,3V BB 12,3V
+			char str1[7] = "       ";
+			char str2[8] = "        ";
+			sprint_voltage(&str1[0], zweitbat);
+			sprint_voltage(&str2[0], v_solar_plus);
+			str1[5] = 'V';
+			str2[5] = 'V';
+			dog_write_mid_string(NEW_POSITION(0,4),str1);
+			dog_write_mid_numbered_bat_symbol(NEW_POSITION(0,60), '1');
+			dog_write_mid_string(NEW_POSITION(0,76),str2);
+			break;
+		}
 		case VOLTAGES1:{
 			//				0123456789012345
 			//				 12,3V BB 12,3V
-			char str[17] = "                ";
-			sprint_voltage(&str[0], zweitbat);
-			sprint_voltage(&str[9], v_solar_plus);
-			str[5] = 'V';
-			str[14] = 'V';
-			str[7] = BAT;
-			str[8] = BAT+1;
-			dog_write_mid_string(NEW_POSITION(0,4),str);
+			char str1[7] = "       ";
+			char str2[8] = "        ";
+			sprint_voltage(&str1[0], v_solar_plus);
+			sprint_voltage(&str2[0], entlastungsbat);
+			str1[5] = 'V';
+			str2[5] = 'V';
+			dog_write_mid_string(NEW_POSITION(0,4),str1);
+			dog_write_mid_numbered_bat_symbol(NEW_POSITION(0,60), '2');
+			dog_write_mid_string(NEW_POSITION(0,76),str2);
 			break;
 		}
 		case VOLTAGES2:{
 			//				0123456789012345
 			//				 12,3V BB 12,3V
-			char str[17] = "                ";
-			sprint_voltage(&str[0], v_solar_plus);
-			sprint_voltage(&str[9], entlastungsbat);
-			str[5] = 'V';
-			str[14] = 'V';
-			str[7] = BAT;
-			str[8] = BAT+1;
-			dog_write_mid_string(NEW_POSITION(0,4),str);
+			char str1[7] = "       ";
+			char str2[8] = "        ";
+			sprint_voltage(&str1[0], starterbat);
+			sprint_voltage(&str2[0], entlastungsbat);
+			str1[5] = 'V';
+			str2[5] = 'V';
+			dog_write_mid_string(NEW_POSITION(0,4),str1);
+			dog_write_mid_numbered_bat_symbol(NEW_POSITION(0,60), '3');
+			dog_write_mid_string(NEW_POSITION(0,76),str2);
 			break;
 		}
 		case VOLTAGES3:{
 			//				0123456789012345
 			//				 12,3V BB 12,3V
-			char str[17] = "                ";
-			sprint_voltage(&str[0], starterbat);
-			sprint_voltage(&str[9], entlastungsbat);
-			str[5] = 'V';
-			str[14] = 'V';
-			str[7] = BAT;
-			str[8] = BAT+1;
-			dog_write_mid_string(NEW_POSITION(0,4),str);
+			char str1[7] = "       ";
+			char str2[8] = "        ";
+			sprint_voltage(&str1[0], entlastungsbat);
+			sprint_voltage(&str2[0], zweitbat);
+			str1[5] = 'V';
+			str2[5] = 'V';
+			dog_write_mid_string(NEW_POSITION(0,4),str1);
+			dog_write_mid_numbered_bat_symbol(NEW_POSITION(0,60), '4');
+			dog_write_mid_string(NEW_POSITION(0,76),str2);
 			break;
 		}
 		case TEMPERATURES0:{

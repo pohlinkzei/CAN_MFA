@@ -495,32 +495,28 @@ status_t get_status(status_t old){
 				;
 			}
 		}
-	}/*else{
-		if(status==DOOR_OPEN){
-			door_open_count++;
-		}
-	}*/
+	}
 	return status;
 }
 
 int main(void){
-	int dcnt = 0;
 	status = OFF;
 	cli();
 	avr_init();
 	
 	sei();
 	K15_PORT &= ~(1<<K15);
-	//K15_PORT |= (1<<K15); // zündung an, bitte ;)
 	line_shift_timer = LINE_SHIFT_START;
-	#if 1
+#if 1
 	display_mode = SMALL_TEXT;
 	display_value[SMALL_TEXT] = STANDARD_VALUES;
-	#else
-	display_mode = CAN_DATA;
-	display_value[CAN_DATA] = 0;
-	#endif
-	//strcpy( (char*) radio_text, "  CAN Test        ");
+#else
+	TKML_PORT |= (1<<TKML);
+	K15_PORT |= (1<<K15); // zündung an, bitte ;)
+	display_mode = TOP_LINE;
+	display_value[TOP_LINE] = VOLTAGES0;
+#endif
+
 
 	status = get_status(OFF);
 	
@@ -618,17 +614,8 @@ int main(void){
 			}
 			case IGNITION_ON:{
 				door_delay = 0;
-#if 0
-				dcnt++;
-				if(dcnt==100){
-					dcnt=0;
-					display_task();
-					uart_bootloader_task();
-				}
-#else
 				display_task();
 				uart_bootloader_task();
-#endif
 				can_task();
 				app_task();
 				twi_task();
