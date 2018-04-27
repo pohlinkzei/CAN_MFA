@@ -1306,6 +1306,34 @@ void display_can_data(void){
 
 void display_top_line(void){
 	
+	if(draw_engine_cut_state){
+		// new status from startstop device
+		underlined = 1;
+		char str[17] = "                ";
+		switch(engine_cut){
+			case STARTING:
+			case RUNNING:
+			case CUTTING:
+			case CUT:{
+				str[7] = AUTOSTART_ACTIVE;
+				str[8] = AUTOSTART_ACTIVE+1;
+				dog_write_mid_string(NEW_POSITION(0,4),str);
+				break;
+			}
+			case DISABLED:{
+				str[7] = AUTOSTART_INACTIVE;
+				str[8] = AUTOSTART_INACTIVE+1;
+				dog_write_mid_string(NEW_POSITION(0,4),str);
+				break;
+			}
+		}
+		underlined = 0;
+		return;
+	}
+
+
+
+
 	if(!(TKML_PIN & (1<<TKML))){
 		//				.012345678901.
 		char _str[] =	"            ";

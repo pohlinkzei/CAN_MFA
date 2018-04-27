@@ -140,6 +140,7 @@ uint8_t EEMEM cal_consumption;
 uint8_t EEMEM cal_gearbox_temperature;
 uint8_t EEMEM cal_ambient_temperature;
 uint8_t EEMEM cal_can_mode;
+uint8_t EEMEM cal_startstop_enabled;
 volatile uint8_t mkl;
 uint8_t cal_k15_delay EEMEM;
 uint8_t cal_k58b_off_val EEMEM;
@@ -149,6 +150,9 @@ extern volatile uint16_t k58b_timer;
 volatile uint32_t cons_timer;
 volatile uint8_t can_status = 0x00;
 volatile uint8_t engine_cut;
+volatile uint8_t engine_cut_old;
+volatile uint16_t draw_engine_cut_state;
+volatile uint8_t startstop_enabled;
 volatile uint8_t can_mode;
 
 volatile uint8_t display_mode = 0;
@@ -887,6 +891,12 @@ void app_task(){
 		}
 		mfa_old = mfa;
 		disable_mfa_switch();
+
+		if(engine_cut != engine_cut_old){
+			// new status from startstop device
+			draw_engine_cut_state = 250;
+		}
+
 		//*
 		// process navigation data
 		
@@ -919,6 +929,10 @@ ISR(TIMER0_COMP_vect){//0.1ms timer
 			door_delay--;
 		}
 		//*/
+		if(draw_engine_cut_state){
+			draw_engine_cut_state--;
+		}
+
 		set_backlight(k58b_pw);
 		line_ms_timer++;
 		if(line_ms_timer > 400){

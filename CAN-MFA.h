@@ -263,12 +263,16 @@ extern uint8_t EEMEM cal_k15_delay;
 extern uint8_t EEMEM cal_k58b_off_val;
 extern uint8_t EEMEM cal_k58b_on_val;
 extern uint8_t EEMEM cal_can_mode;
+extern uint8_t EEMEM cal_startstop_enabled;
 extern volatile uint8_t mkl;
 extern volatile uint16_t avg_timer;
 extern volatile uint16_t k58b_timer;
 extern volatile uint32_t cons_timer;
 extern volatile uint8_t can_status;
 extern volatile uint8_t engine_cut;
+extern volatile uint8_t engine_cut_old;
+extern volatile uint16_t draw_engine_cut_state;
+extern volatile uint8_t startstop_enabled;
 
 extern volatile uint8_t display_mode;
 extern volatile uint8_t display_mode_tmp;
