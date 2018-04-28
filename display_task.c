@@ -107,18 +107,9 @@ void display_navi(void){
 }
 
 void display_settings(void){
-
-	uint8_t line = display_mode & ~(1<<SETTINGS);
-	
-	switch(line){
-		case 0:{
-			break;
-		}
-		default:{
-			display_mode &= ~(1<<SETTINGS);
-			break;
-		}
-	}
+	//															 .    SETTINGS    
+	dog_write_mid_strings(NEW_POSITION(2,0), "                ", "    SETTINGS    ");
+	dog_write_mid_strings(NEW_POSITION(5,0), "                ", "                ");
 }
 
 void display_small_text(void){
@@ -1319,6 +1310,16 @@ void display_top_line(void){
 				str[8] = AUTOSTART_ACTIVE+1;
 				dog_write_mid_string(NEW_POSITION(0,4),str);
 				break;
+			}
+			case WAITING:{
+				if(engine_temperature <= 70){
+					str[3] = ENGT;
+					str[4] = ENGT + 1;
+				}
+				if(rpm && ((starterbat.integer * 100 + starterbat.fraction) <= 1380)){
+					str[11] = BAT;
+					str[12] = BAT + 1;
+				}
 			}
 			case DISABLED:{
 				str[7] = AUTOSTART_INACTIVE;

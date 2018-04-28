@@ -140,7 +140,7 @@ uint8_t EEMEM cal_consumption;
 uint8_t EEMEM cal_gearbox_temperature;
 uint8_t EEMEM cal_ambient_temperature;
 uint8_t EEMEM cal_can_mode;
-uint8_t EEMEM cal_startstop_enabled;
+//uint8_t EEMEM cal_startstop_enabled;
 volatile uint8_t mkl;
 uint8_t cal_k15_delay EEMEM;
 uint8_t cal_k58b_off_val EEMEM;
@@ -864,7 +864,7 @@ void app_task(){
 			mfa.mfa = 1;
 			if(mfa.mfa == mfa_old.mfa){
 				mfa_mfa_cnt++;
-				if(mfa_mfa_cnt>10){
+				if(mfa_mfa_cnt>25){
 					if(display_mode & (1<<SETTINGS)){
 						display_mode &= ~(1<<SETTINGS);
 					}else{
@@ -894,7 +894,8 @@ void app_task(){
 
 		if(engine_cut != engine_cut_old){
 			// new status from startstop device
-			draw_engine_cut_state = 250;
+			draw_engine_cut_state = 2500;
+			engine_cut_old = engine_cut;
 		}
 
 		//*

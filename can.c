@@ -294,7 +294,7 @@ void can_send_data(void){
 		CANMSG = startstop_enabled;
 		id666_data[3] = startstop_enabled;
 
-		for(i=3;i<8;i++){
+		for(i=4;i<8;i++){
 			CANMSG = 0x00;
 			id666_data[i] = 0x00;
 		}

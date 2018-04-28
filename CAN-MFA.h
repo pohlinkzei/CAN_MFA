@@ -147,6 +147,7 @@ enum small_value {
 #define CUTTING 3
 #define CUT 4
 #define DISABLED 5
+#define WAITING 6
 
 #define BRAKE 0x03 // status2
 #define THROTTLE 0x01 // status1
@@ -263,7 +264,7 @@ extern uint8_t EEMEM cal_k15_delay;
 extern uint8_t EEMEM cal_k58b_off_val;
 extern uint8_t EEMEM cal_k58b_on_val;
 extern uint8_t EEMEM cal_can_mode;
-extern uint8_t EEMEM cal_startstop_enabled;
+//extern uint8_t EEMEM cal_startstop_enabled;
 extern volatile uint8_t mkl;
 extern volatile uint16_t avg_timer;
 extern volatile uint16_t k58b_timer;
