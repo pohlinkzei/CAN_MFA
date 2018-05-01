@@ -303,15 +303,16 @@ void timer0_init(void){
 	
 	TCCR0A = 0x00;
 	//*
-	// 0.1ms für alles mögliche
-	TCCR0A |= (1<<WGM01) | (1<<CS01);// prescaler 8 | (1<<CS00); //ctc, prescaler 64
+	// 1ms für alles mögliche
 	
-	#if K58B_POLL
-	//0.1ms timer fuer pwm messung
+//	#if K58B_POLL
+	TCCR0A |= (1<<WGM01) | (1<<CS01) | (1<<CS00);	//ctc, prescaler 64
 	OCR0A = F_CPU / 64 / 1000; //25
-	#else
+/*	#else
+	TCCR0A |= (1<<WGM01) | (1<<CS01);	//ctc, prescaler 8
 	OCR0A = F_CPU / 8 / 10000; //200
 	#endif
+//*/
 	TIMSK0 |= (1<<OCIE0A);
 	//*/
 }
@@ -521,7 +522,7 @@ int main(void){
 	display_value[TOP_LINE] = VOLTAGES0;
 #endif
 
-
+	display_menu_init();
 	status = get_status(OFF);
 	
 	enable_mfa_switch();
@@ -826,7 +827,7 @@ void app_task(){
 			mfa.res = 1;
 			if(mfa.res == mfa_old.res){
 				mfa_res_cnt++;
-				if(!(display_mode & (1<<SETTINGS))){	
+				if(!(display_mode & (1<<SETTINGS))){
 					if (mfa_res_cnt > 10){
 						if(display_mode == SMALL_TEXT && display_value[SMALL_TEXT] == MIN_MAX_VALUES){
 							reset_min_max_values();
@@ -864,37 +865,43 @@ void app_task(){
 			mfa.mfa = 1;
 			if(mfa.mfa == mfa_old.mfa){
 				mfa_mfa_cnt++;
-				if(mfa_mfa_cnt>25){
-					if(display_mode & (1<<SETTINGS)){
-						display_mode &= ~(1<<SETTINGS);
-					}else{
-						display_mode |= (1<<SETTINGS);
+				if(!(display_mode & (1<<SETTINGS))){
+					if(mfa_mfa_cnt>10){
+						if(display_mode & (1<<SETTINGS)){
+							display_mode &= ~(1<<SETTINGS);
+						}else{
+							display_mode |= (1<<SETTINGS);
+						}
+						mfa_mfa_cnt = 0;
+						no_mfa_switch = 1;
 					}
-					no_mfa_switch = 1;
+				}else{
+					;
 				}
-			}else{
-				display_mode++;
-				#if 0
-				// test if this is needed...
-				if(display_mode > CAN_DATA){
-					display_mode = 0;
+			}
+		}else{
+			mfa.mfa = 0;
+			mfa_mfa_cnt = 0;
+			if(mfa.mfa != mfa_old.mfa){
+				if(!no_mfa_switch){
+					display_mode++;
+				}else{
+					no_mfa_switch = 0;
 				}
-				#endif
+
 				if((navigation_status == status_routing || navigation_status == status_recalculating) && display_mode == NAVIGATION){
 					do_not_switch_to_navigation = 1;
 				}else{
 					do_not_switch_to_navigation = 0;
 				}
 			}
-		}else{
-			mfa.mfa = 0;
 		}
 		mfa_old = mfa;
 		disable_mfa_switch();
 
 		if(engine_cut != engine_cut_old){
 			// new status from startstop device
-			draw_engine_cut_state = 2500;
+			draw_engine_cut_state = 5000;
 			engine_cut_old = engine_cut;
 		}
 
@@ -916,9 +923,9 @@ void app_task(){
 
 
 ISR(TIMER0_COMP_vect){//0.1ms timer
-	t0cnt++;
-	if(t0cnt == 10){//1ms
-		t0cnt = 0;
+//	t0cnt++;
+//	if(t0cnt == 10){//1ms
+//		t0cnt = 0;
 		if(K58B_PIN & (1<<K58B)){
 			k58b_timer=15;
 		}else{
@@ -955,7 +962,7 @@ ISR(TIMER0_COMP_vect){//0.1ms timer
 			rpm_cnt = 0;
 			// TODO: Set can send timing dependent (10ms / 100ms / ...)
 		}
-	}
+//	}
 }
 
 ISR(TIMER1_COMPA_vect){

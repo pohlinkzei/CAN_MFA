@@ -42,7 +42,7 @@
 #define CONS_KM_L 0x1E
 
 #define AUTOSTART_ACTIVE 0xB9
-#define AUTOSTART_INACTIVE 0xBA
+#define AUTOSTART_INACTIVE 0xBB
 
 #define COLUMNS 132
 #define ROWS 8//4

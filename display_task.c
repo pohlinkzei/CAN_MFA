@@ -15,9 +15,198 @@
 #include "tuer.h"
 #include "navigation.h"
 #include "display_task.h"
- 
- 
- void fill_str(char* str, char element, uint8_t length){
+
+volatile menu_item_t* settings_menu;
+volatile menu_item_t* current_enty;
+
+volatile menu_item_t settings_temperatures;
+volatile menu_item_t settings_cal_oil_temperature;
+volatile menu_item_t settings_cal_in_temperature;
+volatile menu_item_t settings_cal_gearbox_temperature;
+volatile menu_item_t settings_cal_ambient_temperature;
+//menu_item_t settings_cal_water_temperature; //85;
+
+volatile menu_item_t settings_mfa_values;
+volatile menu_item_t settings_cal_voltage; // 171
+volatile menu_item_t settings_cal_speed; // 169
+volatile menu_item_t settings_cal_consumption;
+
+volatile menu_item_t settings_options;
+volatile menu_item_t settings_cal_k15_delay;
+volatile menu_item_t settings_cal_k58b;
+volatile menu_item_t settings_cal_k58b_off_val;
+volatile menu_item_t settings_cal_k58b_on_val;
+volatile menu_item_t settings_cal_can_mode;
+volatile menu_item_t settings_cal_startstop_enabled;
+
+void display_menu_init(void){
+	#if 1
+	/*
+	extern uint8_t EEMEM cal_water_temperature; //85;
+	extern uint8_t EEMEM cal_voltage; // 171
+	extern uint8_t EEMEM cal_speed; // 169
+	extern uint8_t EEMEM cal_oil_temperature;
+	extern uint8_t EEMEM cal_in_temperature;
+	extern uint8_t EEMEM cal_consumption;
+	extern uint8_t EEMEM cal_gearbox_temperature;
+	extern uint8_t EEMEM cal_ambient_temperature;
+	extern uint8_t EEMEM cal_k15_delay;
+	extern uint8_t EEMEM cal_k58b_off_val;
+	extern uint8_t EEMEM cal_k58b_on_val;
+	extern uint8_t EEMEM cal_can_mode;
+	extern uint8_t EEMEM cal_startstop_enabled;
+	//*/
+	//											 0123456789012345
+	strcpy(settings_temperatures.text,			"  Temperaturen  ");
+	settings_temperatures.parent = &settings_menu;
+	settings_temperatures.num_child = 4;
+	settings_temperatures.is_value = 0;
+	settings_temperatures.value = 0;
+	settings_temperatures.is_switch = 0;
+	settings_temperatures.switch_value = 0;
+	{
+		strcpy(settings_cal_oil_temperature.text,		"      OEL       ");
+		settings_cal_oil_temperature.num_child = 0;
+		settings_cal_oil_temperature.child = NULL;
+		settings_cal_oil_temperature.parent = &settings_temperatures;
+		settings_cal_oil_temperature.is_value = 1;
+		settings_cal_oil_temperature.value = eeprom_read_byte(&cal_oil_temperature);
+		settings_cal_oil_temperature.is_switch = 0;
+		settings_cal_oil_temperature.switch_value = 0;
+		settings_cal_oil_temperature.next = &settings_cal_in_temperature;
+	
+		strcpy(settings_cal_in_temperature.text,			"     INNEN     ");
+		settings_cal_in_temperature.num_child = 0;
+		settings_cal_in_temperature.child = NULL;
+		settings_cal_in_temperature.parent = &settings_temperatures;
+		settings_cal_in_temperature.is_value = 1;
+		settings_cal_in_temperature.value = eeprom_read_byte(&cal_in_temperature);
+		settings_cal_in_temperature.is_switch = 0;
+		settings_cal_in_temperature.switch_value = 0;
+		settings_cal_in_temperature.next = &settings_cal_gearbox_temperature;
+	
+		strcpy(settings_cal_gearbox_temperature.text,	"    GETRIEBE    ");
+		settings_cal_gearbox_temperature.num_child = 0;
+		settings_cal_gearbox_temperature.child = NULL;
+		settings_cal_gearbox_temperature.parent = &settings_temperatures;
+		settings_cal_gearbox_temperature.is_value = 1;
+		settings_cal_gearbox_temperature.value = eeprom_read_byte(&cal_gearbox_temperature);
+		settings_cal_gearbox_temperature.is_switch = 0;
+		settings_cal_gearbox_temperature.switch_value = 0;
+		settings_cal_gearbox_temperature.next = &settings_cal_ambient_temperature;
+	
+		strcpy(settings_cal_ambient_temperature.text,	"     AUSSEN     ");
+		settings_cal_ambient_temperature.num_child = 0;
+		settings_cal_ambient_temperature.child = NULL;
+		settings_cal_ambient_temperature.parent = &settings_temperatures;
+		settings_cal_ambient_temperature.is_value = 1;
+		settings_cal_ambient_temperature.value = eeprom_read_byte(&cal_ambient_temperature);
+		settings_cal_ambient_temperature.is_switch = 0;
+		settings_cal_ambient_temperature.switch_value = 0;
+		settings_cal_ambient_temperature.next = NULL;
+	}
+	settings_temperatures.child = &cal_oil_temperature;
+	settings_temperatures.next = &settings_mfa_values;
+	
+	strcpy(settings_mfa_values.text,		"  Analogwerte  ");
+	settings_mfa_values.parent = &settings_menu;
+	settings_mfa_values.num_child = 3;
+	settings_mfa_values.is_value = 0;
+	settings_mfa_values.value = 0;
+	settings_mfa_values.is_switch = 0;
+	settings_mfa_values.switch_value = 0;
+	{
+		strcpy(settings_cal_voltage.text,		"   SPANNUNG    ");
+		settings_cal_voltage.num_child = 0;
+		settings_cal_voltage.child = NULL;
+		settings_cal_voltage.parent = &settings_mfa_values;
+		settings_cal_voltage.is_value = 1;
+		settings_cal_voltage.value = eeprom_read_byte(&cal_voltage);
+		settings_cal_voltage.is_switch = 0;
+		settings_cal_voltage.switch_value = 0;
+		settings_cal_voltage.next = &settings_cal_speed;
+		
+		strcpy(settings_cal_speed.text,			"GESCHWINDIGKEIT");
+		settings_cal_speed.num_child = 0;
+		settings_cal_speed.child = NULL;
+		settings_cal_speed.parent = &settings_mfa_values;
+		settings_cal_speed.is_value = 1;
+		settings_cal_speed.value = eeprom_read_byte(&cal_speed);
+		settings_cal_speed.is_switch = 0;
+		settings_cal_speed.switch_value = 0;
+		settings_cal_speed.next = &settings_cal_consumption;
+		
+		strcpy(settings_cal_consumption.text,	"    VERBRAUCH   ");
+		settings_cal_consumption.num_child = 0;
+		settings_cal_consumption.child = NULL;
+		settings_cal_consumption.parent = &settings_mfa_values;
+		settings_cal_consumption.is_value = 1;
+		settings_cal_consumption.value = eeprom_read_byte(&cal_consumption);
+		settings_cal_consumption.is_switch = 0;
+		settings_cal_consumption.switch_value = 0;
+		settings_cal_consumption.next = NULL;
+	}
+	
+	settings_mfa_values.child = &settings_cal_voltage;
+	settings_mfa_values.next = &settings_options;
+	
+	strcpy(settings_options.text,		"  OPTIONEN  ");
+	settings_options.parent = &settings_menu;
+	settings_options.num_child = 4;
+	settings_options.is_value = 0;
+	settings_options.value = 0;
+	settings_options.is_switch = 0;
+	settings_options.switch_value = 0;
+	{
+		strcpy(settings_cal_k58b.text,	"  BELEUCHTUNG  ");
+		settings_cal_k58b.num_child = 0;
+		settings_cal_k58b.child = &settings_cal_k58b_off_val;
+		settings_cal_k58b.parent = &settings_options;
+		settings_cal_k58b.is_value = 0;
+		settings_cal_k58b.value = 0;
+		settings_cal_k58b.is_switch = 0;
+		settings_cal_k58b.switch_value = 0;
+		settings_cal_k58b.next = &settings_cal_k15_delay;
+		{
+			strcpy(settings_cal_k58b_off_val.text,	"    VERBRAUCH   ");
+			settings_cal_k58b_off_val.num_child = 0;
+			settings_cal_k58b_off_val.child = NULL;
+			settings_cal_k58b_off_val.parent = &settings_cal_k58b;
+			settings_cal_k58b_off_val.is_value = 1;
+			settings_cal_k58b_off_val.value = eeprom_read_byte(&cal_consumption);
+			settings_cal_k58b_off_val.is_switch = 0;
+			settings_cal_k58b_off_val.switch_value = 0;
+			settings_cal_k58b_off_val.next = &settings_cal_k58b_on_val;
+			
+			strcpy(settings_cal_k58b_on_val.text,	"    VERBRAUCH   ");
+			settings_cal_k58b_on_val.num_child = 0;
+			settings_cal_k58b_on_val.child = NULL;
+			settings_cal_k58b_on_val.parent = &settings_cal_k58b;
+			settings_cal_k58b_on_val.is_value = 1;
+			settings_cal_k58b_on_val.value = eeprom_read_byte(&cal_consumption);
+			settings_cal_k58b_on_val.is_switch = 0;
+			settings_cal_k58b_on_val.switch_value = 0;
+			settings_cal_k58b_on_val.next = NULL;
+		}
+	
+	settings_options;
+	settings_cal_k15_delay;
+	settings_cal_k58b_off_val;
+	settings_cal_k58b_on_val;
+	settings_cal_can_mode;
+	settings_cal_startstop_enabled;
+	
+	}
+	
+	settings_menu = malloc(sizeof(menu_item_t));
+							   //01234567890123456
+	strcpy(settings_menu->text, "  Einstellungen  ");
+	settings_menu->is_switch=0;
+	settings_menu->is_value=0;
+	#endif
+}
+
+void fill_str(char* str, char element, uint8_t length){
 	while(length--){
 		*str++ = element;
 	}
@@ -101,12 +290,25 @@ void display_navi(void){
 		sprint_temperature(&str1[1], 255);
 	}
 	dog_write_mid_strings(NEW_POSITION(position.page+3,position.column + 48), str0, str1);
-
-	
-	
 }
 
 void display_settings(void){
+	/*
+	extern uint8_t EEMEM cal_water_temperature; //85;
+	extern uint8_t EEMEM cal_voltage; // 171
+	extern uint8_t EEMEM cal_speed; // 169
+	extern uint8_t EEMEM cal_oil_temperature;
+	extern uint8_t EEMEM cal_in_temperature;
+	extern uint8_t EEMEM cal_consumption;
+	extern uint8_t EEMEM cal_gearbox_temperature;
+	extern uint8_t EEMEM cal_ambient_temperature;
+	extern uint8_t EEMEM cal_k15_delay;
+	extern uint8_t EEMEM cal_k58b_off_val;
+	extern uint8_t EEMEM cal_k58b_on_val;
+	extern uint8_t EEMEM cal_can_mode;
+	extern uint8_t EEMEM cal_startstop_enabled;
+	//*/
+	
 	//															 .    SETTINGS    
 	dog_write_mid_strings(NEW_POSITION(2,0), "                ", "    SETTINGS    ");
 	dog_write_mid_strings(NEW_POSITION(5,0), "                ", "                ");
@@ -1364,8 +1566,8 @@ void display_top_line(void){
 			//				 12,3V BB 12,3V
 			char str1[7] = "       ";
 			char str2[8] = "        ";
-			sprint_voltage(&str1[0], zweitbat);
-			sprint_voltage(&str2[0], v_solar_plus);
+			sprint_voltage(&str1[0], starterbat);
+			sprint_voltage(&str2[0], zweitbat);
 			str1[5] = 'V';
 			str2[5] = 'V';
 			dog_write_mid_string(NEW_POSITION(0,4),str1);
@@ -1378,7 +1580,7 @@ void display_top_line(void){
 			//				 12,3V BB 12,3V
 			char str1[7] = "       ";
 			char str2[8] = "        ";
-			sprint_voltage(&str1[0], v_solar_plus);
+			sprint_voltage(&str1[0], starterbat);
 			sprint_voltage(&str2[0], entlastungsbat);
 			str1[5] = 'V';
 			str2[5] = 'V';
@@ -1392,8 +1594,8 @@ void display_top_line(void){
 			//				 12,3V BB 12,3V
 			char str1[7] = "       ";
 			char str2[8] = "        ";
-			sprint_voltage(&str1[0], starterbat);
-			sprint_voltage(&str2[0], entlastungsbat);
+			sprint_voltage(&str1[0], zweitbat);
+			sprint_voltage(&str2[0], v_solar_plus);
 			str1[5] = 'V';
 			str2[5] = 'V';
 			dog_write_mid_string(NEW_POSITION(0,4),str1);
@@ -1522,13 +1724,7 @@ void display_task(){
 				break;
 			}
 			case CAN_DATA:{
-			/*
-				if(can_mode == NO_CAN){
-					display_mode++;
-					break;
-				}
-			//*/
-				display_can_data();					
+				display_can_data();
 				break;
 			}
 			default:{
@@ -1542,6 +1738,5 @@ void display_task(){
 		
 		}
 	}	
-	old_display_mode = display_mode;	
-
+	old_display_mode = display_mode;
 }
