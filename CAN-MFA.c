@@ -795,8 +795,6 @@ void app_task(){
 					min_oil_temp = oil_temperature;
 				}
 			}
-			
-			
 		}
 		
 		ambient_temperature = calculate_ambient_temperature(adc_value[AUSSENTEMP]);
@@ -841,7 +839,6 @@ void app_task(){
 							// long: reset values by current display values ;)
 							reset_averages();
 							dog_set_lcd(0xFF);
-							//no_res_switch = 1;
 							mfa_res_cnt = 0;
 						}
 					}
@@ -937,8 +934,12 @@ ISR(TIMER0_COMP_vect){//0.1ms timer
 			door_delay--;
 		}
 		//*/
-		if(draw_engine_cut_state){
-			draw_engine_cut_state--;
+		if(!speed[CUR]){
+			if(draw_engine_cut_state){
+				draw_engine_cut_state--;
+			}else{
+				draw_engine_cut_state = 0;
+			}
 		}
 
 		set_backlight(k58b_pw);

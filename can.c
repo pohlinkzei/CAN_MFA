@@ -293,11 +293,20 @@ void can_send_data(void){
 		id666_data[2] = (uint8_t) (ambient_temperature + 100);
 		CANMSG = startstop_enabled;
 		id666_data[3] = startstop_enabled;
-
-		for(i=4;i<8;i++){
+		CANMSG = entlastungsbat.integer;
+		id666_data[4] = entlastungsbat.integer;		
+		CANMSG = entlastungsbat.fraction;
+		id666_data[5] = entlastungsbat.fraction;
+		CANMSG = zweitbat.integer;
+		id666_data[6] = zweitbat.integer;
+		CANMSG = zweitbat.fraction;
+		id666_data[7] = zweitbat.fraction;
+		/*
+		for(i=6;i<8;i++){
 			CANMSG = 0x00;
 			id666_data[i] = 0x00;
 		}
+		*/
 		CANCDMOB |= ( 1 << CONMOB0 );
 		while ( ! ( CANSTMOB & ( 1 << TXOK ) ) ){
 			timeout++;
