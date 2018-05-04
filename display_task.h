@@ -20,6 +20,11 @@ void display_tuer_open(void);
 void display_tuer_closed(void);
 void display_menu_init(void);
 
+menu_item_t* display_settings_next(menu_item_t* item);
+menu_item_t* display_settings_child(menu_item_t* item);
+menu_item_t* display_settings_nth_child(menu_item_t* item, uint8_t n);
+menu_item_t* display_settings_parent(menu_item_t* item);
+
 extern menu_item_t settings_menu;
 extern menu_item_t *current_enty;
 extern uint8_t field_position;

@@ -843,8 +843,16 @@ void app_task(){
 						}
 					}
 				}else{
-					// just increase mfa_res_cnt to be used with settings value if settings are active display
-					/* TODO: Needs to be tested ;) */ 
+					if(current_enty->parent == NULL){
+						if (mfa_res_cnt > 10){
+							dog_clear_lcd();
+							no_res_switch = 1;
+							if(mfa_res_cnt > 25){
+								void (*reset)( void ) = 0xF800;
+								reset();
+							}
+						}
+					}
 				}
 			}
 		}else{
@@ -852,10 +860,18 @@ void app_task(){
 			mfa_res_cnt = 0;
 			if(mfa.res != mfa_old.res){
 				if(!no_res_switch){
-					display_value[display_mode]++;
+					if(!(display_mode & (1<<SETTINGS))){
+						display_value[display_mode]++;
+					}else{
+						field_position++;
+						if(field_position > max_field_position){
+							field_position = 0;
+						}
+					}
 				}else{
 					no_res_switch = 0;
 				}
+				
 			}
 		}
 		if(read_mfa_switch(MFA_SWITCH_MFA)){
@@ -873,7 +889,7 @@ void app_task(){
 						no_mfa_switch = 1;
 					}
 				}else{
-					;
+					
 				}
 			}
 		}else{
@@ -881,7 +897,32 @@ void app_task(){
 			mfa_mfa_cnt = 0;
 			if(mfa.mfa != mfa_old.mfa){
 				if(!no_mfa_switch){
-					display_mode++;
+					if(!(display_mode & (1<<SETTINGS))){
+						display_mode++;
+					}else{
+						// Settings display
+						if(field_position == 0){
+							current_enty = current_enty->parent?current_enty->parent:&settings_menu;
+						}else{
+							if(current_enty->is_value){
+								switch(field_position){
+									case 1: current_enty->value += 100; break;
+									case 2: current_enty->value += 10; break;
+									case 3: current_enty->value += 1; break;
+									case 4: current_enty->value -= 100; break;
+									case 5: current_enty->value -= 10; break;
+									case 6: current_enty->value -= 1; break;
+								}
+							}else if (current_enty->is_switch){
+								switch(field_position){
+									case 1: current_enty->switch_value = 1; break;
+									case 2: current_enty->switch_value = 0; break;
+								}
+							}else{
+								current_enty = display_settings_nth_child(current_enty, field_position);
+							}
+						}
+					}
 				}else{
 					no_mfa_switch = 0;
 				}

@@ -318,6 +318,23 @@ void display_navi(void){
 	dog_write_mid_strings(NEW_POSITION(position.page+3,position.column + 48), str0, str1);
 }
 
+uint8_t display_item_equal(menu_item_t* a, menu_item_t* b){
+	if(a && b){
+		if(strcmp(a->text, b->text)){
+			return 0;
+		}
+		if(a->child != b->child)	return 0;
+		if(a->is_switch != b->is_switch)	return 0;
+		if(a->is_value != b->is_value)	return 0;
+		if(a->switch_value != b->switch_value)	return 0;
+		if(a->value != b->value)	return 0;
+		if(a->next != b->next)	return 0;
+		if(a->num_child != b->num_child)	return 0;
+		if(a->parent != b->parent)	return 0;
+	}
+	return 1;
+}
+
 menu_item_t* display_settings_next(menu_item_t* item){
 	if(item)
 		return item->next;
@@ -328,6 +345,14 @@ menu_item_t* display_settings_child(menu_item_t* item){
 	if(item)
 		return item->child;
 	return NULL;
+}
+
+menu_item_t* display_settings_nth_child(menu_item_t* item, uint8_t n){
+	menu_item_t* child = display_settings_child(item);
+	while(n--){
+		child = display_settings_next(child);
+	}
+	return child;
 }
 
 menu_item_t* display_settings_parent(menu_item_t* item){
@@ -359,7 +384,7 @@ void display_settings(void){
 
 	//*/
 
-	#if 0
+	#if 1
 	/*	value					switch					menu
 		|0123456789012345|		|0123456789012345|		|0123456789012345|
 		|      Text      |		|      Text      |		|      Text      |
@@ -379,15 +404,129 @@ void display_settings(void){
 	}
 
 	if(current_enty->is_value){
-		max_field_position = 7; // |+100|+10|+1|-1|-10|-100|back
+		uint8_t i;
+		position_t pos = {0,0,0};
+		max_field_position = 6; // |+100|+10|+1|-1|-10|-100|back
 		uint8_to_string(&str[7], current_enty->value);
 		dog_write_mid_string(NEW_POSITION(2,0), str);
-
-
-
-
-
-
+		switch(field_position){
+			case 1:{
+				i=0;
+				pos.page = 4;
+				pos.column = 0;
+				strcpy(str, " +100  +10  +1  ");
+				dog_write_mid_digit(pos, str[i++]);
+				reversed = 1;
+				for(pos.column = 8;pos.column < 40; pos.column+=8){
+					dog_write_mid_digit(pos, str[i++]);
+				}
+				reversed = 0;
+				for(;pos.column < 40; pos.column+=8){
+					dog_write_mid_digit(pos, str[i++]);
+				}
+				strcpy(str, " -100  -10  -1  ");
+				dog_write_mid_string(NEW_POSITION(6,0), str);
+				break;
+			}
+			case 2:{
+				i=0;
+				pos.page = 4;
+				pos.column = 0;
+				strcpy(str, " +100  +10  +1  ");
+				for(;pos.column < 56; pos.column+=8){
+					dog_write_mid_digit(pos, str[i++]);
+				}
+				reversed = 1;
+				for(;pos.column < 88; pos.column+=8){
+					dog_write_mid_digit(pos, str[i++]);
+				}
+				reversed = 0;
+				for(;pos.column < 128; pos.column+=8){
+					dog_write_mid_digit(pos, str[i++]);
+				}
+				strcpy(str, " -100  -10  -1  ");
+				dog_write_mid_string(NEW_POSITION(6,0), str);
+				break;
+			}
+			case 3:{
+				i=0;
+				pos.page = 4;
+				pos.column = 0;
+				strcpy(str, " +100  +10  +1  ");
+				for(;pos.column < 96; pos.column+=8){
+					dog_write_mid_digit(pos, str[i++]);
+				}
+				reversed = 1;
+				for(;pos.column < 112; pos.column+=8){
+					dog_write_mid_digit(pos, str[i++]);
+				}
+				reversed = 0;
+				for(;pos.column < 128; pos.column+=8){
+					dog_write_mid_digit(pos, str[i++]);
+				}
+				strcpy(str, " -100  -10  -1  ");
+				dog_write_mid_string(NEW_POSITION(6,0), str);
+				break;
+			}
+			case 4:{
+				i=0;
+				pos.page = 6;
+				pos.column = 0;
+				strcpy(str, " -100  -10  -1  ");
+				dog_write_mid_digit(pos, str[i++]);
+				reversed = 1;
+				for(pos.column = 8;pos.column < 40; pos.column+=8){
+					dog_write_mid_digit(pos, str[i++]);
+				}
+				reversed = 0;
+				for(;pos.column < 40; pos.column+=8){
+					dog_write_mid_digit(pos, str[i++]);
+				}
+				strcpy(str, " +100  +10  +1  ");
+				dog_write_mid_string(NEW_POSITION(4,0), str);
+				break;
+			}
+			case 5:{
+				i=0;
+				pos.page = 6;
+				pos.column = 0;
+				strcpy(str, " -100  -10  -1  ");
+				for(;pos.column < 56; pos.column+=8){
+					dog_write_mid_digit(pos, str[i++]);
+				}
+				reversed = 1;
+				for(;pos.column < 88; pos.column+=8){
+					dog_write_mid_digit(pos, str[i++]);
+				}
+				reversed = 0;
+				for(;pos.column < 128; pos.column+=8){
+					dog_write_mid_digit(pos, str[i++]);
+				}
+				strcpy(str, " +100  +10  +1  ");
+				dog_write_mid_string(NEW_POSITION(4,0), str);
+				break;
+			}
+			case 6:{
+				i=0;
+				pos.page = 6;
+				pos.column = 0;
+				strcpy(str, " -100  -10  -1  ");
+				for(;pos.column < 96; pos.column+=8){
+					dog_write_mid_digit(pos, str[i++]);
+				}
+				reversed = 1;
+				for(;pos.column < 112; pos.column+=8){
+					dog_write_mid_digit(pos, str[i++]);
+				}
+				reversed = 0;
+				for(;pos.column < 128; pos.column+=8){
+					dog_write_mid_digit(pos, str[i++]);
+				}
+				strcpy(str, " +100  +10  +1  ");
+				dog_write_mid_string(NEW_POSITION(4,0), str);
+				break;
+			}
+		}
 	}else if(current_enty->is_switch){
 		max_field_position = 3; //2 switch positions + 1 back
 		if(current_enty->switch_value){ //			 0123456789012345
@@ -411,39 +550,97 @@ void display_settings(void){
 		}
 		
 	}else{ // list item
-		max_field_position = current_enty->num_child + 1;
-		if(field_position < 3){
+		max_field_position = current_enty->num_child;
+		if(field_position < 3 || max_field_position < 4){
 			/*	|  text  |	|  text  |
 				| entry1 |<	| entry1 |
 				| entry2 |	| entry2 |<
 				| entry3 |	| entry3 |
 			*/
+			if(field_position == 1){
+				reversed = 1;
+			}
+			if(display_settings_child(current_enty))
+				dog_write_mid_string(NEW_POSITION(2,0), display_settings_nth_child(current_enty, 0)->text);
+			else
+				dog_write_mid_string(NEW_POSITION(2,0), "                ");
+			if(field_position == 1){
+				reversed = 0;
+			}
+			if(field_position == 2){
+				reversed = 1;
+			}
+			if(display_settings_nth_child(current_enty, 1))
+				dog_write_mid_string(NEW_POSITION(4,0), display_settings_nth_child(current_enty, 1)->text);
+			else
+				dog_write_mid_string(NEW_POSITION(4,0), "                ");
+			if(field_position == 2){
+				reversed = 0;
+			}
+			if(field_position == 3){
+				reversed = 1;
+			}
+			if(display_settings_nth_child(current_enty, 2))
+				dog_write_mid_string(NEW_POSITION(6,0), display_settings_nth_child(current_enty, 2)->text);
+			else
+				dog_write_mid_string(NEW_POSITION(6,0), "                ");
+			if(field_position == 3){
+				reversed = 0;
+			}
 		}else if(field_position>(max_field_position - 3)){
 			/*	|  text  |	|  text  |
 				| entry n-2 |	| entry n-2 |
 				| entry n-1 |<	| entry n-1 |
 				| entry n   |	| entry n   |<
 			*/
+			if(display_settings_nth_child(current_enty, field_position-1))
+				dog_write_mid_string(NEW_POSITION(4,0), display_settings_nth_child(current_enty, field_position-1)->text);
+			else
+				dog_write_mid_string(NEW_POSITION(4,0), "                ");
+			if(field_position == max_field_position - 1)
+				reversed = 1;
+			if(display_settings_nth_child(current_enty, field_position))
+				dog_write_mid_string(NEW_POSITION(4,0), display_settings_nth_child(current_enty, field_position)->text);
+			else
+				dog_write_mid_string(NEW_POSITION(4,0), "                ");
+			if(field_position == max_field_position - 1)
+				reversed = 0;
+			if(field_position == max_field_position)
+				reversed = 1;
+			if(display_settings_nth_child(current_enty, max_field_position))
+				dog_write_mid_string(NEW_POSITION(4,0), display_settings_nth_child(current_enty, max_field_position)->text);
+			else
+				dog_write_mid_string(NEW_POSITION(4,0), "                ");
+			if(field_position == max_field_position)
+				reversed = 0;
 		}else{
 			/*	|  text  |	|  text  |
 				| entry x-1 |
 				| entry x   |<
 				| entry x+1 |
 			*/
+			if(display_settings_nth_child(current_enty, field_position-1))
+				dog_write_mid_string(NEW_POSITION(4,0), display_settings_nth_child(current_enty, field_position-1)->text);
+			else
+				dog_write_mid_string(NEW_POSITION(4,0), "                ");
+			reversed = 1;
+			if(display_settings_nth_child(current_enty, field_position))
+				dog_write_mid_string(NEW_POSITION(4,0), display_settings_nth_child(current_enty, field_position)->text);
+			else
+				dog_write_mid_string(NEW_POSITION(4,0), "                ");
+			reversed = 0;
+			if(display_settings_nth_child(current_enty, field_position+1))
+				dog_write_mid_string(NEW_POSITION(4,0), display_settings_nth_child(current_enty, field_position+1)->text);
+			else
+				dog_write_mid_string(NEW_POSITION(4,0), "                ");
 		}
-		
 	}
-
-	//uint8_to_string();
-
 	underlined = 0;
-	#endif
-
-
-
+	#else
 	//															 .    SETTINGS    
 	dog_write_mid_strings(NEW_POSITION(2,0), "                ", "    SETTINGS    ");
 	dog_write_mid_strings(NEW_POSITION(5,0), "                ", "                ");
+	#endif
 }
 
 void display_small_text(void){
