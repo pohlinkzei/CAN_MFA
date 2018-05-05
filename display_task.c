@@ -159,7 +159,7 @@ void display_menu_init(void){
 	settings_options.switch_value = 0;
 	{
 		strcpy(settings_cal_k58b.text,	"  BELEUCHTUNG  ");
-		settings_cal_k58b.num_child = 0;
+		settings_cal_k58b.num_child = 2;
 		settings_cal_k58b.child = &settings_cal_k58b_off_val;
 		settings_cal_k58b.parent = &settings_options;
 		settings_cal_k58b.is_value = 0;
@@ -218,6 +218,9 @@ void display_menu_init(void){
 		settings_cal_startstop_enabled.switch_value = eeprom_read_byte(&cal_k15_delay);
 		settings_cal_startstop_enabled.next = NULL;
 	}
+	
+	settings_options.child = &settings_cal_k58b;
+	settings_options.next = NULL;
 							   //01234567890123456
 	strcpy(settings_menu.text, "  Einstellungen  ");
 	settings_menu.is_switch=0;
@@ -227,6 +230,7 @@ void display_menu_init(void){
 	settings_menu.child = &settings_temperatures;
 	settings_menu.next = NULL;
 	settings_menu.parent = NULL;
+	settings_menu.num_child = 3;
 
 	current_enty = &settings_menu;
 	#endif
@@ -410,6 +414,13 @@ void display_settings(void){
 		uint8_to_string(&str[7], current_enty->value);
 		dog_write_mid_string(NEW_POSITION(2,0), str);
 		switch(field_position){
+			case 0:{
+				strcpy(str, " +100  +10  +1  ");
+				dog_write_mid_string(NEW_POSITION(4,0), str);
+				strcpy(str, " -100  -10  -1  ");
+				dog_write_mid_string(NEW_POSITION(6,0), str);
+				break;
+			}
 			case 1:{
 				i=0;
 				pos.page = 4;
@@ -593,24 +604,24 @@ void display_settings(void){
 				| entry n-1 |<	| entry n-1 |
 				| entry n   |	| entry n   |<
 			*/
-			if(display_settings_nth_child(current_enty, field_position-1))
-				dog_write_mid_string(NEW_POSITION(4,0), display_settings_nth_child(current_enty, field_position-1)->text);
+			if(display_settings_nth_child(current_enty, max_field_position-3))
+				dog_write_mid_string(NEW_POSITION(2,0), display_settings_nth_child(current_enty, max_field_position-3)->text);
 			else
-				dog_write_mid_string(NEW_POSITION(4,0), "                ");
-			if(field_position == max_field_position - 1)
+				dog_write_mid_string(NEW_POSITION(2,0), "                ");
+			if(field_position == max_field_position-1)
 				reversed = 1;
-			if(display_settings_nth_child(current_enty, field_position))
-				dog_write_mid_string(NEW_POSITION(4,0), display_settings_nth_child(current_enty, field_position)->text);
+			if(display_settings_nth_child(current_enty, max_field_position-2))
+				dog_write_mid_string(NEW_POSITION(4,0), display_settings_nth_child(current_enty, max_field_position-2)->text);
 			else
 				dog_write_mid_string(NEW_POSITION(4,0), "                ");
 			if(field_position == max_field_position - 1)
 				reversed = 0;
 			if(field_position == max_field_position)
 				reversed = 1;
-			if(display_settings_nth_child(current_enty, max_field_position))
-				dog_write_mid_string(NEW_POSITION(4,0), display_settings_nth_child(current_enty, max_field_position)->text);
+			if(display_settings_nth_child(current_enty, max_field_position-1))
+				dog_write_mid_string(NEW_POSITION(6,0), display_settings_nth_child(current_enty, max_field_position-1)->text);
 			else
-				dog_write_mid_string(NEW_POSITION(4,0), "                ");
+				dog_write_mid_string(NEW_POSITION(6,0), "                ");
 			if(field_position == max_field_position)
 				reversed = 0;
 		}else{
@@ -619,20 +630,20 @@ void display_settings(void){
 				| entry x   |<
 				| entry x+1 |
 			*/
+			if(display_settings_nth_child(current_enty, field_position-2))
+				dog_write_mid_string(NEW_POSITION(2,0), display_settings_nth_child(current_enty, field_position-2)->text);
+			else
+				dog_write_mid_string(NEW_POSITION(2,0), "                ");
+			reversed = 1;
 			if(display_settings_nth_child(current_enty, field_position-1))
 				dog_write_mid_string(NEW_POSITION(4,0), display_settings_nth_child(current_enty, field_position-1)->text);
 			else
 				dog_write_mid_string(NEW_POSITION(4,0), "                ");
-			reversed = 1;
-			if(display_settings_nth_child(current_enty, field_position))
-				dog_write_mid_string(NEW_POSITION(4,0), display_settings_nth_child(current_enty, field_position)->text);
-			else
-				dog_write_mid_string(NEW_POSITION(4,0), "                ");
 			reversed = 0;
-			if(display_settings_nth_child(current_enty, field_position+1))
-				dog_write_mid_string(NEW_POSITION(4,0), display_settings_nth_child(current_enty, field_position+1)->text);
+			if(display_settings_nth_child(current_enty, field_position))
+				dog_write_mid_string(NEW_POSITION(6,0), display_settings_nth_child(current_enty, field_position)->text);
 			else
-				dog_write_mid_string(NEW_POSITION(4,0), "                ");
+				dog_write_mid_string(NEW_POSITION(6,0), "                ");
 		}
 	}
 	underlined = 0;
@@ -2018,10 +2029,10 @@ void display_top_line(void){
 }
 
 void display_task(){
-	display_top_line();
 	if(display_mode & (1<<SETTINGS)){
 		display_settings();
 	}else{
+		display_top_line();
 		switch(display_mode){
 			case NAVIGATION:{
 				if(can_mode == NO_CAN){

@@ -519,7 +519,7 @@ int main(void){
 	TKML_PORT |= (1<<TKML);
 	K15_PORT |= (1<<K15); // zündung an, bitte ;)
 	display_mode = TOP_LINE;
-	display_value[TOP_LINE] = VOLTAGES0;
+	display_value[TOP_LINE] = RADIO_TEXT;
 #endif
 
 	display_menu_init();
@@ -919,9 +919,11 @@ void app_task(){
 									case 2: current_enty->switch_value = 0; break;
 								}
 							}else{
-								current_enty = display_settings_nth_child(current_enty, field_position);
+								current_enty = display_settings_nth_child(current_enty, field_position-1);
+								field_position = 0;
 							}
 						}
+						
 					}
 				}else{
 					no_mfa_switch = 0;
