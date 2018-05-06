@@ -281,6 +281,7 @@ void display_navi(void){
 		}
 		dog_transmit_data(0x00);
 		dog_transmit_data(0x00);
+		dog_transmit_data(0x00);
 		column=position.column + 48;
 		
 	}
@@ -305,7 +306,7 @@ void display_navi(void){
 	
 	if(ambient_temperature < AMBIENT_FROST_TEMP){
 		str1[1] = FROST;
-		str1[1] = FROST + 1;
+		str1[2] = FROST + 1;
 	}
 	
 	sprint_temperature(&str1[3],ambient_temperature);
