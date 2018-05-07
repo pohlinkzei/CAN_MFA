@@ -25,12 +25,13 @@ void initk58_pwm(void){
 	k58b_pw = 100;
 	k58b_timer = 0; 
 	#if K58B_POLL
-	#warning "POLL k58b signal"
+	#error "POLL k58b signal"
 	#else
+	#warning "K58B_POLL = 0"
 	EICRB |= INT6_RISING;  
 	EIMSK |= (1<<INT6);
 	#endif
-	
+	#warning "K58B_POLL?"
 	TCCR3A = 0x00;
 	TCCR3A |= (1<<COM3A1);	// Clear on match (nicht-invertierte PWM)
 	TCCR3A |= (1<<WGM30);	// für WGM 1
@@ -54,6 +55,7 @@ void set_backlight(uint8_t pw){
 	}
 }
 #if !K58B_POLL
+#warning "K58B_POLL = 0"
 ISR(INT6_vect){
 	if(EICRB & INT6_RISING){
 		if(k58b_low != 0){

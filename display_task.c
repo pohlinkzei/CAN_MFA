@@ -16,28 +16,28 @@
 #include "navigation.h"
 #include "display_task.h"
 
- menu_item_t settings_menu;
- menu_item_t* current_enty;
- uint8_t field_position;
- uint8_t max_field_position;
- menu_item_t settings_temperatures;
- menu_item_t settings_cal_oil_temperature;
- menu_item_t settings_cal_in_temperature;
- menu_item_t settings_cal_gearbox_temperature;
- menu_item_t settings_cal_ambient_temperature;
+volatile menu_item_t settings_menu;
+volatile menu_item_t* current_enty;
+volatile uint8_t field_position;
+volatile uint8_t max_field_position;
+volatile menu_item_t settings_temperatures;
+volatile menu_item_t settings_cal_oil_temperature;
+volatile menu_item_t settings_cal_in_temperature;
+volatile menu_item_t settings_cal_gearbox_temperature;
+volatile menu_item_t settings_cal_ambient_temperature;
 
- menu_item_t settings_mfa_values;
- menu_item_t settings_cal_voltage; // 171
- menu_item_t settings_cal_speed; // 169
- menu_item_t settings_cal_consumption;
+volatile menu_item_t settings_mfa_values;
+volatile menu_item_t settings_cal_voltage; // 171
+volatile menu_item_t settings_cal_speed; // 169
+volatile menu_item_t settings_cal_consumption;
 
- menu_item_t settings_options;
- menu_item_t settings_cal_k15_delay;
- menu_item_t settings_cal_k58b;
- menu_item_t settings_cal_k58b_off_val;
- menu_item_t settings_cal_k58b_on_val;
- menu_item_t settings_cal_can_mode;
- menu_item_t settings_cal_startstop_enabled;
+volatile menu_item_t settings_options;
+volatile menu_item_t settings_cal_k15_delay;
+volatile menu_item_t settings_cal_k58b;
+volatile menu_item_t settings_cal_k58b_off_val;
+volatile menu_item_t settings_cal_k58b_on_val;
+volatile menu_item_t settings_cal_can_mode;
+volatile menu_item_t settings_cal_startstop_enabled;
 
 void display_menu_init(void){
 	#if 1

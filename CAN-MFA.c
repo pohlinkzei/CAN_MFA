@@ -302,17 +302,18 @@ void reset_values(void){
 void timer0_init(void){
 	
 	TCCR0A = 0x00;
-	//*
-	// 1ms für alles mögliche
-	
-//	#if K58B_POLL
-	TCCR0A |= (1<<WGM01) | (1<<CS01) | (1<<CS00);	//ctc, prescaler 64
-	OCR0A = F_CPU / 64 / 1000; //25
-/*	#else
-	TCCR0A |= (1<<WGM01) | (1<<CS01);	//ctc, prescaler 8
+	// 0.1ms für alles mögliche
+	TCCR0A |= (1<<WGM01) | (1<<CS01);// prescaler 8 | (1<<CS00); //ctc, prescaler 64
+
+	#if K58B_POLL
+	#warning "K58B_POLL = 1"
+	//0.1ms timer fuer pwm messung
+	OCR0A = F_CPU / 64 / 1000; //250
+	#else
+	#warning "K58B_POLL = 0"
 	OCR0A = F_CPU / 8 / 10000; //200
 	#endif
-//*/
+
 	TIMSK0 |= (1<<OCIE0A);
 	//*/
 }
@@ -339,9 +340,6 @@ void timer2_init(void){
 }
 
 void io_init(void){
-	// PORTD |= (1<<PD1) | (1<<PD0);
-	// init_twi_slave(calculateID("MFA"));
-
 	// PORTA:
 	DDRA = (1<<EN_ADC6) | (1<<EN_ADC7) /* | (1<<PA0) | (1<<PA1)*/;
 	PORTA = 0x00;
@@ -881,7 +879,9 @@ void app_task(){
 							mfa_res_cnt = 0;
 						}
 					}
-				}else{
+				}
+				#if 0
+				else{
 					if(current_enty->parent == NULL){
 						if (mfa_res_cnt > 10){
 							dog_clear_lcd();
@@ -893,6 +893,7 @@ void app_task(){
 						}
 					}
 				}
+				#endif
 			}
 		}else{
 			mfa.res = 0;
@@ -917,19 +918,15 @@ void app_task(){
 			mfa.mfa = 1;
 			if(mfa.mfa == mfa_old.mfa){
 				mfa_mfa_cnt++;
-				//if(!(display_mode & (1<<SETTINGS))){
-					if(mfa_mfa_cnt>10){
-						if(display_mode & (1<<SETTINGS)){
-							display_mode &= ~(1<<SETTINGS);
-						}else{
-							display_mode |= (1<<SETTINGS);
-						}
-						mfa_mfa_cnt = 0;
-						no_mfa_switch = 1;
+				if(mfa_mfa_cnt>10){
+					if(display_mode & (1<<SETTINGS)){
+						display_mode &= ~(1<<SETTINGS);
+					}else{
+						display_mode |= (1<<SETTINGS);
 					}
-				//}else{
-					
-				//}
+					mfa_mfa_cnt = 0;
+					no_mfa_switch = 1;
+				}
 			}
 		}else{
 			mfa.mfa = 0;
@@ -962,7 +959,6 @@ void app_task(){
 								field_position = 0;
 							}
 						}
-						
 					}
 				}else{
 					no_mfa_switch = 0;
@@ -1001,12 +997,12 @@ void app_task(){
 }
 
 
-ISR(TIMER0_COMP_vect){//0.1ms timer
-//	t0cnt++;
-//	if(t0cnt == 10){//1ms
-//		t0cnt = 0;
+ISR(TIMER0_COMP_vect){//0.125ms timer
+	t0cnt++;
+	if(t0cnt == 8){//1ms
+		t0cnt = 0;
 		if(K58B_PIN & (1<<K58B)){
-			k58b_timer=150;
+			k58b_timer=19;
 		}else{
 			if(k58b_timer > 0)
 			k58b_timer--;
@@ -1042,7 +1038,7 @@ ISR(TIMER0_COMP_vect){//0.1ms timer
 			rpm_cnt = 0;
 			// TODO: Set can send timing dependent (10ms / 100ms / ...)
 		}
-//	}
+	}
 }
 
 ISR(TIMER1_COMPA_vect){
