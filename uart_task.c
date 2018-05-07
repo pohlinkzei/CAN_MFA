@@ -15,11 +15,18 @@
 #include "uart.h"
 #include "dog_display.h"
 
-extern uint8_t cal_ambient_temperature EEMEM;
-extern uint8_t cal_voltage EEMEM;
-extern uint8_t cal_speed EEMEM;
-extern uint8_t cal_oil_temperature EEMEM;
-extern uint8_t cal_consumption EEMEM;
+extern uint8_t EEMEM cal_voltage; // 171
+extern uint8_t EEMEM cal_speed; // 169
+extern uint8_t EEMEM cal_oil_temperature;
+extern uint8_t EEMEM cal_in_temperature;
+extern uint8_t EEMEM cal_consumption;
+extern uint8_t EEMEM cal_gearbox_temperature;
+extern uint8_t EEMEM cal_ambient_temperature;
+extern uint8_t EEMEM cal_k15_delay;
+extern uint8_t EEMEM cal_k58b_off_val;
+extern uint8_t EEMEM cal_k58b_on_val;
+extern uint8_t EEMEM cal_can_mode;
+extern uint8_t EEMEM cal_startstop_enabled;
 
 volatile struct interrupt_backup{
 	uint8_t _TIMSK0;
@@ -119,6 +126,7 @@ void uart_print_cal_menu(void){
 	uart1_puts("\n\rb\tcal_k58b ");
 	uart1_puts("\n\rd\tcal_k15_delay ");
 	uart1_puts("\n\rm\tcal_can_mode ");
+	uart1_puts("\n\rS\tcal_startstop ");
 	uart1_puts("\n\re\tEnde ");
 }
 
@@ -150,6 +158,15 @@ void uart_calibrate(void){
 					sprintf(val, "%i\n\r", eeprom_read_byte(&cal_can_mode));
 					uart1_puts(val);
 					eeprom_write_byte(&cal_can_mode, uart_get_int());
+					uart_print_cal_menu();
+					break;
+				}
+				case 'S':{
+					char val[5] = {0,};
+					uart1_puts("\n\rWert cal_startstop: (0: Aus | 1: Ein ) ");
+					sprintf(val, "%i\n\r", eeprom_read_byte(&cal_startstop_enabled));
+					uart1_puts(val);
+					eeprom_write_byte(&cal_startstop_enabled, uart_get_int());
 					uart_print_cal_menu();
 					break;
 				}

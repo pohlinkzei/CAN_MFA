@@ -140,7 +140,7 @@ uint8_t EEMEM cal_consumption;
 uint8_t EEMEM cal_gearbox_temperature;
 uint8_t EEMEM cal_ambient_temperature;
 uint8_t EEMEM cal_can_mode;
-//uint8_t EEMEM cal_startstop_enabled;
+uint8_t EEMEM cal_startstop_enabled;
 volatile uint8_t mkl;
 uint8_t cal_k15_delay EEMEM;
 uint8_t cal_k58b_off_val EEMEM;
@@ -353,7 +353,7 @@ void io_init(void){
 	PORTC = 0x00;
 	// PORTD
 	DDRD = (1<<CS_DOG) | (1<<CAN_RS);
-	PORTD = (1<<CS_DOG) | 3;
+	PORTD = (1<<CS_DOG);
 	// PORTE
 	PORTE = 0x00;
 	DDRE = (1<<EN_ADC0) | (1<<EN_ADC1);
@@ -878,7 +878,7 @@ void app_task(){
 			mfa.mfa = 1;
 			if(mfa.mfa == mfa_old.mfa){
 				mfa_mfa_cnt++;
-				if(!(display_mode & (1<<SETTINGS))){
+				//if(!(display_mode & (1<<SETTINGS))){
 					if(mfa_mfa_cnt>10){
 						if(display_mode & (1<<SETTINGS)){
 							display_mode &= ~(1<<SETTINGS);
@@ -888,9 +888,9 @@ void app_task(){
 						mfa_mfa_cnt = 0;
 						no_mfa_switch = 1;
 					}
-				}else{
+				//}else{
 					
-				}
+				//}
 			}
 		}else{
 			mfa.mfa = 0;
@@ -977,12 +977,9 @@ ISR(TIMER0_COMP_vect){//0.1ms timer
 			door_delay--;
 		}
 		//*/
-		if(!speed[CUR]){
-			if(draw_engine_cut_state){
-				draw_engine_cut_state--;
-			}else{
-				draw_engine_cut_state = 0;
-			}
+		
+		if(draw_engine_cut_state){
+			draw_engine_cut_state--;
 		}
 
 		set_backlight(k58b_pw);

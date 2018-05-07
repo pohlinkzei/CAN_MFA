@@ -205,7 +205,7 @@ void display_menu_init(void){
 		settings_cal_can_mode.is_value = 0;
 		settings_cal_can_mode.value = 0;
 		settings_cal_can_mode.is_switch = 1;
-		settings_cal_can_mode.switch_value = eeprom_read_byte(&cal_can_mode);
+		settings_cal_can_mode.switch_value = eeprom_read_byte(&cal_startstop_enabled);
 		settings_cal_can_mode.next = &settings_cal_startstop_enabled;
 
 		strcpy(settings_cal_startstop_enabled.text,	"   STASTO EIN   ");

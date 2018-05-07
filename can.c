@@ -286,8 +286,8 @@ void can_send_data(void){
 		id666_data[1] = starterbat.fraction;
 		CANMSG = (uint8_t) (ambient_temperature + 100);
 		id666_data[2] = (uint8_t) (ambient_temperature + 100);
-		CANMSG = startstop_enabled;
-		id666_data[3] = startstop_enabled;
+		CANMSG = eeprom_read_byte(&cal_startstop_enabled);
+		id666_data[3] = eeprom_read_byte(&cal_startstop_enabled);
 		CANMSG = entlastungsbat.integer;
 		id666_data[4] = entlastungsbat.integer;		
 		CANMSG = entlastungsbat.fraction;
