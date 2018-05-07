@@ -818,6 +818,45 @@ void app_task(){
 			mfa.mode = CUR;
 		}else{
 			mfa.mode = AVG;
+			if((display_mode & (1<<SETTINGS))){
+				// used to save changed values to eeprom
+				if(settings_cal_ambient_temperature.value != eeprom_read_byte(&cal_ambient_temperature)){
+					eeprom_write_byte(&cal_ambient_temperature, settings_cal_ambient_temperature.value);
+				}
+				if(settings_cal_voltage.value != eeprom_read_byte(&cal_voltage)){
+					eeprom_write_byte(&cal_voltage, settings_cal_voltage.value);
+				}
+				if(settings_cal_speed.value != eeprom_read_byte(&cal_speed)){
+					eeprom_write_byte(&cal_speed, settings_cal_speed.value);
+				}
+				if(settings_cal_oil_temperature.value != eeprom_read_byte(&cal_oil_temperature)){
+					eeprom_write_byte(&cal_oil_temperature, settings_cal_oil_temperature.value);
+				}
+				if(settings_cal_in_temperature.value != eeprom_read_byte(&cal_in_temperature)){
+					eeprom_write_byte(&cal_in_temperature, settings_cal_in_temperature.value);
+				}
+				if(settings_cal_consumption.value != eeprom_read_byte(&cal_consumption)){
+					eeprom_write_byte(&cal_consumption, settings_cal_consumption.value);
+				}
+				if(settings_cal_gearbox_temperature.value != eeprom_read_byte(&cal_gearbox_temperature)){
+					eeprom_write_byte(&cal_gearbox_temperature, settings_cal_gearbox_temperature.value);
+				}
+				if(settings_cal_gearbox_temperature.value != eeprom_read_byte(&cal_gearbox_temperature)){
+					eeprom_write_byte(&cal_gearbox_temperature, settings_cal_gearbox_temperature.value);
+				}
+				if(settings_cal_k15_delay.value != eeprom_read_byte(&cal_k15_delay)){
+					eeprom_write_byte(&cal_k15_delay, settings_cal_k15_delay.value);
+				}
+				if(settings_cal_k58b_off_val.value != eeprom_read_byte(&cal_k58b_off_val)){
+					eeprom_write_byte(&cal_k58b_off_val, settings_cal_k58b_off_val.value);
+				}
+				if(settings_cal_can_mode.switch_value != eeprom_read_byte(&cal_can_mode)){
+					eeprom_write_byte(&cal_can_mode, settings_cal_can_mode.switch_value);
+				}
+				if(settings_cal_startstop_enabled.switch_value != eeprom_read_byte(&cal_startstop_enabled)){
+					eeprom_write_byte(&cal_startstop_enabled, settings_cal_startstop_enabled.switch_value);
+				}
+			}
 		}			
 
 		if(read_mfa_switch(MFA_SWITCH_RES)){
@@ -967,7 +1006,7 @@ ISR(TIMER0_COMP_vect){//0.1ms timer
 //	if(t0cnt == 10){//1ms
 //		t0cnt = 0;
 		if(K58B_PIN & (1<<K58B)){
-			k58b_timer=15;
+			k58b_timer=150;
 		}else{
 			if(k58b_timer > 0)
 			k58b_timer--;
