@@ -57,89 +57,89 @@ void display_menu_init(void){
 	extern uint8_t EEMEM cal_startstop_enabled;
 	//*/
 	//											 0123456789012345
-	strcpy(settings_temperatures.text,			"  Temperaturen  ");
-	settings_temperatures.parent = &settings_menu;
+	strcpy((char*) settings_temperatures.text,			"  Temperaturen  ");
+	settings_temperatures.parent = (menu_item_t*) &settings_menu;
 	settings_temperatures.num_child = 4;
 	settings_temperatures.is_value = 0;
 	settings_temperatures.value = 0;
 	settings_temperatures.is_switch = 0;
 	settings_temperatures.switch_value = 0;
 	{
-		strcpy(settings_cal_oil_temperature.text,		"      OEL       ");
+		strcpy((char*) settings_cal_oil_temperature.text,		"      OEL       ");
 		settings_cal_oil_temperature.num_child = 0;
 		settings_cal_oil_temperature.child = NULL;
-		settings_cal_oil_temperature.parent = &settings_temperatures;
+		settings_cal_oil_temperature.parent = (menu_item_t*) &settings_temperatures;
 		settings_cal_oil_temperature.is_value = 1;
 		settings_cal_oil_temperature.value = eeprom_read_byte(&cal_oil_temperature);
 		settings_cal_oil_temperature.is_switch = 0;
 		settings_cal_oil_temperature.switch_value = 0;
-		settings_cal_oil_temperature.next = &settings_cal_in_temperature;
+		settings_cal_oil_temperature.next = (menu_item_t*) &settings_cal_in_temperature;
 	
-		strcpy(settings_cal_in_temperature.text,			"     INNEN     ");
+		strcpy((char*) settings_cal_in_temperature.text,			"     INNEN     ");
 		settings_cal_in_temperature.num_child = 0;
 		settings_cal_in_temperature.child = NULL;
-		settings_cal_in_temperature.parent = &settings_temperatures;
+		settings_cal_in_temperature.parent = (menu_item_t*) &settings_temperatures;
 		settings_cal_in_temperature.is_value = 1;
 		settings_cal_in_temperature.value = eeprom_read_byte(&cal_in_temperature);
 		settings_cal_in_temperature.is_switch = 0;
 		settings_cal_in_temperature.switch_value = 0;
-		settings_cal_in_temperature.next = &settings_cal_gearbox_temperature;
+		settings_cal_in_temperature.next = (menu_item_t*) &settings_cal_gearbox_temperature;
 	
-		strcpy(settings_cal_gearbox_temperature.text,	"    GETRIEBE    ");
+		strcpy((char*) settings_cal_gearbox_temperature.text,	"    GETRIEBE    ");
 		settings_cal_gearbox_temperature.num_child = 0;
 		settings_cal_gearbox_temperature.child = NULL;
-		settings_cal_gearbox_temperature.parent = &settings_temperatures;
+		settings_cal_gearbox_temperature.parent = (menu_item_t*) &settings_temperatures;
 		settings_cal_gearbox_temperature.is_value = 1;
 		settings_cal_gearbox_temperature.value = eeprom_read_byte(&cal_gearbox_temperature);
 		settings_cal_gearbox_temperature.is_switch = 0;
 		settings_cal_gearbox_temperature.switch_value = 0;
-		settings_cal_gearbox_temperature.next = &settings_cal_ambient_temperature;
+		settings_cal_gearbox_temperature.next = (menu_item_t*) &settings_cal_ambient_temperature;
 	
-		strcpy(settings_cal_ambient_temperature.text,	"     AUSSEN     ");
+		strcpy((char*) settings_cal_ambient_temperature.text,	"     AUSSEN     ");
 		settings_cal_ambient_temperature.num_child = 0;
 		settings_cal_ambient_temperature.child = NULL;
-		settings_cal_ambient_temperature.parent = &settings_temperatures;
+		settings_cal_ambient_temperature.parent = (menu_item_t*) &settings_temperatures;
 		settings_cal_ambient_temperature.is_value = 1;
 		settings_cal_ambient_temperature.value = eeprom_read_byte(&cal_ambient_temperature);
 		settings_cal_ambient_temperature.is_switch = 0;
 		settings_cal_ambient_temperature.switch_value = 0;
 		settings_cal_ambient_temperature.next = NULL;
 	}
-	settings_temperatures.child = &settings_cal_oil_temperature;
-	settings_temperatures.next = &settings_mfa_values;
+	settings_temperatures.child = (menu_item_t*) &settings_cal_oil_temperature;
+	settings_temperatures.next = (menu_item_t*) &settings_mfa_values;
 	
-	strcpy(settings_mfa_values.text,		"  Analogwerte  ");
-	settings_mfa_values.parent = &settings_menu;
+	strcpy((char*) settings_mfa_values.text,		"  Analogwerte  ");
+	settings_mfa_values.parent = (menu_item_t*) &settings_menu;
 	settings_mfa_values.num_child = 3;
 	settings_mfa_values.is_value = 0;
 	settings_mfa_values.value = 0;
 	settings_mfa_values.is_switch = 0;
 	settings_mfa_values.switch_value = 0;
 	{
-		strcpy(settings_cal_voltage.text,		"   SPANNUNG    ");
+		strcpy((char*) settings_cal_voltage.text,		"   SPANNUNG    ");
 		settings_cal_voltage.num_child = 0;
 		settings_cal_voltage.child = NULL;
-		settings_cal_voltage.parent = &settings_mfa_values;
+		settings_cal_voltage.parent = (menu_item_t*) &settings_mfa_values;
 		settings_cal_voltage.is_value = 1;
 		settings_cal_voltage.value = eeprom_read_byte(&cal_voltage);
 		settings_cal_voltage.is_switch = 0;
 		settings_cal_voltage.switch_value = 0;
-		settings_cal_voltage.next = &settings_cal_speed;
+		settings_cal_voltage.next = (menu_item_t*) &settings_cal_speed;
 		
-		strcpy(settings_cal_speed.text,			"GESCHWINDIGKEIT");
+		strcpy((char*) settings_cal_speed.text,			"GESCHWINDIGKEIT");
 		settings_cal_speed.num_child = 0;
 		settings_cal_speed.child = NULL;
-		settings_cal_speed.parent = &settings_mfa_values;
+		settings_cal_speed.parent = (menu_item_t*) &settings_mfa_values;
 		settings_cal_speed.is_value = 1;
 		settings_cal_speed.value = eeprom_read_byte(&cal_speed);
 		settings_cal_speed.is_switch = 0;
 		settings_cal_speed.switch_value = 0;
-		settings_cal_speed.next = &settings_cal_consumption;
+		settings_cal_speed.next = (menu_item_t*) &settings_cal_consumption;
 		
-		strcpy(settings_cal_consumption.text,	"    VERBRAUCH   ");
+		strcpy((char*) settings_cal_consumption.text,	"    VERBRAUCH   ");
 		settings_cal_consumption.num_child = 0;
 		settings_cal_consumption.child = NULL;
-		settings_cal_consumption.parent = &settings_mfa_values;
+		settings_cal_consumption.parent = (menu_item_t*) &settings_mfa_values;
 		settings_cal_consumption.is_value = 1;
 		settings_cal_consumption.value = eeprom_read_byte(&cal_consumption);
 		settings_cal_consumption.is_switch = 0;
@@ -147,71 +147,71 @@ void display_menu_init(void){
 		settings_cal_consumption.next = NULL;
 	}
 	
-	settings_mfa_values.child = &settings_cal_voltage;
-	settings_mfa_values.next = &settings_options;
+	settings_mfa_values.child = (menu_item_t*) &settings_cal_voltage;
+	settings_mfa_values.next = (menu_item_t*) &settings_options;
 	
-	strcpy(settings_options.text,		"    OPTIONEN    ");
-	settings_options.parent = &settings_menu;
+	strcpy((char*) settings_options.text,		"    OPTIONEN    ");
+	settings_options.parent = (menu_item_t*) &settings_menu;
 	settings_options.num_child = 4;
 	settings_options.is_value = 0;
 	settings_options.value = 0;
 	settings_options.is_switch = 0;
 	settings_options.switch_value = 0;
 	{
-		strcpy(settings_cal_k58b.text,	"  BELEUCHTUNG  ");
+		strcpy((char*) settings_cal_k58b.text,	"  BELEUCHTUNG  ");
 		settings_cal_k58b.num_child = 2;
-		settings_cal_k58b.child = &settings_cal_k58b_off_val;
-		settings_cal_k58b.parent = &settings_options;
+		settings_cal_k58b.child = (menu_item_t*) &settings_cal_k58b_off_val;
+		settings_cal_k58b.parent = (menu_item_t*) &settings_options;
 		settings_cal_k58b.is_value = 0;
 		settings_cal_k58b.value = 0;
 		settings_cal_k58b.is_switch = 0;
 		settings_cal_k58b.switch_value = 0;
-		settings_cal_k58b.next = &settings_cal_k15_delay;
+		settings_cal_k58b.next = (menu_item_t*) &settings_cal_k15_delay;
 		{
-			strcpy(settings_cal_k58b_off_val.text,	"    LICHT AUS   ");
+			strcpy((char*) settings_cal_k58b_off_val.text,	"    LICHT AUS   ");
 			settings_cal_k58b_off_val.num_child = 0;
 			settings_cal_k58b_off_val.child = NULL;
-			settings_cal_k58b_off_val.parent = &settings_cal_k58b;
+			settings_cal_k58b_off_val.parent = (menu_item_t*) &settings_cal_k58b;
 			settings_cal_k58b_off_val.is_value = 1;
 			settings_cal_k58b_off_val.value = eeprom_read_byte(&cal_consumption);
 			settings_cal_k58b_off_val.is_switch = 0;
 			settings_cal_k58b_off_val.switch_value = 0;
-			settings_cal_k58b_off_val.next = &settings_cal_k58b_on_val;
+			settings_cal_k58b_off_val.next = (menu_item_t*) &settings_cal_k58b_on_val;
 			
-			strcpy(settings_cal_k58b_on_val.text,	"    LICHT AN    ");
+			strcpy((char*) settings_cal_k58b_on_val.text,	"    LICHT AN    ");
 			settings_cal_k58b_on_val.num_child = 0;
 			settings_cal_k58b_on_val.child = NULL;
-			settings_cal_k58b_on_val.parent = &settings_cal_k58b;
+			settings_cal_k58b_on_val.parent = (menu_item_t*) &settings_cal_k58b;
 			settings_cal_k58b_on_val.is_value = 1;
 			settings_cal_k58b_on_val.value = eeprom_read_byte(&cal_consumption);
 			settings_cal_k58b_on_val.is_switch = 0;
 			settings_cal_k58b_on_val.switch_value = 0;
 			settings_cal_k58b_on_val.next = NULL;
 		}
-		strcpy(settings_cal_k15_delay.text,	" AUSSCH. NACH  ");
+		strcpy((char*) settings_cal_k15_delay.text,	" AUSSCH. NACH  ");
 		settings_cal_k15_delay.num_child = 0;
 		settings_cal_k15_delay.child = NULL;
-		settings_cal_k15_delay.parent = &settings_options;
+		settings_cal_k15_delay.parent = (menu_item_t*) &settings_options;
 		settings_cal_k15_delay.is_value = 1;
 		settings_cal_k15_delay.value = eeprom_read_byte(&cal_k15_delay);
 		settings_cal_k15_delay.is_switch = 0;
 		settings_cal_k15_delay.switch_value = 0;
-		settings_cal_k15_delay.next = &settings_cal_can_mode;
+		settings_cal_k15_delay.next = (menu_item_t*) &settings_cal_can_mode;
 		
-		strcpy(settings_cal_can_mode.text,	"   CAN MODUS    ");
+		strcpy((char*) settings_cal_can_mode.text,	"   CAN MODUS    ");
 		settings_cal_can_mode.num_child = 0;
 		settings_cal_can_mode.child = NULL;
-		settings_cal_can_mode.parent = &settings_options;
+		settings_cal_can_mode.parent = (menu_item_t*) &settings_options;
 		settings_cal_can_mode.is_value = 0;
 		settings_cal_can_mode.value = 0;
 		settings_cal_can_mode.is_switch = 1;
 		settings_cal_can_mode.switch_value = eeprom_read_byte(&cal_startstop_enabled);
-		settings_cal_can_mode.next = &settings_cal_startstop_enabled;
+		settings_cal_can_mode.next = (menu_item_t*) &settings_cal_startstop_enabled;
 
-		strcpy(settings_cal_startstop_enabled.text,	"   STASTO EIN   ");
+		strcpy((char*) settings_cal_startstop_enabled.text,	"   STASTO EIN   ");
 		settings_cal_startstop_enabled.num_child = 0;
 		settings_cal_startstop_enabled.child = NULL;
-		settings_cal_startstop_enabled.parent = &settings_options;
+		settings_cal_startstop_enabled.parent = (menu_item_t*) &settings_options;
 		settings_cal_startstop_enabled.is_value = 0;
 		settings_cal_startstop_enabled.value = 0;
 		settings_cal_startstop_enabled.is_switch = 1;
@@ -219,20 +219,20 @@ void display_menu_init(void){
 		settings_cal_startstop_enabled.next = NULL;
 	}
 	
-	settings_options.child = &settings_cal_k58b;
+	settings_options.child = (menu_item_t*) &settings_cal_k58b;
 	settings_options.next = NULL;
 							   //01234567890123456
-	strcpy(settings_menu.text, "  Einstellungen  ");
+	strcpy((char*) settings_menu.text, "  Einstellungen  ");
 	settings_menu.is_switch=0;
 	settings_menu.is_value=0;
 	settings_menu.value=0;
 	settings_menu.switch_value=0;
-	settings_menu.child = &settings_temperatures;
+	settings_menu.child = (menu_item_t*) &settings_temperatures;
 	settings_menu.next = NULL;
 	settings_menu.parent = NULL;
 	settings_menu.num_child = 3;
 
-	current_enty = &settings_menu;
+	current_enty = (menu_item_t*) &settings_menu;
 	#endif
 }
 
@@ -340,27 +340,27 @@ uint8_t display_item_equal(menu_item_t* a, menu_item_t* b){
 	return 1;
 }
 
-menu_item_t* display_settings_next(menu_item_t* item){
+volatile menu_item_t* display_settings_next(volatile menu_item_t* item){
 	if(item)
 		return item->next;
 	return NULL;
 }
 
-menu_item_t* display_settings_child(menu_item_t* item){
+volatile menu_item_t* display_settings_child(volatile menu_item_t* item){
 	if(item)
 		return item->child;
 	return NULL;
 }
 
-menu_item_t* display_settings_nth_child(menu_item_t* item, uint8_t n){
-	menu_item_t* child = display_settings_child(item);
+volatile menu_item_t* display_settings_nth_child(volatile menu_item_t* item, uint8_t n){
+	volatile menu_item_t* child = display_settings_child(item);
 	while(n--){
 		child = display_settings_next(child);
 	}
 	return child;
 }
 
-menu_item_t* display_settings_parent(menu_item_t* item){
+volatile menu_item_t* display_settings_parent(volatile menu_item_t* item){
 	if(item)
 		return item->parent;
 	return NULL;
@@ -403,7 +403,7 @@ void display_settings(void){
 	if(field_position==0){
 		reversed = 1;
 	}
-	dog_write_mid_string(NEW_POSITION(0,0), current_enty->text);
+	dog_write_mid_string(NEW_POSITION(0,0), (char*) current_enty->text);
 	if(field_position==0){
 		reversed = 0;
 	}
@@ -573,7 +573,7 @@ void display_settings(void){
 				reversed = 1;
 			}
 			if(display_settings_child(current_enty))
-				dog_write_mid_string(NEW_POSITION(2,0), display_settings_nth_child(current_enty, 0)->text);
+				dog_write_mid_string(NEW_POSITION(2,0), (char*) display_settings_nth_child(current_enty, 0)->text);
 			else
 				dog_write_mid_string(NEW_POSITION(2,0), "                ");
 			if(field_position == 1){
@@ -583,7 +583,7 @@ void display_settings(void){
 				reversed = 1;
 			}
 			if(display_settings_nth_child(current_enty, 1))
-				dog_write_mid_string(NEW_POSITION(4,0), display_settings_nth_child(current_enty, 1)->text);
+				dog_write_mid_string(NEW_POSITION(4,0), (char*) display_settings_nth_child(current_enty, 1)->text);
 			else
 				dog_write_mid_string(NEW_POSITION(4,0), "                ");
 			if(field_position == 2){
@@ -593,7 +593,7 @@ void display_settings(void){
 				reversed = 1;
 			}
 			if(display_settings_nth_child(current_enty, 2))
-				dog_write_mid_string(NEW_POSITION(6,0), display_settings_nth_child(current_enty, 2)->text);
+				dog_write_mid_string(NEW_POSITION(6,0), (char*) display_settings_nth_child(current_enty, 2)->text);
 			else
 				dog_write_mid_string(NEW_POSITION(6,0), "                ");
 			if(field_position == 3){
@@ -606,13 +606,13 @@ void display_settings(void){
 				| entry n   |	| entry n   |<
 			*/
 			if(display_settings_nth_child(current_enty, max_field_position-3))
-				dog_write_mid_string(NEW_POSITION(2,0), display_settings_nth_child(current_enty, max_field_position-3)->text);
+				dog_write_mid_string(NEW_POSITION(2,0), (char*) display_settings_nth_child(current_enty, max_field_position-3)->text);
 			else
 				dog_write_mid_string(NEW_POSITION(2,0), "                ");
 			if(field_position == max_field_position-1)
 				reversed = 1;
 			if(display_settings_nth_child(current_enty, max_field_position-2))
-				dog_write_mid_string(NEW_POSITION(4,0), display_settings_nth_child(current_enty, max_field_position-2)->text);
+				dog_write_mid_string(NEW_POSITION(4,0), (char*) display_settings_nth_child(current_enty, max_field_position-2)->text);
 			else
 				dog_write_mid_string(NEW_POSITION(4,0), "                ");
 			if(field_position == max_field_position - 1)
@@ -620,7 +620,7 @@ void display_settings(void){
 			if(field_position == max_field_position)
 				reversed = 1;
 			if(display_settings_nth_child(current_enty, max_field_position-1))
-				dog_write_mid_string(NEW_POSITION(6,0), display_settings_nth_child(current_enty, max_field_position-1)->text);
+				dog_write_mid_string(NEW_POSITION(6,0), (char*) display_settings_nth_child(current_enty, max_field_position-1)->text);
 			else
 				dog_write_mid_string(NEW_POSITION(6,0), "                ");
 			if(field_position == max_field_position)
@@ -632,17 +632,17 @@ void display_settings(void){
 				| entry x+1 |
 			*/
 			if(display_settings_nth_child(current_enty, field_position-2))
-				dog_write_mid_string(NEW_POSITION(2,0), display_settings_nth_child(current_enty, field_position-2)->text);
+				dog_write_mid_string(NEW_POSITION(2,0), (char*) display_settings_nth_child(current_enty, field_position-2)->text);
 			else
 				dog_write_mid_string(NEW_POSITION(2,0), "                ");
 			reversed = 1;
 			if(display_settings_nth_child(current_enty, field_position-1))
-				dog_write_mid_string(NEW_POSITION(4,0), display_settings_nth_child(current_enty, field_position-1)->text);
+				dog_write_mid_string(NEW_POSITION(4,0), (char*) display_settings_nth_child(current_enty, field_position-1)->text);
 			else
 				dog_write_mid_string(NEW_POSITION(4,0), "                ");
 			reversed = 0;
 			if(display_settings_nth_child(current_enty, field_position))
-				dog_write_mid_string(NEW_POSITION(6,0), display_settings_nth_child(current_enty, field_position)->text);
+				dog_write_mid_string(NEW_POSITION(6,0), (char*) display_settings_nth_child(current_enty, field_position)->text);
 			else
 				dog_write_mid_string(NEW_POSITION(6,0), "                ");
 		}

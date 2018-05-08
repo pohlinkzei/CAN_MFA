@@ -20,10 +20,10 @@ void display_tuer_open(void);
 void display_tuer_closed(void);
 void display_menu_init(void);
 
-menu_item_t* display_settings_next(menu_item_t* item);
-menu_item_t* display_settings_child(menu_item_t* item);
-menu_item_t* display_settings_nth_child(menu_item_t* item, uint8_t n);
-menu_item_t* display_settings_parent(menu_item_t* item);
+volatile menu_item_t* display_settings_next(volatile menu_item_t* item);
+volatile menu_item_t* display_settings_child(volatile menu_item_t* item);
+volatile menu_item_t* display_settings_nth_child(volatile menu_item_t* item, uint8_t n);
+volatile menu_item_t* display_settings_parent(volatile menu_item_t* item);
 
 extern volatile menu_item_t settings_menu;
 extern volatile menu_item_t *current_enty;
