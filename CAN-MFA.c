@@ -305,14 +305,7 @@ void timer0_init(void){
 	// 0.1ms für alles mögliche
 	TCCR0A |= (1<<WGM01) | (1<<CS01);// prescaler 8 | (1<<CS00); //ctc, prescaler 64
 
-	#if K58B_POLL
-	#warning "K58B_POLL = 1"
-	//0.1ms timer fuer pwm messung
-	OCR0A = F_CPU / 64 / 1000; //250
-	#else
-	#warning "K58B_POLL = 0"
 	OCR0A = F_CPU / 8 / 10000; //200
-	#endif
 
 	TIMSK0 |= (1<<OCIE0A);
 	//*/

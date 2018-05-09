@@ -277,7 +277,7 @@ void can_send_data(void){
 		can_normal_id(0x666, 0, 0);
 		can_normal_id(2047, 0, 1);
 	}else{
-		uint8_t timeout = 0, i;
+		uint8_t timeout = 0;
 		CANCDMOB = 8;
 
 		CANMSG = starterbat.integer;

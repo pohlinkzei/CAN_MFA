@@ -15,9 +15,6 @@
 #define INT6_RISING 0x30
 #define INT6_FALLING 0x20
 
-
-#define K58B_POLL 0
-
 extern uint8_t volatile k58b_status; // fuer alten wert (Flankenerkennung)
 extern uint16_t volatile k58b_high; // zaehler für 0.1ms high samples
 extern uint16_t volatile k58b_low; // zaehler für 0.1ms low samples
