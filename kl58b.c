@@ -23,7 +23,7 @@ void initk58_pwm(void){
 	k58b_high = 0;
 	k58b_low = 0;
 	k58b_pw = 100;
-	k58b_timer = 0; 
+	k58b_timer = 0;
 	
 	EICRB |= INT6_RISING;  
 	EIMSK |= (1<<INT6);
