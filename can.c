@@ -277,7 +277,7 @@ void can_send_data(void){
 		can_normal_id(0x666, 0, 0);
 		can_normal_id(2047, 0, 1);
 	}else{
-		uint8_t timeout = 0, i;
+		uint8_t timeout = 0;
 		CANCDMOB = 8;
 
 		CANMSG = starterbat.integer;
@@ -574,9 +574,7 @@ void can_task_nocan(void){
 			can_status |= (1<<ID480);
 		}
 		
-	}
-	else
-	{
+	}else{
 		uint8_t i;
 		for(i=0;i<8;i++){
 			id280_data[i] = 0;
