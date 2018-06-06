@@ -70,6 +70,10 @@
 #define HG_PORT PORTE
 #define HG_PIN PINE
 #define HG PE5
+#define KLINE_PORT PORTE
+#define KLINE_DDR DDRE
+#define KLINE_TX PE1
+#define KLINE_RX PE0
 
 enum displaymode {
 	NAVIGATION=0,
