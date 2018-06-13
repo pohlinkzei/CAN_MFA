@@ -40,7 +40,7 @@ void uart_clear ()
 
 
 uint16_t kline_read_byte(void){
-
+	return 0;
 }
 
 uint16_t ser_getc (void)		
@@ -281,6 +281,8 @@ void kline_get_group (uint16_t group)
 
 	uart_putc (BLK_END);
 	ser_getc();
+	ecu1 = ecu;
+	ecu = ecu1;
 }
 
 
