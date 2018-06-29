@@ -286,9 +286,9 @@ void kline_get_group (uint16_t group)
 }
 
 
-uint8_t kline_check_err ()
+uint8_t kline_check_err (error_code_t err[10])
 {
-	uint8_t	header, ecu, ecu1, ecu2, i, error = 1;
+	uint8_t	header,tmp, i, error = 1;
 
 	uart_putc (0x03);
 	ser_getc();
@@ -311,29 +311,26 @@ uint8_t kline_check_err ()
 		
 		if (header == RESP_GET_ERR)
 		{
-			ecu = ser_getc();		// byte 1
-			uart_putc (0xFF-ecu);
-			ser_getc();
-			
-			ecu1 = ser_getc();		// byte 2
-			uart_putc (0xFF-ecu1);
-			ser_getc();
-			
-			ecu2 = ser_getc();		// byte 3
-			uart_putc (0xFF-ecu2);
-			ser_getc();
-			
-			for (i=1; i<=block_length-6; i++)	// 3+3 Bytes der block length bereits verarbeitet
-			{
-				ecu = ser_getc();		// weitere fehlerbytes interessieren jetzt nicht
-				uart_putc (0xFF-ecu);
-				ser_getc();
+			for(i=0; i<(block_length-1)/3; i++){
+				tmp = kline_get_byte();
+				err[i].code = ((uint16_t) tmp) << 8;
+
+				tmp = kline_get_byte();
+				err[i].code += tmp;
+
+				tmp = kline_get_byte();
+				err[i].state = tmp;
 			}
 			ser_getc();				// Block-end Byte ignorieren
 			
-			if ((ecu == 0xFF) && (ecu1 == 0xFF) && (ecu2 == 0x88))	// kein Fehler gespeichert
+			if ((err[0].code == 0xFFFF) && (err[0].state == 0x88)){	// kein Fehler gespeichert
+				for(i=0; i<10; i++){
+					err[i].code = 0x0000;
+					err[i].state = 0x00;
+				}
 				error = 0;
-			
+			}
+
 			kline_send_ack ();
 		}
 		else
@@ -346,7 +343,7 @@ uint8_t kline_check_err ()
 	return error;
 }
 
-void  kline_wakeup ()
+void  kline_wakeup (uint8_t id)
 {
 	uint16_t 	i, baud_rates[] = {9600, 10400, 4800};
 	i = 0;
@@ -356,7 +353,7 @@ void  kline_wakeup ()
 		_delay_ms (1000);
 		uart_disable();
 		wdt_reset();
-		kline_init(0x01 /* ECU */);
+		kline_init(id);
 		wdt_reset();
 		kline_uart_init(baud_rates[i]);
 		i++;
@@ -390,7 +387,7 @@ void  kline_get_ids ()
 
 
 void  kline_display_values (void){
-	if (kline_check_err ()){		// Fehler vorhanden?
+	if (/*kline_check_err ()*/1){		// Fehler vorhanden?
 		//TODO: Indicate error
 	}
 }
@@ -411,7 +408,7 @@ void kline_task(void)
 	}
 	*/
 	wdt_enable (WDTO_2S);
-	kline_wakeup ();
+	kline_wakeup (1);
 	kline_get_ids ();			// dummy read out
 	kline_display_values();
 }
