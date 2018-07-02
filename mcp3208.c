@@ -58,9 +58,9 @@ uint8_t mcp3208_spi_write(char dataout)
 		}else{
 			asm volatile ("nop"::);
 		}
-
+		_delay_us(1);
 		SPI_PORT |=(1<<SCK);		// Clock auf High
-
+		_delay_us(1);
 		asm volatile ("nop"::);
 		asm volatile ("nop"::);
 		asm volatile ("nop"::);
@@ -76,8 +76,8 @@ unsigned int mcp3208_spi_read(uint8_t type,uint8_t channel)
 	uint8_t  tempHigh,tempLow,tempType,dummy;
 	
 	ADC_CS_PORT &= ~(1<<(ADC_CS));     //setbitLow CS  Pin
-	mcp3208_spi_delay(delayCount );
-	
+	//mcp3208_spi_delay(delayCount );
+	_delay_us(1);
 	tempType = (type & 0x01) << 1 ;
 	tempLow = (channel & 0x03) << 6;
 	tempHigh = (channel & 0x04) >> 2;
