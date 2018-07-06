@@ -41,6 +41,10 @@ uint16_t old_adc_value[8] = {0,};
 extern volatile uint8_t reversed;
 extern volatile uint8_t underlined;
 
+volatile uint8_t settings_enty;
+volatile uint8_t field_position;
+volatile uint8_t max_field_position;
+
 volatile uint8_t navi_old = 0x00;
 volatile uint16_t timer2_cnt = 0;
 volatile mfa_t mfa;

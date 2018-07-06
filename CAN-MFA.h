@@ -128,6 +128,11 @@ enum med_value {
 	 VAL_RANGE,
 };
 
+enum settings_display{
+	SET_CAN_MODE,
+	SET_STASTO_MODE,
+};
+
 enum small_value {
 	CAN_VALUES,
 	ADC_VALUES,
@@ -166,6 +171,10 @@ typedef enum stat{
 	IGNITION_ON,
 	DOOR_OPEN,
 }status_t;
+
+extern volatile uint8_t settings_enty;
+extern volatile uint8_t field_position;
+extern volatile uint8_t max_field_position;
 
 extern volatile status_t status;
 extern volatile status_t old_status;

@@ -112,6 +112,92 @@ void display_settings(void){
 	mfa: ok
 	mode: ?
 	//*/
+
+	/*	value					switch					menu
+		|0123456789012345|		|0123456789012345|		|0123456789012345|
+		|      Text      |		|      Text      |		|      Text      |
+		|      value     |		|      value     |		|     child1     |
+		| +100| +10|  +1 |		|       EIN      |		|     child2     |
+		| -100| -10|  -1 |		|       AUS      |		|     child3     |
+	//*/
+
+	switch(settings_enty){
+		case SET_CAN_MODE:{
+			//char str[17] = "                ";
+			underlined = 1;
+			dog_set_page(0);
+			if(field_position==0){
+				reversed = 1;
+			}
+			//										|0123456789012345|
+			dog_write_mid_string(NEW_POSITION(0,0), "    CAN MODE    ");
+			if(field_position==0){
+				reversed = 0;
+			}
+			max_field_position = 3; //2 switch positions + 1 back
+
+			if(eeprom_read_byte(&cal_can_mode) == CAN){ //			 0123456789012345
+				dog_write_mid_string(NEW_POSITION(2,0), "       EIN      ");
+			}else{
+				dog_write_mid_string(NEW_POSITION(2,0), "       AUS      ");
+			}
+			if(field_position==1){
+				reversed = 1;
+				dog_write_mid_string(NEW_POSITION(4,0), "       EIN      ");
+				reversed = 0;
+				dog_write_mid_string(NEW_POSITION(6,0), "       AUS      ");
+			}else if(field_position==2){
+				dog_write_mid_string(NEW_POSITION(4,0), "       EIN      ");
+				reversed = 1;
+				dog_write_mid_string(NEW_POSITION(6,0), "       AUS      ");
+				reversed = 0;
+			}else{
+				dog_write_mid_string(NEW_POSITION(4,0), "       EIN      ");
+				dog_write_mid_string(NEW_POSITION(6,0), "       AUS      ");
+			}
+			
+			break;
+		}
+		case SET_STASTO_MODE:{
+			//char str[17] = "                ";
+			underlined = 1;
+			dog_set_page(0);
+			if(field_position==0){
+				reversed = 1;
+			}
+			//										|0123456789012345|
+			dog_write_mid_string(NEW_POSITION(0,0), " START STOP MODE");
+			if(field_position==0){
+				reversed = 0;
+			}
+			max_field_position = 3; //2 switch positions + 1 back
+			if(eeprom_read_byte(&cal_startstop_enabled)){ //			 0123456789012345
+				dog_write_mid_string(NEW_POSITION(2,0), "       EIN      ");
+				}else{
+				dog_write_mid_string(NEW_POSITION(2,0), "       AUS      ");
+			}
+			if(field_position==1){
+				reversed = 1;
+				dog_write_mid_string(NEW_POSITION(4,0), "       EIN      ");
+				reversed = 0;
+				dog_write_mid_string(NEW_POSITION(6,0), "       AUS      ");
+			}else if(field_position==2){
+				dog_write_mid_string(NEW_POSITION(4,0), "       EIN      ");
+				reversed = 1;
+				dog_write_mid_string(NEW_POSITION(6,0), "       AUS      ");
+				reversed = 0;
+			}else{
+				dog_write_mid_string(NEW_POSITION(4,0), "       EIN      ");
+				dog_write_mid_string(NEW_POSITION(6,0), "       AUS      ");
+			}
+		
+			break;
+		}
+
+	}
+
+
+
 	//															 .    SETTINGS    
 	dog_write_mid_strings(NEW_POSITION(2,0), "                ", "    SETTINGS    ");
 	dog_write_mid_strings(NEW_POSITION(5,0), "                ", "                ");
