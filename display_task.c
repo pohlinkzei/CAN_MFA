@@ -223,7 +223,7 @@ void display_small_text(void){
 			can_line2[12] = KMH + 1;
 			can_line3[4] = ENGT;
 			can_line3[5] = ENGT + 1;
-			sprint_temperature(&can_line3[6],engine_temperature>25?engine_temperature:200);
+			sprint_temperature(&can_line3[6], engine_temperature>-45?engine_temperature:143);
 			can_line3[9] = CENTIGRADE;
 			uint16_to_string(&can_line4[5], rpm);
 			can_line4[10] = RPM;
@@ -674,7 +674,7 @@ void display_small_text(void){
 	
 				line3[1] = ENGT;
 				line3[2] = ENGT + 1;
-				sprint_temperature(&line3[3],engine_temperature>25?engine_temperature:200);
+				sprint_temperature(&line3[3],engine_temperature>-45?engine_temperature:143);
 				line3[6] = CENTIGRADE;
 
 				sprint_temperature(&line3[10],ambient_temperature);
@@ -901,7 +901,7 @@ void display_med_row(volatile uint8_t* dv, uint8_t page, uint8_t row){
 			}
 			str[1] = ENGT;
 				
-			sprint_temperature(&str[4], engine_temperature>25?engine_temperature:200);
+			sprint_temperature(&str[4], engine_temperature>-45?engine_temperature:143);
 			str[2] = ENGT+1;
 			str[8] = CENTIGRADE;
 			for(i=0; i<12; i++){
@@ -1516,7 +1516,7 @@ void display_top_line(void){
 			
 			str[2] = ENGT;
 			str[3] = ENGT + 1;
-			sprint_temperature(&str[4],engine_temperature>25?engine_temperature:200);
+			sprint_temperature(&str[4], engine_temperature>-45?engine_temperature:143);
 			str[7] = CENTIGRADE;
 
 			sprint_temperature(&str[11],oil_temperature);
@@ -1561,7 +1561,7 @@ void display_top_line(void){
 			sprint_temperature(&str[4],gearbox_temperature);
 			str[7] = CENTIGRADE;
 
-			sprint_temperature(&str[11],engine_temperature>25?engine_temperature:200);
+			sprint_temperature(&str[11], engine_temperature>-45?engine_temperature:143);
 			str[14] = CENTIGRADE;
 
 			str[9] = ENGT;

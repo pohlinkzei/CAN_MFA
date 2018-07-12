@@ -489,9 +489,11 @@ void can_task(void){
 		if(id288_valid){
 			// [ 0 ] [ eng_temp ] [ status1 ] [ spd ] [spd_gra] [ 5 ] [ 6 ] [ 7 ]
 			can_speed_cnt++;
-			engine_temperature = id288_data[1] - 100;
+			engine_temperature = (id288_data[1] - 64) * 30 / 4;// - 100;
+			/*
 			if(engine_temperature < 25)
 				engine_temperature = 25;
+			*/
 			uint16_t spd = ((id288_data[3]));
 			gra_speed = id288_data[4];
 			eng_status1 = id288_data[2];
