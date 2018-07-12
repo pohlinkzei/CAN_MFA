@@ -179,7 +179,7 @@ void sprint_temperature(char* str,int16_t temperature){
 		str[0] = '-';
 		_signed = 1;
 	}
-	if(temperature > 149 || (temperature > 49 && _signed)){
+	if(temperature > 141 || (temperature > 46 && _signed)){
 		str[0]=' ';
 		str[1]='-';
 		str[2]='-';	
