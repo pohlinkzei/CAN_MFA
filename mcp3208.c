@@ -1,4 +1,5 @@
 #include <avr/io.h>
+#include <avr/interrupt.h>
 #include "mcp3208.h"
 #include <util/delay.h>
 
@@ -41,6 +42,7 @@ uint8_t mcp3208_spi_write(char dataout)
 {
 
 	uint8_t datain=0;
+	cli();
 	//das Byte wird Bitweise nacheinander Gesendet MSB zuerst
 	for (uint8_t a=8; a>0; a--){
 		datain<<=1;					//Schieben um das Richtige Bit zusetzen
@@ -73,7 +75,7 @@ uint8_t mcp3208_spi_write(char dataout)
 		//mcp3208_spi_delay( 2 * delayCount ); //_delay_us(4);
 		dataout<<=1;				//Schiebe um nächstes Bit zusenden
 	}
-
+	sei();
 	return datain;
 }
 
