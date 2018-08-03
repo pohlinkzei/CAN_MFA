@@ -480,6 +480,9 @@ void can_task(void){
 			// [status] [ 1 ] [ 2 ] [rpm] [rpm] [ 5 ] [ pedal_position ] [ 7 ]
 			// calculate rpm
 			rpm = (id280_data[4] + ((id280_data[3]) << 8))>>2;
+			rpm += 25;
+			rpm /= 50;
+			rpm *= 50;
 			eng_status0 = id280_data[0];
 			uint16_t p_temp = id280_data[5] * 100;
 			pedal_position =  p_temp / 249;
@@ -489,7 +492,8 @@ void can_task(void){
 		if(id288_valid){
 			// [ 0 ] [ eng_temp ] [ status1 ] [ spd ] [spd_gra] [ 5 ] [ 6 ] [ 7 ]
 			can_speed_cnt++;
-			engine_temperature = (id288_data[1] - 64) * 30 / 4;// - 100;
+			// =(((A230-64)*3)+1)/4
+			engine_temperature = (((id288_data[1] - 64) * 3)+1)/ 4; // =(((val-64)*3)+1)/4 --> round 0.75 to 1 and 1.5 to 1
 			/*
 			if(engine_temperature < 25)
 				engine_temperature = 25;

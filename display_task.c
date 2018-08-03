@@ -318,7 +318,9 @@ void display_small_text(void){
 			char can_line4[22] = "                 ";
 			char can_line5[22] = "                 ";
 
-			sprint_cur_speed(&can_line2[7],(gra_speed * 10 * eeprom_read_byte(&cal_speed)) / 128);
+
+			uint32_t _gra_speed = (gra_speed * (10 * eeprom_read_byte(&cal_speed))) / 128;
+			sprint_cur_speed(&can_line2[7],(uint16_t) _gra_speed);
 			can_line2[11] = KMH;
 			can_line2[12] = KMH + 1;
 
