@@ -1,4 +1,5 @@
 #include <avr/io.h>
+#include <avr/interrupt.h>
 #include "mcp3208.h"
 #include <util/delay.h>
 
@@ -41,16 +42,12 @@ uint8_t mcp3208_spi_write(char dataout)
 {
 
 	uint8_t datain=0;
+	cli();
 	//das Byte wird Bitweise nacheinander Gesendet MSB zuerst
 	for (uint8_t a=8; a>0; a--){
 		datain<<=1;					//Schieben um das Richtige Bit zusetzen
 		SPI_PORT &=~(1<<SCK);		// Clock auf LOW
-		/*
-		asm volatile ("nop"::);
-		asm volatile ("nop"::);
-		asm volatile ("nop"::);
-		asm volatile ("nop"::);
-		*/
+		
 		if (dataout & 0x80){		//Ist Bit a in Byte gesetzt
 			SPI_PORT |=(1<<MOSI);	//Set Output High
 		}
@@ -64,16 +61,18 @@ uint8_t mcp3208_spi_write(char dataout)
 		}else{
 			asm volatile ("nop"::);
 		}
-		/*
-		asm volatile ("nop"::);
-		asm volatile ("nop"::);
-		*/
-		//mcp3208_spi_delay(delayCount ); //_delay_us(2);
+		_delay_us(1);
 		SPI_PORT |=(1<<SCK);		// Clock auf High
-		//mcp3208_spi_delay( 2 * delayCount ); //_delay_us(4);
+		_delay_us(1);
+		asm volatile ("nop"::);
+		asm volatile ("nop"::);
+
+		asm volatile ("nop"::);
+		asm volatile ("nop"::);
+
 		dataout<<=1;				//Schiebe um nächstes Bit zusenden
 	}
-
+	sei();
 	return datain;
 }
 

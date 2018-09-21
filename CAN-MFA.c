@@ -76,7 +76,7 @@ volatile int16_t speed[2]; //0-317km/h
 int16_t max_speed;
 volatile int16_t speed_start; //0-317km/h
 volatile uint16_t rpm;	//0-16000rpm
-volatile int16_t engine_temperature;//-100-154 centigrade
+volatile int16_t engine_temperature;//-48-148 centigrade
 uint16_t max_rpm;
 int16_t max_engine_temp;
 int16_t min_engine_temp;
@@ -261,7 +261,7 @@ void reset_values(void){
 	speed[CUR] = 0; //0-317km/h
 	speed[AVG] = 0;
 	rpm = 0;	//0-16000rpm
-	engine_temperature = 0;//-100-154 centigrade
+	engine_temperature = 0;//-48-148 centigrade
 	fuel = 0;	//0-100% or 0-80l
 	cons_delta_ul = 0;
 	cons_delta_timer = 0;
@@ -753,10 +753,10 @@ void app_task(){
 			v_solar_plus = calculate_voltage(adc_value[SPANNUNG3]);
 			entlastungsbat = calculate_voltage(adc_value[SPANNUNG4]);
 
-			if(engine_temperature > 25 && engine_temperature < 200){
+			if(engine_temperature > -45 && engine_temperature < 142){
 				if(max_engine_temp < engine_temperature){
 					max_engine_temp = engine_temperature;
-					}else if(min_engine_temp > engine_temperature){
+				}else if(min_engine_temp > engine_temperature){
 					min_engine_temp = engine_temperature;
 				}
 			}

@@ -199,7 +199,7 @@ extern volatile int16_t speed_start; //0-317km/h
 //extern volatile uint16_t speed[AVG];
 extern volatile uint16_t rpm;	//0-16000rpm
 extern uint16_t max_rpm;
-extern volatile int16_t engine_temperature;//-100-154 centigrade
+extern volatile int16_t engine_temperature;//-48-148 centigrade
 extern int16_t max_engine_temp;
 extern int16_t min_engine_temp;
 extern volatile uint8_t fuel;	//0-100% or 0-80l
