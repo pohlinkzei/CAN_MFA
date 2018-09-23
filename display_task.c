@@ -1455,8 +1455,8 @@ void display_top_line(void){
 		case VOLTAGES0:{
 			//				0123456789012345
 			//				 12,3V BB 12,3V
-			char str1[7] = "       ";
-			char str2[8] = "        ";
+			char str1[8] = "       ";
+			char str2[9] = "        ";
 			sprint_voltage(&str1[0], starterbat);
 			sprint_voltage(&str2[0], zweitbat);
 			str1[5] = 'V';
@@ -1469,8 +1469,8 @@ void display_top_line(void){
 		case VOLTAGES1:{
 			//				0123456789012345
 			//				 12,3V BB 12,3V
-			char str1[7] = "       ";
-			char str2[8] = "        ";
+			char str1[8] = "       ";
+			char str2[9] = "        ";
 			sprint_voltage(&str1[0], starterbat);
 			sprint_voltage(&str2[0], entlastungsbat);
 			str1[5] = 'V';
@@ -1483,8 +1483,8 @@ void display_top_line(void){
 		case VOLTAGES2:{
 			//				0123456789012345
 			//				 12,3V BB 12,3V
-			char str1[7] = "       ";
-			char str2[8] = "        ";
+			char str1[8] = "       ";
+			char str2[9] = "        ";
 			sprint_voltage(&str1[0], zweitbat);
 			sprint_voltage(&str2[0], v_solar_plus);
 			str1[5] = 'V';
@@ -1497,8 +1497,8 @@ void display_top_line(void){
 		case VOLTAGES3:{
 			//				0123456789012345
 			//				 12,3V BB 12,3V
-			char str1[7] = "       ";
-			char str2[8] = "        ";
+			char str1[8] = "       ";
+			char str2[9] = "        ";
 			sprint_voltage(&str1[0], entlastungsbat);
 			sprint_voltage(&str2[0], zweitbat);
 			str1[5] = 'V';
