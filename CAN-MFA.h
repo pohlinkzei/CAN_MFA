@@ -148,6 +148,7 @@ enum small_value {
 #define CUT 4
 #define DISABLED 5
 #define WAITING 6
+#define REMIND_WAITING 7
 
 #define BRAKE 0x03 // status2
 #define THROTTLE 0x01 // status1

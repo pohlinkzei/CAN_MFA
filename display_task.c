@@ -1855,7 +1855,8 @@ void display_top_line(void){
 				dog_write_mid_string(NEW_POSITION(0,4),str);
 				break;
 			}
-			case WAITING:{
+			case WAITING:
+			case REMIND_WAITING:{
 				if(engine_temperature <= 70){
 					str[3] = ENGT;
 					str[4] = ENGT + 1;
