@@ -118,8 +118,8 @@ volatile uint16_t range[2];
 volatile voltage_value_t starterbat;
 volatile voltage_value_t zweitbat;
 volatile voltage_value_t v_solar_plus;
-// volatile voltage_value_t v_solar_minus;
-// volatile int16_t in_temperature;
+volatile voltage_value_t entlastungsbat;
+volatile int16_t in_temperature;
 // int16_t max_in_temp;
 // int16_t min_in_temp;
 volatile int16_t gearbox_temperature;
@@ -140,6 +140,7 @@ uint8_t EEMEM cal_consumption;
 uint8_t EEMEM cal_gearbox_temperature;
 uint8_t EEMEM cal_ambient_temperature;
 uint8_t EEMEM cal_can_mode;
+uint8_t EEMEM cal_startstop_enabled;
 volatile uint8_t mkl;
 uint8_t cal_k15_delay EEMEM;
 uint8_t cal_k58b_off_val EEMEM;
@@ -149,6 +150,9 @@ extern volatile uint16_t k58b_timer;
 volatile uint32_t cons_timer;
 volatile uint8_t can_status = 0x00;
 volatile uint8_t engine_cut;
+volatile uint8_t engine_cut_old;
+volatile uint16_t draw_engine_cut_state;
+volatile uint8_t startstop_enabled;
 volatile uint8_t can_mode;
 
 volatile uint8_t display_mode = 0;
@@ -571,7 +575,7 @@ int main(void){
 					k58b_pw = 0;
 					// disable CAN receiver
 					PCA_PORT |= (1<<DISABLE_PCA);
-					dog_transmit(LCD_OFF);
+					dog_disable();
 
 					PORTE &= ~(1<<PE3);
 					DDRE &= ~(1<<PE3);
@@ -743,7 +747,7 @@ void app_task(){
 		}else{
 			v_solar_plus = calculate_voltage(adc_value[SPANNUNG3]);
 			#warning "v_solar_minus"
-			/*v_solar_minus = calculate_voltage(adc_value[SPANNUNG4]);*/
+			entlastungsbat = calculate_voltage(adc_value[SPANNUNG4]);
 
 			if(engine_temperature > -45 && engine_temperature < 142){
 				if(max_engine_temp < engine_temperature){
@@ -779,8 +783,6 @@ void app_task(){
 					min_oil_temp = oil_temperature;
 				}
 			}
-			
-			
 		}
 		
 		ambient_temperature = calculate_ambient_temperature(adc_value[AUSSENTEMP]);
@@ -804,6 +806,45 @@ void app_task(){
 			mfa.mode = CUR;
 		}else{
 			mfa.mode = AVG;
+			if((display_mode & (1<<SETTINGS))){
+				// used to save changed values to eeprom
+				if(settings_cal_ambient_temperature.value != eeprom_read_byte(&cal_ambient_temperature)){
+					eeprom_write_byte(&cal_ambient_temperature, settings_cal_ambient_temperature.value);
+				}
+				if(settings_cal_voltage.value != eeprom_read_byte(&cal_voltage)){
+					eeprom_write_byte(&cal_voltage, settings_cal_voltage.value);
+				}
+				if(settings_cal_speed.value != eeprom_read_byte(&cal_speed)){
+					eeprom_write_byte(&cal_speed, settings_cal_speed.value);
+				}
+				if(settings_cal_oil_temperature.value != eeprom_read_byte(&cal_oil_temperature)){
+					eeprom_write_byte(&cal_oil_temperature, settings_cal_oil_temperature.value);
+				}
+				if(settings_cal_in_temperature.value != eeprom_read_byte(&cal_in_temperature)){
+					eeprom_write_byte(&cal_in_temperature, settings_cal_in_temperature.value);
+				}
+				if(settings_cal_consumption.value != eeprom_read_byte(&cal_consumption)){
+					eeprom_write_byte(&cal_consumption, settings_cal_consumption.value);
+				}
+				if(settings_cal_gearbox_temperature.value != eeprom_read_byte(&cal_gearbox_temperature)){
+					eeprom_write_byte(&cal_gearbox_temperature, settings_cal_gearbox_temperature.value);
+				}
+				if(settings_cal_gearbox_temperature.value != eeprom_read_byte(&cal_gearbox_temperature)){
+					eeprom_write_byte(&cal_gearbox_temperature, settings_cal_gearbox_temperature.value);
+				}
+				if(settings_cal_k15_delay.value != eeprom_read_byte(&cal_k15_delay)){
+					eeprom_write_byte(&cal_k15_delay, settings_cal_k15_delay.value);
+				}
+				if(settings_cal_k58b_off_val.value != eeprom_read_byte(&cal_k58b_off_val)){
+					eeprom_write_byte(&cal_k58b_off_val, settings_cal_k58b_off_val.value);
+				}
+				if(settings_cal_can_mode.switch_value != eeprom_read_byte(&cal_can_mode)){
+					eeprom_write_byte(&cal_can_mode, settings_cal_can_mode.switch_value);
+				}
+				if(settings_cal_startstop_enabled.switch_value != eeprom_read_byte(&cal_startstop_enabled)){
+					eeprom_write_byte(&cal_startstop_enabled, settings_cal_startstop_enabled.switch_value);
+				}
+			}
 		}			
 
 		if(read_mfa_switch(MFA_SWITCH_RES)){
@@ -828,10 +869,18 @@ void app_task(){
 							//no_res_switch = 1;
 							mfa_res_cnt = 0;
 						}
+					}else{
+						if(current_enty->parent == NULL){
+							if (mfa_res_cnt > 10){
+								dog_clear_lcd();
+								no_res_switch = 1;
+								if(mfa_res_cnt > 25){
+									void (*reset)( void ) = 0xF800;
+									reset();
+								}
+							}
+						}
 					}
-				}else{
-					// just increase mfa_res_cnt to be used with settings value if settings are active display
-					/* TODO: Needs to be tested ;) */ 
 				}
 			}
 		}else{
@@ -839,7 +888,14 @@ void app_task(){
 			mfa_res_cnt = 0;
 			if(mfa.res != mfa_old.res){
 				if(!no_res_switch){
-					display_value[display_mode]++;
+					if(!(display_mode & (1<<SETTINGS))){
+						display_value[display_mode]++;
+					}else{
+						field_position++;
+						if(field_position > max_field_position){
+							field_position = 0;
+						}
+					}
 				}else{
 					no_res_switch = 0;
 				}
@@ -857,25 +913,57 @@ void app_task(){
 					}
 					no_mfa_switch = 1;
 				}
-			}else{
-				display_mode++;
-				#if 0
-				// test if this is needed...
-				if(display_mode > CAN_DATA){
-					display_mode = 0;
+			}
+		}else{
+			mfa.mfa = 0;
+			mfa_mfa_cnt = 0;
+			if(mfa.mfa != mfa_old.mfa){
+				if(!no_mfa_switch){
+					if(!(display_mode & (1<<SETTINGS))){
+						display_mode++;
+					}else{
+						// Settings display
+						if(field_position == 0){
+							current_enty = current_enty->parent?current_enty->parent:&settings_menu;
+						}else{
+							if(current_enty->is_value){
+								switch(field_position){
+									case 1: current_enty->value += 100; break;
+									case 2: current_enty->value += 10; break;
+									case 3: current_enty->value += 1; break;
+									case 4: current_enty->value -= 100; break;
+									case 5: current_enty->value -= 10; break;
+									case 6: current_enty->value -= 1; break;
+								}
+							}else if (current_enty->is_switch){
+								switch(field_position){
+									case 1: current_enty->switch_value = 1; break;
+									case 2: current_enty->switch_value = 0; break;
+								}
+							}else{
+								current_enty = display_settings_nth_child(current_enty, field_position-1);
+								field_position = 0;
+							}
+						}
+					}
+				}else{
+					no_mfa_switch = 0;
 				}
-				#endif
 				if((navigation_status == status_routing || navigation_status == status_recalculating) && display_mode == NAVIGATION){
 					do_not_switch_to_navigation = 1;
 				}else{
 					do_not_switch_to_navigation = 0;
 				}
 			}
-		}else{
-			mfa.mfa = 0;
 		}
 		mfa_old = mfa;
 		disable_mfa_switch();
+
+		if(engine_cut != engine_cut_old){
+			// new status from startstop device
+			draw_engine_cut_state = 5000;
+			engine_cut_old = engine_cut;
+		}
 		//*
 		// process navigation data
 		
@@ -906,6 +994,9 @@ ISR(TIMER0_COMP_vect){//0.1ms timer
 		//*
 		if(door_delay){
 			door_delay--;
+		}
+		if(draw_engine_cut_state){
+			draw_engine_cut_state--;
 		}
 		//*/
 		set_backlight(k58b_pw);

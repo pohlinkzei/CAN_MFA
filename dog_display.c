@@ -11,13 +11,14 @@ volatile uint8_t init128[] = {0x40 ,0xA0 ,0xC8 ,0xA6 ,0xA2 ,0x2F ,0xF8 ,0x00 ,0x
 volatile uint16_t k,h,i;
 volatile uint8_t reversed = 0;
 volatile uint8_t underlined = 0;
+volatile uint8_t dog_initialized = 0;
 uint8_t count;
 uint8_t n,m;
 uint8_t do_rot = 1;
 uint8_t do_rot_cnt = 0;
 uint8_t do_not_rot_cnt = 0;
 
-
+uint8_t dog_transmit(uint8_t data);
 /** FUNCTIONS ********************************************************************************************************************/
 void dog_spi_init(void){
 	SPI_DDR |= (1<<MOSI) | (1<<MISO) | (1<<SCK);
@@ -145,7 +146,7 @@ void dog_write_small_string(const char *string){
 }
 #endif
 /**-----------------------------------------------------------------------------------------------------------------------------**/
-void dog_write_numbered_bat_symbol(position_t position, uint8_t num){
+void dog_write_big_numbered_bat_symbol(position_t position, uint8_t num){
 	//if(num>9) return;
 	
 	uint8_t temp[3][24] = {{0}};
@@ -350,6 +351,84 @@ void dog_write_mid_strings(position_t pos, const char *str0, const char *str1){
 		dog_transmit_data(line2[i]);
 	}
 
+}
+
+/**-----------------------------------------------------------------------------------------------------------------------------**/
+void dog_write_mid_numbered_bat_symbol(position_t position, uint8_t num){
+		//if(num>9) return;
+
+	uint8_t temp[3][16] = {{0}};
+	//uint8_t upper[12];
+	//uint8_t lower[12];
+	position.row = position.row % 8;
+	uint32_t temprow = 0;
+
+
+	//char frame[48] = {0};
+	for(i=0; i<8; i++){
+		//lower
+		temp[0][i] = pgm_read_byte(&(font8x12[BAT][2*i]));
+		//upper
+		temp[1][i] = pgm_read_byte(&(font8x12[BAT][2*i+1]));
+		if(underlined){
+			temp[1][i] |= 0x30;
+		}
+	}
+	for(i=8; i<16; i++){
+		//lower
+		temp[0][i] = pgm_read_byte(&(font8x12[BAT][2*i]));
+		//upper
+		temp[1][i] = pgm_read_byte(&(font8x12[BAT][2*i+1]));
+		if(underlined){
+			temp[1][i] |= 0x30;
+		}
+	}
+	char number[10] = {0};
+	for(i=0; i<4; i++){
+		uint16_t temp = pgm_read_byte(&(font4x6[num][i]));
+		//temp = temp << 8;
+		//temp += pgm_read_byte(&(font8x12[num][2*i]));
+		temp = temp << 2;
+		number[2*i]		= (uint8_t) temp;
+		number[2*i+1]	= (uint8_t) (temp>>8);
+	}
+	for(i=0; i<6; i++){
+
+		temp[0][6+i] ^= number[2*i];
+		temp[1][6+i] ^= number[2*i+1];
+	}
+	if(position.row != 0){
+		for(i=0; i<24; i++){
+			temprow = 0;
+			temprow = ((temp[2][i]) + ((uint16_t) temp[1][i] << 8) + ((uint32_t) temp[0][i] << 16));
+			temprow = temprow << position.row;
+			temp[0][i] = (uint8_t) ((temprow) & 0x000000FF);
+			temp[1][i] = (uint8_t) ((temprow>>8) & 0x000000FF);
+			temp[2][i] = (uint8_t) ((temprow>>16) & 0x000000FF);
+		}
+
+		dog_set_position(position.page, position.column);
+		for(i=0; i<24; i++){
+			dog_transmit_data(temp[0][i]);
+		}
+		dog_set_position(position.page+1, position.column);
+		for(i=0; i<24; i++){
+			dog_transmit_data(temp[1][i]);
+		}
+		dog_set_position(position.page+2, position.column);
+		for(i=0; i<24; i++){
+			dog_transmit_data(temp[2][i]);
+		}
+	}else{
+		dog_set_position(position.page,position.column);
+		for(i=0;i<24;i++){
+			dog_transmit_data(temp[0][i]);
+		}
+		dog_set_position(position.page+1,position.column);
+		for(i=0;i<24;i++){
+			dog_transmit_data(temp[1][i]);
+		}
+	}
 }
 #endif
 /**-----------------------------------------------------------------------------------------------------------------------------**/
@@ -601,8 +680,15 @@ position_t NEW__POSITION(uint8_t page,uint8_t column, uint8_t row){
 	return pos;
 }
 /**-----------------------------------------------------------------------------------------------------------------------------**/
+void dog_disable(void){
+	dog_transmit(LCD_OFF);
+	dog_initialized = 0;
+}
+/**-----------------------------------------------------------------------------------------------------------------------------**/
 void dog_init(void){
 	uint8_t i = 0;
+	if(dog_initialized)
+		return;
 #if CS
 	DOG_CS_PORT &= ~(1<<DOG_CS);
 #endif
@@ -618,4 +704,5 @@ void dog_init(void){
 	for(i=0;i<14;i++){
 		dog_transmit(init128[i]);
 	}
+	dog_initialized = 1;
 }

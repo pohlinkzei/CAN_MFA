@@ -110,6 +110,8 @@ enum displaymode {
 #define OELTEMP 0
 #define AUSSENTEMP 1
 #define SPANNUNG3 4
+#warning "DEFINITION"
+#define SPANNUNG4 4
 
 #define GETRIEBETEMP 6
 #define MANIFOLD 7
@@ -166,6 +168,8 @@ enum small_value {
 #define CUTTING 3
 #define CUT 4
 #define DISABLED 5
+#define WAITING 6
+#define REMIND_WAITING 7
 
 #define BRAKE 0x03 // status2
 #define THROTTLE 0x01 // status1
@@ -257,10 +261,7 @@ extern volatile uint32_t start_cnt;
 extern volatile voltage_value_t starterbat;
 extern volatile voltage_value_t zweitbat;
 extern volatile voltage_value_t v_solar_plus;
-// extern volatile voltage_value_t v_solar_minus;
-// extern volatile int16_t in_temperature;
-// extern int16_t max_in_temp;
-// extern int16_t min_in_temp;
+extern volatile voltage_value_t entlastungsbat;
 extern volatile int16_t gearbox_temperature;
 extern int16_t max_gearbox_temp;
 extern int16_t min_gearbox_temp;
@@ -282,12 +283,16 @@ extern uint8_t EEMEM cal_k15_delay;
 extern uint8_t EEMEM cal_k58b_off_val;
 extern uint8_t EEMEM cal_k58b_on_val;
 extern uint8_t EEMEM cal_can_mode;
+extern uint8_t EEMEM cal_startstop_enabled;
 extern volatile uint8_t mkl;
 extern volatile uint16_t avg_timer;
 extern volatile uint16_t k58b_timer;
 extern volatile uint32_t cons_timer;
 extern volatile uint8_t can_status;
 extern volatile uint8_t engine_cut;
+extern volatile uint8_t engine_cut_old;
+extern volatile uint16_t draw_engine_cut_state;
+extern volatile uint8_t startstop_enabled;
 
 extern volatile uint8_t display_mode;
 extern volatile uint8_t display_mode_tmp;
