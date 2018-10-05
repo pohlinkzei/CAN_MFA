@@ -31,6 +31,7 @@
 #include "uart_task.h"
 #include "navigation.h"
 #include "display_task.h"
+#include "kline.h"
 #ifdef HAVE_MCP_ADC
 #include "mcp3208.h"
 #endif
@@ -410,6 +411,9 @@ void avr_init(){
 	set_sleep_mode(SLEEP_MODE_PWR_SAVE);
 	initk58_pwm();
 
+	kline_uart_init(9600);
+	kline_io_init();
+
 	sleep_enable();
 	//#warning: "TODO: inits" done ;) 
 }
@@ -609,6 +613,7 @@ int main(void){
 				can_task();
 				app_task();
 				twi_task();
+				kline_task();
 				break;
 			}
 			default:{

@@ -22,6 +22,8 @@
 #define RESP_GET_ERR 0xFC //- response on get errors
 #define BLK_END 0x03
 
+//uint8_t kline_ids[] = {1, 2, 3, 8, 15, 16, 17, 18, 19, 25, 35, 37, 45, 56, 0};
+uint8_t kline_ids[] = {0x01, 0x02, 0x03, 0x08, 0x15, 0x16, 0x17, 0x18, 0x19, 0x25, 0x35, 0x37, 0x45, 0x56, 0x00};
 
 void kline_uart_init(uint16_t baudrate){
 	uart_init( UART_BAUD_SELECT(baudrate,F_CPU) );
@@ -343,6 +345,28 @@ uint8_t kline_check_err (error_code_t err[10])
 	return error;
 }
 
+void error_message_get_text(error_message_t *data, uint16_t code, char* message){
+	error_message_t temp_error;
+	while(data++){
+		eeprom_read_block(&temp_error, data, sizeof(error_message_t));
+		if(temp_error.code == code){
+			strncpy(message, temp_error.message, 128);
+			return;
+		}
+	}
+}
+void error_code_get_status(error_code_t *data, uint16_t code, uint8_t *status){
+	error_code_t temp_error;
+	while(data++){
+		eeprom_read_block(&temp_error, data, sizeof(error_code_t));
+		if(temp_error.code == code){
+			*status = temp_error.state;
+			return;
+		}
+	}
+}
+
+
 void  kline_wakeup (uint8_t id)
 {
 	uint16_t 	i, baud_rates[] = {9600, 10400, 4800};
@@ -406,9 +430,140 @@ void kline_task(void)
 	{
 
 	}
+	0x01, 0x02, 0x03, 0x08, 0x15, 0x16, 0x17, 0x18, 0x19, 0x25, 0x35, 0x37, 0x45, 0x56
 	*/
+	error_code_t err[10];
+	uint8_t i;
 	wdt_enable (WDTO_2S);
-	kline_wakeup (1);
+	for(i=0; 0!=kline_ids[i]; i++){
+		kline_wakeup(kline_ids[i]);
+		if(kline_check_err(err)){
+			switch(kline_ids[i]){
+				case 0x01: {
+					//ERROR from MSG
+					uint8_t j;
+					for(j=0; j<10;j++){
+						if(err[j].code = 0) break;
+						if(err[j].code<16000){
+							error_message_get_text((error_message_t*) engine_errors_low, err[j].code, radio_text);
+						}else{
+							error_message_get_text((error_message_t*) engine_errors_high, err[j].code, radio_text);
+						}
+					}
+					break;
+				}
+				case 0x02: {
+					uint8_t j;
+					for(j=0; j<10;j++){
+						if(err[j].code == 0) break;
+						error_message_get_text((error_message_t*) getriebe_errors, err[j].code, radio_text);
+					}
+					break;
+				}
+				case 0x03: {
+					uint8_t j;
+					for(j=0; j<10;j++){
+						if(err[j].code == 0) break;
+						error_message_get_text((error_message_t*) abs_errors, err[j].code, radio_text);
+					}
+					break;
+				}
+				case 0x08: {
+					uint8_t j;
+					for(j=0; j<10;j++){
+						if(err[j].code == 0) break;
+						error_message_get_text((error_message_t*) climatronic_errors, err[j].code, radio_text);
+					}
+					break;
+				}
+				case 0x15: {
+					uint8_t j;
+					for(j=0; j<10;j++){
+						if(err[j].code == 0) break;
+						error_message_get_text((error_message_t*) airbag_errors, err[j].code, radio_text);
+					}
+					break;
+				}
+				case 0x16: {
+					uint8_t j;
+					for(j=0; j<10;j++){
+						if(err[j].code == 0) break;
+						error_message_get_text((error_message_t*) lenkrad_errors, err[j].code, radio_text);
+					}
+					break;
+				}
+				case 0x17: {
+					uint8_t j;
+					for(j=0; j<10;j++){
+						if(err[j].code == 0) break;
+						error_message_get_text((error_message_t*) ki_errors, err[j].code, radio_text);
+					}
+					break;
+				}
+				case 0x18: {
+					uint8_t j;
+					for(j=0; j<10;j++){
+						if(err[j].code == 0) break;
+						error_message_get_text((error_message_t*) sh_errors, err[j].code, radio_text);
+					}
+					break;
+				}
+				case 0x19: {
+					uint8_t j;
+					for(j=0; j<10;j++){
+						if(err[j].code == 0) break;
+						error_message_get_text((error_message_t*) can_errors, err[j].code, radio_text);
+					}
+					break;
+				}
+				case 0x25: {
+					uint8_t j;
+					for(j=0; j<10;j++){
+						if(err[j].code = 0) break;
+						error_message_get_text((error_message_t*) wfs_errors, err[j].code, radio_text);
+					}
+					break;
+				}
+				case 0x35: {
+					uint8_t j;
+					for(j=0; j<10;j++){
+						if(err[j].code == 0) break;
+						error_message_get_text((error_message_t*) zv_errors, err[j].code, radio_text);
+					}
+					break;
+				}
+				case 0x37: {
+					uint8_t j;
+					for(j=0; j<10;j++){
+						if(err[j].code == 0) break;
+						error_message_get_text((error_message_t*) nav_errors, err[j].code, radio_text);
+					}
+					break;
+				}
+				case 0x45: {
+					uint8_t j;
+					for(j=0; j<10;j++){
+						if(err[j].code == 0) break;
+						error_message_get_text((error_message_t*) dwa_errors, err[j].code, radio_text);
+					}
+					break;
+				}
+				case 0x56: {
+					uint8_t j;
+					for(j=0; j<10;j++){
+						if(err[j].code = 0) break;
+						error_message_get_text((error_message_t*) radio_errors, err[j].code, radio_text);
+					}
+					break;
+				}
+				default:{
+					// 
+					break;
+				}
+			}
+		}
+	}
+
 	kline_get_ids ();			// dummy read out
-	kline_display_values();
+	
 }

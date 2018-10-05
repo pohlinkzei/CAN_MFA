@@ -172,14 +172,13 @@ static const error_message_t error_status[] PROGMEM = {
 { 208, "In Eindraht-Betriebsmodus/Sporadischer Fehler."}
 };
 
-static const error_message_t engine_errors[] PROGMEM = {
+static const error_message_t engine_errors_low[] PROGMEM = {
 {281, "Geber für Fahrgeschwindigkeit-G68"},
 {282, "Drosselklappensteller-V60"},
 {513, "Geber für Motordrehzahl-G28"},
 {515, "Hallgeber-G40"},
 {516, "Leerlaufschalter-F60"},
 {518, "Drosselklappenpotentiometer-G69"},
-{519, "Geber für Saugrohrdruck-G71"},
 {519, "Geber für Saugrohrdruck-G71"},
 {522, "Geber für Kühlmitteltemperatur-G62"},
 {524, "Klopfsensor 1-G61"},
@@ -240,7 +239,9 @@ static const error_message_t engine_errors[] PROGMEM = {
 {1265, "Ventil für Abgasrückführung-N18"},
 {1266, "Relais für Glühkerzen-J52"},
 {1268, "Mengensteller-N146"},
-{1269, "Ventil für Einspritzbeginn-N108"},
+{1269, "Ventil für Einspritzbeginn-N108"}
+};
+static const error_message_t engine_errors_high[] PROGMEM = {
 {16398, "P0014 Bank1,Nockenwellenspätverstellung,Auslass Soll nicht erreicht"},
 {16399, "P0015 Bank1,Nockenwellenfrühverstellung,Auslass Soll nicht erreicht"},
 {16485, "P0101 Luftmassenmesser-G70 unplausibles Signal"},
@@ -560,6 +561,7 @@ static const error_message_t zv_errors[] PROGMEM = {
 {950, "Motor für Zentralverriegelung Heckklappe-V53,UNLOCK"},
 {955, "Schlüssel 1"},
 {956, "Schlüssel 2"},
+{957, "Schlüssel 3"},
 {958, "Schlüssel 4"},
 {1038, "Zentralverriegelung Thermoschutz"},
 {1044, "Steuergerät falsch codiert"},
@@ -599,6 +601,24 @@ static const error_message_t sh_errors[] PROGMEM = {
 {65535, "Steuergerät defekt"}
 };
 
+static const error_message_t nav_errors[] PROGMEM = {
+{65535, "Steuergerät defekt"}
+};
 
+static const error_message_t dwa_errors[] PROGMEM = {
+	{65535, "Steuergerät defekt"}
+};
+
+static const error_message_t can_errors[] PROGMEM = {
+	{65535, "Steuergerät defekt"}
+};
+
+static const error_message_t lenkrad_errors[] PROGMEM = {
+	{65535, "Steuergerät defekt"}
+};
+
+static const error_message_t getriebe_errors[] PROGMEM = {
+	{65535, "Steuergerät defekt"}
+};
 #endif
 
