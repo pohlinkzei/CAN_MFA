@@ -602,21 +602,34 @@ static const error_message_t sh_errors[] PROGMEM = {
 };
 
 static const error_message_t nav_errors[] PROGMEM = {
-{65535, "Steuergerät defekt"}
+{481 ,"Steuergerät für Verkehrsfunk keine Kommunikation"},
+{625 ,"Geschwindigkeitssignal kein Signal"},
+{862 ,"Antenne für Navigation (GPS) - R50/R52 Unterbrechung/Kurzschluss nach Plus Kurzschluss nach Masse Leitungsführung defekt"},
+{867 ,"Verbindung zum ABS-Steuergerät kein Signal"},
+{1311 ,"Daten-Bus Information kein Signal"},
+{65535 ,"Steuergerät defekt"}
 };
-
+/*
 static const error_message_t dwa_errors[] PROGMEM = {
 	{65535, "Steuergerät defekt"}
 };
-
+*/
 static const error_message_t can_errors[] PROGMEM = {
+	{778, "Geber für Lenkwinkel -G85- keine Kommunikation"},
+	{1044, "Steuergerät falsch codiert"},
+	{1312, "Daten-BUS Antrieb defekt."},
+	{1314, "Motorsteuergerät keine Kommunikation."},
+	{1315, "Getriebesteuergerät keine Kommunikation."},
+	{1316, "Bremsensteuergerät keine Kommunikation."},
+	{1317, "Steuergerät im Schalttafeleinsatz -J285- keine Kommunikation."},
+	{1321, "Steuergerät für Airbag -J234- keine Kommunikation."},
 	{65535, "Steuergerät defekt"}
 };
-
+/*
 static const error_message_t lenkrad_errors[] PROGMEM = {
 	{65535, "Steuergerät defekt"}
 };
-
+*/
 static const error_message_t getriebe_errors[] PROGMEM = {
 	{65535, "Steuergerät defekt"}
 };

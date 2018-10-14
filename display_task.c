@@ -39,6 +39,8 @@ volatile menu_item_t settings_cal_k58b_on_val;
 volatile menu_item_t settings_cal_can_mode;
 volatile menu_item_t settings_cal_startstop_enabled;
 
+extern uint8_t kline_errors_occured;
+
 void display_menu_init(void){
 	#if 1
 	/*
@@ -1857,6 +1859,16 @@ void display_top_line(void){
 			}
 		}
 		underlined = 0;
+		return;
+	}
+	
+	if(kline_errors_occured){
+		char _str[] =	"            ";
+		_str[4] = ERROR;
+		_str[5] = ERROR + 1;
+		
+		dog_write_big_string(NEW_POSITION(0,4),_str);
+		line_shift_timer = LINE_SHIFT_START;
 		return;
 	}
 

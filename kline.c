@@ -25,6 +25,8 @@
 //uint8_t kline_ids[] = {1, 2, 3, 8, 15, 16, 17, 18, 19, 25, 35, 37, 45, 56, 0};
 uint8_t kline_ids[] = {0x01, 0x02, 0x03, 0x08, 0x15, 0x16, 0x17, 0x18, 0x19, 0x25, 0x35, 0x37, 0x45, 0x56, 0x00};
 
+uint8_t kline_errors_occured = 0;
+
 void kline_uart_init(uint16_t baudrate){
 	uart_init( UART_BAUD_SELECT(baudrate,F_CPU) );
 }
@@ -443,7 +445,7 @@ void kline_task(void)
 					//ERROR from MSG
 					uint8_t j;
 					for(j=0; j<10;j++){
-						if(err[j].code = 0) break;
+						if(err[j].code == 0) break;
 						if(err[j].code<16000){
 							error_message_get_text((error_message_t*) engine_errors_low, err[j].code, radio_text);
 						}else{
@@ -483,7 +485,7 @@ void kline_task(void)
 						error_message_get_text((error_message_t*) airbag_errors, err[j].code, radio_text);
 					}
 					break;
-				}
+				}/*
 				case 0x16: {
 					uint8_t j;
 					for(j=0; j<10;j++){
@@ -491,7 +493,7 @@ void kline_task(void)
 						error_message_get_text((error_message_t*) lenkrad_errors, err[j].code, radio_text);
 					}
 					break;
-				}
+				}*/
 				case 0x17: {
 					uint8_t j;
 					for(j=0; j<10;j++){
@@ -519,7 +521,7 @@ void kline_task(void)
 				case 0x25: {
 					uint8_t j;
 					for(j=0; j<10;j++){
-						if(err[j].code = 0) break;
+						if(err[j].code == 0) break;
 						error_message_get_text((error_message_t*) wfs_errors, err[j].code, radio_text);
 					}
 					break;
@@ -539,7 +541,7 @@ void kline_task(void)
 						error_message_get_text((error_message_t*) nav_errors, err[j].code, radio_text);
 					}
 					break;
-				}
+				}/*
 				case 0x45: {
 					uint8_t j;
 					for(j=0; j<10;j++){
@@ -547,11 +549,11 @@ void kline_task(void)
 						error_message_get_text((error_message_t*) dwa_errors, err[j].code, radio_text);
 					}
 					break;
-				}
+				}*/
 				case 0x56: {
 					uint8_t j;
 					for(j=0; j<10;j++){
-						if(err[j].code = 0) break;
+						if(err[j].code == 0) break;
 						error_message_get_text((error_message_t*) radio_errors, err[j].code, radio_text);
 					}
 					break;
