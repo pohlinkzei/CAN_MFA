@@ -20,22 +20,14 @@ uint8_t volatile bel_pwm = 255;
 uint8_t volatile bel_tim = 0;
 
 void initk58_pwm(void){
-	k58b_high = 0;
-	k58b_low = 0;
 	k58b_pw = 100;
 	k58b_timer = 0; 
-	#if K58B_POLL
-	#warning "POLL k58b signal"
-	#else
-	EICRB |= INT4_RISING;  
-	EIMSK |= (1<<INT4);
-	#endif
 	
 	TCCR1A = 0x00;
-	TCCR1A |= (1<<COM1A1);	// Clear on match (nicht-invertierte PWM)
+	TCCR1A |= (1<<COM1B1);	// Clear on match (nicht-invertierte PWM)
 	TCCR1A |= (1<<WGM10);	// für WGM 1
 		
-	OCR1A = 0x00;
+	OCR1B = 0x00;
 	TCNT1 = 0x00;
 	TCCR1B = 0x00;
 	//TCCR1B |= (1<<CS11);	// Teiler 8
@@ -46,47 +38,16 @@ void initk58_pwm(void){
 }
 
 void set_backlight(uint8_t pw){
-	OCR1A = pw;
+	if(pw == OCR1B) return;
+	OCR1B = pw;
 	if(pw > 0){
 		LED_DDR |= (1<<LED);
 	}else{
 		LED_DDR &= ~(1<<LED);
 	}
 }
-#if !K58B_POLL
-ISR(INT4_vect){
-	if(EICRB & INT4_RISING){
-		if(k58b_low != 0){
-			k58b_pw = (1000 * k58b_high) / (k58b_high + k58b_low);
-			k58b_high = 0;
-			k58b_low = k58b_timer;
-			k58b_timer = 0;
-			EICRB &= ~INT4_RISING;
-			EICRB |= INT4_FALLING;
-		}
-	}else{
-		k58b_low = 0;
-		k58b_high = k58b_timer;
-		k58b_timer = 0;
-		EICRB &= ~INT4_RISING;
-		EICRB |= INT4_RISING;
-	}
-	//return 0;
-}
 
-#endif
 
 ISR(TIMER1_COMPA_vect){//100ns Timer for Pwm
-	/*
-	bel_tim++;
-	if(bel_tim == 0){
-		PORTE |= (1<<PE2);
-	}else if(bel_tim == bel_pwm){
-		PORTE &= ~(1<<PE2);
-	}//else if(bel_tim == 40) bel_tim = 0;
-	
-// 	PORTE ^= (1<<PE2);
- 	k58b_timer++;
- 	if(k58b_timer == 0) k58b_pw = 100;
-	 */
+
 }

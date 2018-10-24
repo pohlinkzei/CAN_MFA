@@ -1,15 +1,16 @@
 #include <avr/io.h>
 #include <avr/interrupt.h>
 #include "mcp3208.h"
+#include "CAN-MFA.h"
 #include <util/delay.h>
-
+#if HAVE_MCP_ADC
 #define SPI_PORT PORTE
 #define SPI_DDR DDRE
 #define SPI_PIN PINE
 #define MOSI PE1
 #define MISO PE0
 #define SCK PE2 
-
+#endif
 #if 1
 void mcp3208_spi_delay(unsigned int NOPcount)
 {
@@ -22,7 +23,7 @@ void mcp3208_spi_delay(unsigned int NOPcount)
 #endif
 void mcp3208_spi_init(void)
 {
-
+#if HAVE_MCP_ADC
 	// MOSI und CLK auf Ausgang setzen
 	SPI_DDR |= (1<<MOSI);
 	SPI_DDR  |= (1<<SCK);
@@ -35,12 +36,12 @@ void mcp3208_spi_init(void)
 	SPI_DDR &= ~(1<<MISO);
 	ADC_CS_DDR |= (1<<ADC_CS);
 	ADC_CS_PORT |= (1<<ADC_CS);
-
+#endif
 }
 
 uint8_t mcp3208_spi_write(char dataout)
 {
-
+#if HAVE_MCP_ADC
 	uint8_t datain=0;
 	cli();
 	//das Byte wird Bitweise nacheinander Gesendet MSB zuerst
@@ -77,10 +78,14 @@ uint8_t mcp3208_spi_write(char dataout)
 	}
 	sei();
 	return datain;
+#else
+	return 0;
+#endif
 }
 
 unsigned int mcp3208_spi_read(uint8_t type,uint8_t channel)
 {
+#if HAVE_MCP_ADC
 	uint8_t  tempHigh,tempLow,tempType,dummy;
 	
 	ADC_CS_PORT &= ~(1<<(ADC_CS));     //setbitLow CS  Pin
@@ -100,4 +105,7 @@ unsigned int mcp3208_spi_read(uint8_t type,uint8_t channel)
 	ADC_CS_PORT |= (1<<(ADC_CS));        //setbitHigh CS  Pin
 	
 	return (((tempHigh & 0x0F)<<8)|tempLow);  // return 16bit variable (12bit A/D data)
+#else
+	return 0;
+#endif
 }

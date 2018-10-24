@@ -1,7 +1,9 @@
 #include <avr/io.h>
 #include <util/delay.h>
 #include <inttypes.h>
-#include <avr/wdt.h>
+
+#include <avr/pgmspace.h>
+#include <string.h>
 #include "kline.h"
 #include "uart.h"
 #include "CAN-MFA.h"
@@ -24,8 +26,10 @@
 
 //uint8_t kline_ids[] = {1, 2, 3, 8, 15, 16, 17, 18, 19, 25, 35, 37, 45, 56, 0};
 uint8_t kline_ids[] = {0x01, 0x02, 0x03, 0x08, 0x15, 0x16, 0x17, 0x18, 0x19, 0x25, 0x35, 0x37, 0x45, 0x56, 0x00};
-
+uint16_t kline_timeout = 0;
 uint8_t kline_errors_occured = 0;
+
+#define TIMEOUT_RESET() kline_timeout = 0
 
 void kline_uart_init(uint16_t baudrate){
 	uart_init( UART_BAUD_SELECT(baudrate,F_CPU) );
@@ -52,9 +56,10 @@ uint16_t ser_getc (void)
 	uint16_t c;
 	c = uart_getc();
 	if(!(c & UART_NO_DATA)){
-		wdt_reset();
+		TIMEOUT_RESET();
 		return (c);
 	}
+
 	return 0;
 }
 
@@ -86,8 +91,8 @@ void kline_init (uint8_t unit_address)
 
 	// Adresse 0x01 (1): ECU
 	KLINE_PORT |= (1 << KLINE_TX);
-	wdt_reset();
-	wdt_reset();
+	//wdt_reset();
+	//wdt_reset();
 	KLINE_PORT &= ~(1 << KLINE_TX);	// KLINE_TX aus	: Start-Bit 1->0
 	_delay_ms (ms);
 
@@ -133,7 +138,7 @@ void kline_init (uint8_t unit_address)
 		KLINE_PORT &= ~(1 << KLINE_TX);
 	_delay_ms (ms);
 		
-	wdt_reset();
+	//wdt_reset();
 
 	KLINE_PORT &= ~(1 << KLINE_TX);	// KLINE_TX low	: Odd Parity
 	_delay_ms (ms);									
@@ -347,12 +352,12 @@ uint8_t kline_check_err (error_code_t err[10])
 	return error;
 }
 
-void error_message_get_text(error_message_t *data, uint16_t code, char* message){
+void error_message_get_text(error_message_t *data, uint16_t code, uint8_t* message){
 	error_message_t temp_error;
 	while(data++){
-		eeprom_read_block(&temp_error, data, sizeof(error_message_t));
+		memcpy_P(&temp_error, data, sizeof(error_message_t));
 		if(temp_error.code == code){
-			strncpy(message, temp_error.message, 128);
+			strncpy((char*) message, temp_error.message, 128);
 			return;
 		}
 	}
@@ -360,7 +365,7 @@ void error_message_get_text(error_message_t *data, uint16_t code, char* message)
 void error_code_get_status(error_code_t *data, uint16_t code, uint8_t *status){
 	error_code_t temp_error;
 	while(data++){
-		eeprom_read_block(&temp_error, data, sizeof(error_code_t));
+		memcpy_P(&temp_error, data, sizeof(error_code_t));
 		if(temp_error.code == code){
 			*status = temp_error.state;
 			return;
@@ -375,12 +380,12 @@ void  kline_wakeup (uint8_t id)
 	i = 0;
 	do
 	{
-		wdt_reset();
+		//wdt_reset();
 		_delay_ms (1000);
 		uart_disable();
-		wdt_reset();
+		//wdt_reset();
 		kline_init(id);
-		wdt_reset();
+		//wdt_reset();
 		kline_uart_init(baud_rates[i]);
 		i++;
 		if (i >= 2)
@@ -424,19 +429,11 @@ void  kline_display_values (void){
 void kline_task(void)
 {
 /*
-	if ((MCUCSR & (1 << EXTRF)) || (MCUCSR & (1 << PORF)) || (MCUCSR & (1 << BORF)))		// external, power-on- oder brown-out-reset
-	{
-
-	}
-	if ((MCUCSR & (1 << WDRF)))		// watchdog-reset
-	{
-
-	}
 	0x01, 0x02, 0x03, 0x08, 0x15, 0x16, 0x17, 0x18, 0x19, 0x25, 0x35, 0x37, 0x45, 0x56
-	*/
+*/
 	error_code_t err[10];
 	uint8_t i;
-	wdt_enable (WDTO_2S);
+	//wdt_enable (WDTO_2S);
 	for(i=0; 0!=kline_ids[i]; i++){
 		kline_wakeup(kline_ids[i]);
 		if(kline_check_err(err)){
@@ -541,15 +538,7 @@ void kline_task(void)
 						error_message_get_text((error_message_t*) nav_errors, err[j].code, radio_text);
 					}
 					break;
-				}/*
-				case 0x45: {
-					uint8_t j;
-					for(j=0; j<10;j++){
-						if(err[j].code == 0) break;
-						error_message_get_text((error_message_t*) dwa_errors, err[j].code, radio_text);
-					}
-					break;
-				}*/
+				}
 				case 0x56: {
 					uint8_t j;
 					for(j=0; j<10;j++){
@@ -567,5 +556,7 @@ void kline_task(void)
 	}
 
 	kline_get_ids ();			// dummy read out
-	
+RESET:
+	return;
 }
+

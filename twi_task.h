@@ -19,8 +19,8 @@ typedef struct txdata {
 	uint8_t radio_text[AUDIO_STR_LENGTH];
 	uint8_t navigation_next_turn;	//navigation active?
 }tx_t;
-extern volatile rx_t rx;
-extern volatile tx_t tx;
+extern /*volatile*/ rx_t rx;
+extern /*volatile*/ tx_t tx;
 
 uint8_t deb;
  

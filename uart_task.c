@@ -27,6 +27,7 @@ extern uint8_t EEMEM cal_k58b_off_val;
 extern uint8_t EEMEM cal_k58b_on_val;
 extern uint8_t EEMEM cal_can_mode;
 extern uint8_t EEMEM cal_startstop_enabled;
+extern uint16_t t3cnt;
 
 volatile struct interrupt_backup{
 	uint8_t _TIMSK0;
@@ -133,14 +134,17 @@ void uart_print_cal_menu(void){
 void uart_calibrate(void){
 	
 	void (*reset)( void ) = 0x0000;
-	
+	uint16_t timeout = t3cnt;
 	unsigned int 	c;
 	uart_print_cal_menu();
 
 	do{
+		uint16_t diff = (timeout>t3cnt)?timeout-t3cnt:t3cnt-timeout;
+		if(diff>300) return;
 		c = uart1_getc();
 		if(!(c & UART_NO_DATA))
 		{
+			diff = 0;
 			switch( (unsigned char)c)
 			{
 				case 'a':{
@@ -291,7 +295,7 @@ void uart_calibrate(void){
 void uart_bootloader_task(void){
 	unsigned int 	c;
 	void (*bootloader)( void ) = 0xF800;  // Achtung Falle: Hier Word-Adresse
-	
+
 	c = uart1_getc();
 	if(!(c & UART_NO_DATA))
 	{

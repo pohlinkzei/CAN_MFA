@@ -16,28 +16,28 @@
 #include "navigation.h"
 #include "display_task.h"
  
-volatile menu_item_t settings_menu;
-volatile menu_item_t* current_enty;
-volatile uint8_t field_position;
-volatile uint8_t max_field_position;
-volatile menu_item_t settings_temperatures;
-volatile menu_item_t settings_cal_oil_temperature;
-volatile menu_item_t settings_cal_in_temperature;
-volatile menu_item_t settings_cal_gearbox_temperature;
-volatile menu_item_t settings_cal_ambient_temperature;
+/*volatile*/ menu_item_t settings_menu;
+/*volatile*/ menu_item_t* current_enty;
+/*volatile*/ uint8_t field_position;
+/*volatile*/ uint8_t max_field_position;
+/*volatile*/ menu_item_t settings_temperatures;
+/*volatile*/ menu_item_t settings_cal_oil_temperature;
+/*volatile*/ menu_item_t settings_cal_in_temperature;
+/*volatile*/ menu_item_t settings_cal_gearbox_temperature;
+/*volatile*/ menu_item_t settings_cal_ambient_temperature;
 
-volatile menu_item_t settings_mfa_values;
-volatile menu_item_t settings_cal_voltage; // 171
-volatile menu_item_t settings_cal_speed; // 169
-volatile menu_item_t settings_cal_consumption;
+/*volatile*/ menu_item_t settings_mfa_values;
+/*volatile*/ menu_item_t settings_cal_voltage; // 171
+/*volatile*/ menu_item_t settings_cal_speed; // 169
+/*volatile*/ menu_item_t settings_cal_consumption;
 
-volatile menu_item_t settings_options;
-volatile menu_item_t settings_cal_k15_delay;
-volatile menu_item_t settings_cal_k58b;
-volatile menu_item_t settings_cal_k58b_off_val;
-volatile menu_item_t settings_cal_k58b_on_val;
-volatile menu_item_t settings_cal_can_mode;
-volatile menu_item_t settings_cal_startstop_enabled;
+/*volatile*/ menu_item_t settings_options;
+/*volatile*/ menu_item_t settings_cal_k15_delay;
+/*volatile*/ menu_item_t settings_cal_k58b;
+/*volatile*/ menu_item_t settings_cal_k58b_off_val;
+/*volatile*/ menu_item_t settings_cal_k58b_on_val;
+/*volatile*/ menu_item_t settings_cal_can_mode;
+/*volatile*/ menu_item_t settings_cal_startstop_enabled;
 
 extern uint8_t kline_errors_occured;
 
@@ -344,27 +344,27 @@ uint8_t display_item_equal(menu_item_t* a, menu_item_t* b){
 	return 1;
 }
 
-volatile menu_item_t* display_settings_next(volatile menu_item_t* item){
+/*volatile*/ menu_item_t* display_settings_next(/*volatile*/ menu_item_t* item){
 	if(item)
 		return item->next;
 	return NULL;
 }
 
-volatile menu_item_t* display_settings_child(volatile menu_item_t* item){
+/*volatile*/ menu_item_t* display_settings_child(/*volatile*/ menu_item_t* item){
 	if(item)
 		return item->child;
 	return NULL;
 }
 
-volatile menu_item_t* display_settings_nth_child(volatile menu_item_t* item, uint8_t n){
-	volatile menu_item_t* child = display_settings_child(item);
+/*volatile*/ menu_item_t* display_settings_nth_child(/*volatile*/ menu_item_t* item, uint8_t n){
+	/*volatile*/ menu_item_t* child = display_settings_child(item);
 	while(n--){
 		child = display_settings_next(child);
 	}
 	return child;
 }
 
-volatile menu_item_t* display_settings_parent(volatile menu_item_t* item){
+/*volatile*/ menu_item_t* display_settings_parent(/*volatile*/ menu_item_t* item){
 	if(item)
 		return item->parent;
 	return NULL;
@@ -867,7 +867,6 @@ void display_small_text(void){
 					adc_line3[3] = BAT;
 					adc_line3[4] = BAT+1;
 					adc_line3[5] = '4';
-					#warning "cleanup"
 					sprint_voltage(&adc_line3[6], v_solar_plus);
 					adc_line3[12] = 'V';
 				
@@ -1325,8 +1324,18 @@ void display_med_row(volatile uint8_t* dv, uint8_t page, uint8_t row){
 			break;
 		}
 		case VAL_VOLTD:{
-			#warning "Cleanup"
-			display_value++;
+			if(entlastungsbat.integer == 0 || can_mode == NO_CAN){
+				display_value++;
+				break;
+			}
+			dog_write_big_digit(NEW__POSITION(page,0,row),' ');
+			dog_write_big_numbered_bat_symbol(NEW__POSITION(page,12,row),'3');
+			sprint_voltage(&str[0], entlastungsbat);
+			str[6] = 'V';
+			for(i=0; i<7; i++){
+				dog_write_big_digit(NEW__POSITION(page,36+i*12,row),str[i]);
+				str[i] = ' ';
+			}
 			break;
 			
 		}

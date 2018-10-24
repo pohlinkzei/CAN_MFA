@@ -39,18 +39,18 @@
 #define FILTER_VALUE 3	
 uint16_t adc_value[8] = {0,};
 uint16_t old_adc_value[8] = {0,};	
-extern volatile uint8_t reversed;
-extern volatile uint8_t underlined;
+extern  uint8_t reversed;
+extern  uint8_t underlined;
 
-volatile uint8_t navi_old = 0x00;
+ uint8_t navi_old = 0x00;
 volatile uint16_t timer2_cnt = 0;
-volatile mfa_t mfa;
-volatile mfa_t mfa_old;
-volatile uint8_t cnt = 0;
+ mfa_t mfa;
+ mfa_t mfa_old;
+ uint8_t cnt = 0;
 volatile uint8_t k15_delay_cnt = 0;
 volatile status_t status;
-volatile status_t old_status;
-volatile uint16_t door_delay = 0;
+ status_t old_status;
+ uint16_t door_delay = 0;
 volatile uint16_t door_open_count = 0; 
 volatile uint8_t id280_data[8];
 volatile uint8_t id288_data[8];
@@ -62,74 +62,74 @@ volatile uint8_t id520_data[8];
 volatile uint8_t id666_data[8];
 volatile uint8_t id667_data[8];
  
-volatile uint8_t id280_valid;
-volatile uint8_t id288_valid;
-volatile uint8_t id380_valid;
-volatile uint8_t id480_valid;
-volatile uint8_t id320_valid;
-volatile uint8_t id420_valid;
-volatile uint8_t id520_valid;
-volatile uint8_t id666_valid;
-volatile uint8_t id667_valid;
+ uint8_t id280_valid;
+ uint8_t id288_valid;
+ uint8_t id380_valid;
+ uint8_t id480_valid;
+ uint8_t id320_valid;
+ uint8_t id420_valid;
+ uint8_t id520_valid;
+ uint8_t id666_valid;
+ uint8_t id667_valid;
 
 // values from can data
-volatile int16_t speed[2]; //0-317km/h
+ int16_t speed[2]; //0-317km/h
 int16_t max_speed;
-volatile int16_t speed_start; //0-317km/h
+ int16_t speed_start; //0-317km/h
 volatile uint16_t rpm;	//0-16000rpm
-volatile int16_t engine_temperature;//-48-143 centigrade
+ int16_t engine_temperature;//-48-143 centigrade
 uint16_t max_rpm;
 int16_t max_engine_temp;
 int16_t min_engine_temp;
-volatile uint8_t fuel;	//0-100% or 0-80l
+ uint8_t fuel;	//0-100% or 0-80l
 //volatile uint8_t cons_cnt;
 volatile uint16_t cons_delta_ul;
-volatile uint16_t cons_delta_timer;
-volatile float cons_l_h[2];
-volatile float cons_km_l[2];
-volatile float cons_km_l_start;
-volatile float cons_l_h_start;
-volatile float cons_l_100km[2];
-volatile float cons_l_100km_start;
+ uint16_t cons_delta_timer;
+ float cons_l_h[2];
+ float cons_km_l[2];
+ float cons_km_l_start;
+ float cons_l_h_start;
+ float cons_l_100km[2];
+ float cons_l_100km_start;
 volatile uint32_t start_cnt = 0;
-volatile int16_t gra_speed; //id288D4
-volatile uint8_t pedal_position; //id280D6
-volatile uint8_t eng_status0; //id280D1
-volatile uint8_t eng_status1; //id288D2
-volatile uint8_t do_not_switch_to_navigation;
-volatile uint8_t button_irq = 0;
+ int16_t gra_speed; //id288D4
+ uint8_t pedal_position; //id280D6
+ uint8_t eng_status0; //id280D1
+ uint8_t eng_status1; //id288D2
+ uint8_t do_not_switch_to_navigation;
+ uint8_t button_irq = 0;
 
 #define MAX_AVG_CNT 1
 uint8_t first_run = 1;
-volatile float cons_avg[MAX_AVG_CNT];
-volatile uint16_t speed_avg[MAX_AVG_CNT];
+ float cons_avg[MAX_AVG_CNT];
+ uint16_t speed_avg[MAX_AVG_CNT];
 
 volatile uint64_t speed_sum = 15000;
-volatile uint64_t speed_sum_start = 0;
-volatile uint64_t cons_sum = 120;
-volatile uint64_t cons_sum_start = 0;
-volatile uint64_t avg_cnt = 50;
-volatile uint64_t avg_cnt_start = 0;
+ uint64_t speed_sum_start = 0;
+ uint64_t cons_sum = 120;
+ uint64_t cons_sum_start = 0;
+ uint64_t avg_cnt = 50;
+ uint64_t avg_cnt_start = 0;
 volatile uint32_t driving_time[2];
 volatile uint32_t driving_time_start;
-volatile uint32_t distance[2];
-volatile uint32_t distance_start;
-volatile uint16_t range[2];
+ uint32_t distance[2];
+ uint32_t distance_start;
+ uint16_t range[2];
 
-volatile voltage_value_t starterbat;
-volatile voltage_value_t zweitbat;
-volatile voltage_value_t v_solar_plus;
-volatile voltage_value_t entlastungsbat;
-volatile int16_t in_temperature;
+ voltage_value_t starterbat;
+ voltage_value_t zweitbat;
+ voltage_value_t v_solar_plus;
+ voltage_value_t entlastungsbat;
+ int16_t in_temperature;
 // int16_t max_in_temp;
 // int16_t min_in_temp;
-volatile int16_t gearbox_temperature;
+ int16_t gearbox_temperature;
 int16_t max_gearbox_temp;
 int16_t min_gearbox_temp;
-volatile int16_t ambient_temperature;
+ int16_t ambient_temperature;
 int16_t max_ambient_temp;
 int16_t min_ambient_temp;
-volatile int16_t oil_temperature;
+ int16_t oil_temperature;
 int16_t max_oil_temp;
 int16_t min_oil_temp;
 uint8_t EEMEM cal_ambient_temperature;
@@ -142,43 +142,43 @@ uint8_t EEMEM cal_gearbox_temperature;
 uint8_t EEMEM cal_ambient_temperature;
 uint8_t EEMEM cal_can_mode;
 uint8_t EEMEM cal_startstop_enabled;
-volatile uint8_t mkl;
+ uint8_t mkl;
 uint8_t cal_k15_delay EEMEM;
 uint8_t cal_k58b_off_val EEMEM;
 uint8_t cal_k58b_on_val EEMEM;
-volatile uint16_t avg_timer;
+ uint16_t avg_timer;
 extern volatile uint16_t k58b_timer;
-volatile uint32_t cons_timer;
+ uint32_t cons_timer;
 volatile uint8_t can_status = 0x00;
-volatile uint8_t engine_cut;
-volatile uint8_t engine_cut_old;
-volatile uint16_t draw_engine_cut_state;
-volatile uint8_t startstop_enabled;
+ uint8_t engine_cut;
+ uint8_t engine_cut_old;
+ uint16_t draw_engine_cut_state;
+ uint8_t startstop_enabled;
 volatile uint8_t can_mode;
 
-volatile uint8_t display_mode = 0;
-volatile uint8_t display_mode_tmp;
-volatile uint8_t old_display_mode;
-volatile uint8_t display_enable;
+ uint8_t display_mode = 0;
+ uint8_t display_mode_tmp;
+ uint8_t old_display_mode;
+ uint8_t display_enable;
 volatile uint8_t t0cnt = 0;
-volatile uint16_t tmp_rpm;
+ uint16_t tmp_rpm;
 volatile uint16_t rpm_cnt;
 volatile uint16_t hg_cnt;
 volatile uint16_t cons_cnt;
-volatile uint8_t display_value[8] = {0, STANDARD_VALUES, VAL_AMBIENT, VAL_CUR_CONS, RADIO_TEXT,0,0,0}; // navi, small, med_top, med_bot, can, top_line, settings, invalid
-volatile uint8_t display_value_top = VAL_AMBIENT;
-volatile uint8_t display_value_bot = VAL_CUR_CONS;
-volatile uint8_t old_display_value[8] = {0,0,0,0,0,0,0,0};
+ uint8_t display_value[8] = {0, STANDARD_VALUES, VAL_AMBIENT, VAL_CUR_CONS, RADIO_TEXT,0,0,0}; // navi, small, med_top, med_bot, can, top_line, settings, invalid
+ uint8_t display_value_top = VAL_AMBIENT;
+ uint8_t display_value_bot = VAL_CUR_CONS;
+ uint8_t old_display_value[8] = {0,0,0,0,0,0,0,0};
 
-volatile uint8_t navigation_next_turn;
-volatile uint8_t navigation_status;
-volatile uint8_t navigation_status_old;
-volatile uint32_t distance_to_next_turn;
+ uint8_t navigation_next_turn;
+ uint8_t navigation_status;
+ uint8_t navigation_status_old;
+ uint32_t distance_to_next_turn;
 
-volatile uint8_t radio_text[AUDIO_STR_LENGTH];
+ uint8_t radio_text[AUDIO_STR_LENGTH];
 
-volatile rx_t rx;
-volatile tx_t tx;
+ rx_t rx;
+ tx_t tx;
 
 volatile uint16_t line_ms_timer;
 volatile uint16_t line_shift_timer;
@@ -198,6 +198,8 @@ uint8_t mfa_res_cnt = 0;
 uint8_t no_res_switch = 0;
 uint8_t mfa_mfa_cnt = 0;
 uint8_t no_mfa_switch = 0;
+
+uint16_t t3cnt = 0;
 
 void adc_init(void);
 
@@ -306,14 +308,10 @@ void timer0_init(void){
 	//*
 	// 0.1ms für alles mögliche
 	TCCR0A |= (1<<WGM01) | (1<<CS01);// prescaler 8 | (1<<CS00); //ctc, prescaler 64
-	
-	#if K58B_POLL
-	//0.1ms timer fuer pwm messung
-	OCR0A = F_CPU / 64 / 1000; //25
-	#else
+
 	OCR0A = F_CPU / 8 / 10000; //200
-	#endif
-	TIMSK0 |= (1<<OCIE0A);
+
+	TIMSK0 = (1<<OCIE0A);
 	//*/
 }
 
@@ -335,25 +333,22 @@ void timer2_init(void){
 	//while((ASSR & (1<< TCR2UB)));
 	TIFR2   &= ~(1<<OCIE2A);
 	OCR2A = 32768 / 4 / 64;
-	TIMSK2 |= (1<<OCIE2A);
+	TIMSK2 = (1<<OCIE2A);
 }
 
 void io_init(void){
-	// PORTD |= (1<<PD1) | (1<<PD0);
-	// init_twi_slave(calculateID("MFA"));
-
 	// PORTA:
-	DDRA = 0x00;
+	DDRA = 0x0F;
 	PORTA = 0x00;
 	// PORTB
-	DDRB = 0x00;
+	DDRB = 0x88;
 	PORTB = 0x00;
 	// PORTC
-	DDRC = 0x00 /*| 0x1F*/;
+	DDRC = 0xB2 /*| 0x1F*/;
 	PORTC = 0x00;
 	// PORTD
-	DDRD = (1<<CS_DOG) | (1<<CAN_RS);
-	PORTD = (1<<CS_DOG) | 3;
+	DDRD = (1<<CAN_RS);
+	PORTD = (1<<SCL) | (1<<SDA);
 	// PORTE
 	PORTE = 0x00;
 	DDRE = 0x00;
@@ -361,7 +356,7 @@ void io_init(void){
 	DDRF = 0x00;
 	PORTF |= 0x00;
 	// PORTG
-	DDRG = 0x00;
+	DDRG = 0x07;
 	PORTG = 0x00;
 
 	PCA_PORT |= (1<<DISABLE_PCA);
@@ -370,21 +365,20 @@ void io_init(void){
 
 void avr_init(){
 	ACSR |= (1<<ACD);
-	WDTCR &= (1<<WDE);
+	//WDTCR |= (1<<WDE);
 	ADCSRA = 0x00;
 	
 	io_init();
 	
 	timer0_init();
 	timer3_init();
-
-#if HAVE_MCP_ADC
 	timer2_init();
+#if HAVE_MCP_ADC
 	mcp3208_spi_init();
 #else
 	adc_init();
 #endif
-//*/	
+
 	if(eeprom_read_byte(&cal_can_mode) == NO_CAN){
 		can_mode = NO_CAN;
 		can_init_nocan();
@@ -392,7 +386,7 @@ void avr_init(){
 		//init int 0/1 all/rising edge
 		//rpm @ int5 -> int on toggle, cons @ int6 on rising edge, HG @ int7 (rising edge)
 
-		EICRB = /*(1<<ISC51) |*/ (1<<ISC50) | (1<<ISC61) | (1<<ISC60) | (1<<ISC71) | (1<<ISC70);
+		EICRB =  (1<<ISC50) | (1<<ISC61) | (1<<ISC60) | (1<<ISC71) | (1<<ISC70);
 		//enable
 		EIMSK = (1<<INT5) | (1<<INT6) | (1<<INT7);
 		
@@ -406,11 +400,11 @@ void avr_init(){
 
 	dog_spi_init();
 	dog_init();
-
+	
 	uart_bootloader_init(UART_BAUD_RATE);
 	set_sleep_mode(SLEEP_MODE_PWR_SAVE);
 	initk58_pwm();
-
+	
 	kline_uart_init(9600);
 	kline_io_init();
 
@@ -498,10 +492,11 @@ int main(void){
 	avr_init();
 	
 	sei();
+	
 	K15_PORT &= ~(1<<K15);
-	//K15_PORT |= (1<<K15); // zündung an, bitte ;)
+	K15_PORT |= (1<<K15); // zündung an, bitte ;)
 	line_shift_timer = LINE_SHIFT_START;
-	#if 0
+	#if 1
 	display_mode = SMALL_TEXT;
 	display_value[SMALL_TEXT] = STANDARD_VALUES;
 	#else
@@ -513,22 +508,23 @@ int main(void){
 	status = get_status(OFF);
 	
 	enable_mfa_switch();
-	
+
     while(1)
     {
+
 		status_t status_old = status;
 		status = get_status(status_old);
 
 		//*
 		if(k58b_timer == 0){ // k58b off assuming bright ambient light -> value should be high(er)
-			k58b_pw = eeprom_read_byte(&cal_k58b_off_val);
+			k58b_pw = 255;//eeprom_read_byte(&cal_k58b_off_val);
 			//reversed = 1;
 		}else{ // k58b on assuming dark ambient light -> value should be low(er)
-			k58b_pw = eeprom_read_byte(&cal_k58b_on_val); 
+			k58b_pw = 128;//eeprom_read_byte(&cal_k58b_on_val); 
 			//reversed = 0;
 		}
 		//*/
-		
+		#if 1 
 		switch (status){
 			case DOOR_OPEN:{
 				reversed = 0;
@@ -613,7 +609,7 @@ int main(void){
 				can_task();
 				app_task();
 				twi_task();
-				kline_task();
+				//kline_task();
 				break;
 			}
 			default:{
@@ -633,7 +629,9 @@ int main(void){
 				break;
 			}
 		}
+	#endif
     }
+	
 }
 
 void adc_init(void){
@@ -734,7 +732,6 @@ void app_task(){
 		starterbat = calculate_voltage(adc_value[SPANNUNG1]);
 		zweitbat = calculate_voltage(adc_value[SPANNUNG2]);
 		if(can_mode == NO_CAN){
-			#warning "MKL"
 			//voltage_value_t v_mkl = calculate_voltage(adc_value[MKL_NOCAN]);
 			//mkl = (uint8_t) (v_mkl.integer < 8); // mkl is active low!
 			mkl = (MKL_PIN & (1<<MKL));
@@ -751,7 +748,6 @@ void app_task(){
 
 		}else{
 			v_solar_plus = calculate_voltage(adc_value[SPANNUNG3]);
-			#warning "v_solar_minus"
 			entlastungsbat = calculate_voltage(adc_value[SPANNUNG4]);
 
 			if(engine_temperature > -45 && engine_temperature < 142){
@@ -770,16 +766,7 @@ void app_task(){
 					min_gearbox_temp = gearbox_temperature;
 				}
 			}
-#warning "innentemp"
-/*
-			in_temperature = calculate_in_temperature(adc_value[INNENTEMP]);
-			if(in_temperature < 150 && in_temperature > -50){
-				if(max_in_temp < in_temperature){
-					max_in_temp = in_temperature;
-				}else if(min_in_temp > in_temperature){
-					min_in_temp = in_temperature;
-				}
-			}*/
+
 			oil_temperature = calculate_oil_temperature(adc_value[OELTEMP]);
 			if(oil_temperature < 150 && oil_temperature > -50){
 				if(max_oil_temp < oil_temperature){
@@ -985,7 +972,6 @@ void app_task(){
 		//*/
 }
 
-
 ISR(TIMER0_COMP_vect){//0.1ms timer
 	t0cnt++;
 	if(t0cnt == 10){//1ms
@@ -1050,6 +1036,11 @@ ISR(TIMER3_COMPA_vect){
 		calculate_averages();
 		old_val = new_val;
 		start_cnt = 0;
+		if(K58B_PORT & (1<<K58B)){
+			K58B_PORT &= ~(1<<K58B);
+		}else{
+			K58B_PORT |= (1<<K58B);
+		}
 		
 	}else{
 		if(k15_delay_cnt){
@@ -1083,4 +1074,82 @@ ISR(INT5_vect){ //SCL -> CONS
 ISR(INT7_vect){ //EN_ADC1 -> HG
 	hg_cnt++;
 }
+/*
+ISR(INT0_vect){
+	rpm++;
+}
 
+ISR(INT1_vect){
+	rpm++;
+}
+
+ISR(INT2_vect){
+	rpm++;
+}
+
+ISR(INT3_vect){
+	rpm++;
+}
+ISR(TIMER2_OVF_vect){
+	rpm++;
+}
+
+ISR(TIMER1_CAPT_vect){
+	rpm++;
+}
+ISR(TIMER1_COMPB_vect){
+	rpm++;
+}
+ISR(TIMER1_COMPC_vect){
+	rpm++;
+}
+ISR(TIMER1_OVF_vect){
+	rpm++;
+}
+
+ISR(TIMER0_OVF_vect){
+	rpm++;
+}
+
+ISR(SPI_STC_vect){
+	rpm++;
+}
+
+ISR(USART0_TX_vect){
+	rpm++;
+}
+
+
+ISR(USART1_TX_vect){
+	rpm++;
+}
+
+ISR(ANALOG_COMP_vect){
+	rpm++;
+}
+
+ISR(ADC_vect){
+	rpm++;
+}
+
+ISR(EE_READY_vect){
+	rpm++;
+}
+
+ISR(TIMER3_CAPT_vect){
+	rpm++;
+}
+ISR(TIMER3_COMPB_vect){
+	rpm++;
+}
+ISR(TIMER3_COMPC_vect){
+	rpm++;
+}
+ISR(TIMER3_OVF_vect){
+	rpm++;
+}
+
+ISR(SPM_READY_vect){
+	rpm++;
+}
+//*/
