@@ -494,8 +494,8 @@ int main(void){
 	sei();
 	
 	K15_PORT &= ~(1<<K15);
-	TKML_PORT |= (1<<TKML);
-	K15_PORT |= (1<<K15); // zündung an, bitte ;)
+	//TKML_PORT |= (1<<TKML);
+	//K15_PORT |= (1<<K15); // zündung an, bitte ;)
 	line_shift_timer = LINE_SHIFT_START;
 	#if 1
 	display_mode = SMALL_TEXT;
@@ -518,10 +518,10 @@ int main(void){
 
 		//*
 		if(k58b_timer == 0){ // k58b off assuming bright ambient light -> value should be high(er)
-			k58b_pw = 255;//eeprom_read_byte(&cal_k58b_off_val);
+			k58b_pw = eeprom_read_byte(&cal_k58b_off_val);
 			//reversed = 1;
 		}else{ // k58b on assuming dark ambient light -> value should be low(er)
-			k58b_pw = 128;//eeprom_read_byte(&cal_k58b_on_val); 
+			k58b_pw = eeprom_read_byte(&cal_k58b_on_val); 
 			//reversed = 0;
 		}
 		//*/
