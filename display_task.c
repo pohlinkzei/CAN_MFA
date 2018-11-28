@@ -8,6 +8,7 @@
 #include <util/delay.h>
 #include <inttypes.h>
 #include <string.h>
+#include "kl58b.h"
 #include "dog_display.h"
 #include "dog_symbol.h"
 #include "CAN-MFA.h"
@@ -2153,13 +2154,19 @@ void display_top_line(void){
 	}
 
 	if(!(TKML_PIN & (1<<TKML))){
+		
 		//				.012345678901.
 		char _str[] =	"            ";
+		#if 1
 		_str[4] = DOOR;
 		_str[5] = DOOR + 1;
 		_str[6] = DOOR2;
 		dog_write_big_string(NEW_POSITION(0,4),_str);
 		line_shift_timer = LINE_SHIFT_START;
+		#else
+		sprintf(_str, " %i %i ",k58b_timer, k58b_pw);
+		dog_write_big_string(NEW_POSITION(0,4),_str);
+		#endif
 		return;
 	}
 	underlined = 1;

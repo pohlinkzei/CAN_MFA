@@ -10,14 +10,10 @@
 #include "kl58b.h"
 #include "CAN-MFA.h"
 
-uint8_t volatile k58b_status; // fuer alten wert (Flankenerkennung)
-uint16_t volatile k58b_high;
-uint16_t volatile k58b_low;
-volatile uint16_t k58b_timer;
-volatile uint8_t k58b_scale;
-uint16_t volatile k58b_pw;
-uint8_t volatile bel_pwm = 255;
-uint8_t volatile bel_tim = 0;
+
+volatile uint16_t k58b_timer = 0;
+uint16_t volatile k58b_pw = 0;
+
 
 void initk58_pwm(void){
 	k58b_pw = 100;
@@ -45,9 +41,4 @@ void set_backlight(uint8_t pw){
 	}else{
 		LED_DDR &= ~(1<<LED);
 	}
-}
-
-
-ISR(TIMER1_COMPA_vect){//100ns Timer for Pwm
-
 }

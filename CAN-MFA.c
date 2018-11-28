@@ -981,20 +981,21 @@ ISR(TIMER0_COMP_vect){//0.1ms timer
 		if(K58B_PIN & (1<<K58B)){
 			k58b_timer=15;
 		}else{
-			if(k58b_timer > 0)
-			k58b_timer--;
+			if(k58b_timer > 0){
+				k58b_timer--;
+			}
 		}
-		//*
 		if(door_delay){
 			door_delay--;
 		}
 		if(draw_engine_cut_state){
 			draw_engine_cut_state--;
 		}
-		//*/
+
 		set_backlight(k58b_pw);
 		line_ms_timer++;
 		if(line_ms_timer > 400){
+			
 			display_enable = 1;
 			line_ms_timer = 0;
 			line_shift_timer += 5;
@@ -1038,12 +1039,13 @@ ISR(TIMER3_COMPA_vect){
 		calculate_averages();
 		old_val = new_val;
 		start_cnt = 0;
+		/*
 		if(K58B_PORT & (1<<K58B)){
 			K58B_PORT &= ~(1<<K58B);
 		}else{
 			K58B_PORT |= (1<<K58B);
 		}
-		
+		*/
 	}else{
 		if(k15_delay_cnt){
 			k15_delay_cnt--;
