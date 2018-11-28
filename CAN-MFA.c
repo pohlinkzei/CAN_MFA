@@ -132,6 +132,7 @@ int16_t min_ambient_temp;
  int16_t oil_temperature;
 int16_t max_oil_temp;
 int16_t min_oil_temp;
+uint16_t manifold;
 uint8_t EEMEM cal_ambient_temperature;
 uint8_t EEMEM cal_voltage;
 uint8_t EEMEM cal_speed;

@@ -105,15 +105,26 @@ enum displaymode {
 #define ID666 7
 #define ID667 8
 
-#define SPANNUNG1 2
-#define SPANNUNG2 3
-#define OELTEMP 0
-#define AUSSENTEMP 1
-#define SPANNUNG3 4
-#define SPANNUNG4 5
 
-#define GETRIEBETEMP 6
-#define MANIFOLD 7
+/*
+aux_temp
+oiltemp
+Gearbox_temp
+Manifold
+Starterbat
+Zweitbat
+Solar
+D+/nc
+*/
+
+#define AUSSENTEMP 0
+#define OELTEMP 1
+#define GETRIEBETEMP 2
+#define MANIFOLD 3
+#define SPANNUNG1 4
+#define SPANNUNG2 5
+#define SPANNUNG3 6
+#define SPANNUNG4 7
 
 enum top_value {
 	RADIO_TEXT,
@@ -268,6 +279,7 @@ extern /*volatile*/ int16_t ambient_temperature;
 extern int16_t max_ambient_temp;
 extern int16_t min_ambient_temp;
 extern /*volatile*/ int16_t oil_temperature;
+extern uint16_t manifold;
 extern int16_t max_oil_temp;
 extern int16_t min_oil_temp;
 extern uint8_t EEMEM cal_water_temperature; //85; 

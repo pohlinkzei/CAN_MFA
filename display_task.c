@@ -797,15 +797,285 @@ void display_small_text(void){
 			if(can_mode == NO_CAN){
 				display_value[SMALL_TEXT]++;
 			}else{
-				if(starterbat.integer == 0
-						&& zweitbat.integer == 0 
-						&& (oil_temperature > 300 || oil_temperature < -50) 
-						&& (ambient_temperature > 200 || ambient_temperature <-50) 
-						&& v_solar_plus.integer == 0 
-						&& (gearbox_temperature > 300 || gearbox_temperature < -50)){
-					display_value[SMALL_TEXT]++;
-					break;
+				uint8_t available_values = 0;
+				uint8_t number_available_values = 0;
+				/*
+				#define SPANNUNG1 2
+				#define SPANNUNG2 3
+				#define OELTEMP 0
+				#define AUSSENTEMP 1
+				#define SPANNUNG3 4
+				#define SPANNUNG4 5
+
+				#define GETRIEBETEMP 6
+				#define MANIFOLD 7
+				*/
+				if(starterbat.integer != 0){
+					available_values |= (1<<SPANNUNG1);
+					number_available_values++;
 				}
+				if(zweitbat.integer != 0){
+					available_values |= (1<<SPANNUNG2);
+					number_available_values++;
+				}
+				if(v_solar_plus.integer != 0){
+					available_values |= (1<<SPANNUNG3);
+					number_available_values++;
+				}
+				if(entlastungsbat.integer != 0){
+					available_values |= (1<<SPANNUNG4);
+					number_available_values++;
+				}
+				if(oil_temperature > 300 || oil_temperature < -50){
+					available_values |= (1<<OELTEMP);
+					number_available_values++;
+				}
+				if(ambient_temperature > 200 || ambient_temperature <-50){
+					available_values |= (1<<AUSSENTEMP);
+					number_available_values++;
+				}
+				if(gearbox_temperature > 300 || gearbox_temperature < -50){
+					available_values |= (1<<GETRIEBETEMP);
+					number_available_values++;
+				}
+				if(manifold){
+					available_values |= (1<<MANIFOLD);
+					number_available_values++;
+				}
+				if(!available_values){
+					display_value[SMALL_TEXT]++;
+					return;
+				}
+				
+				if(number_available_values < 5){
+					uint8_t linecnt = 0;
+					char adc_line[4][16] = {"                ","                ","                ","                "};
+					
+					if(available_values & (1<<SPANNUNG1)){
+						adc_line[linecnt][3] = BAT;
+						adc_line[linecnt][4] = BAT+1;
+						adc_line[linecnt][5] = '1';
+						sprint_voltage(&adc_line[linecnt][6], starterbat);
+						adc_line[linecnt][12] = 'V';
+						linecnt++;
+					}
+
+					if(available_values & (1<<SPANNUNG2)){
+						adc_line[linecnt][3] = BAT;
+						adc_line[linecnt][4] = BAT+1;
+						adc_line[linecnt][5] = '1';
+						sprint_voltage(&adc_line[linecnt][6], zweitbat);
+						adc_line[linecnt][12] = 'V';
+						linecnt++;
+					}
+
+					if(available_values & (1<<SPANNUNG3)){
+						adc_line[linecnt][3] = BAT;
+						adc_line[linecnt][4] = BAT+1;
+						adc_line[linecnt][5] = '1';
+						sprint_voltage(&adc_line[linecnt][6], v_solar_plus);
+						adc_line[linecnt][12] = 'V';
+						linecnt++;
+					}
+
+					if(available_values & (1<<SPANNUNG4)){
+						adc_line[linecnt][3] = BAT;
+						adc_line[linecnt][4] = BAT+1;
+						adc_line[linecnt][5] = '1';
+						sprint_voltage(&adc_line[linecnt][6], entlastungsbat);
+						adc_line[linecnt][12] = 'V';
+						linecnt++;
+					}
+
+					if(available_values & (1<<OELTEMP)){
+						adc_line[linecnt][4] = OILT;
+						adc_line[linecnt][5] = OILT + 1;
+						sprint_temperature(&adc_line[linecnt][7],oil_temperature);
+						adc_line[linecnt][10] = CENTIGRADE;
+						linecnt++;
+					}
+
+					if(available_values & (1<<AUSSENTEMP)){
+						if(ambient_temperature < AMBIENT_FROST_TEMP){
+							adc_line[linecnt][4] = FROST;
+							adc_line[linecnt][5] = FROST + 1;
+						}
+						
+						sprint_temperature(&adc_line[linecnt][7],ambient_temperature);
+						adc_line[linecnt][10] = CENTIGRADE;
+						linecnt++;
+					}
+
+					if(available_values & (1<<GETRIEBETEMP)){
+						adc_line[linecnt][4] = GEARBOXT;
+						adc_line[linecnt][5] = GEARBOXT + 1;
+						sprint_temperature(&adc_line[linecnt][7],gearbox_temperature);
+						adc_line[linecnt][10] = CENTIGRADE;
+						linecnt++;
+					}
+
+					if(available_values & (1<<MANIFOLD)){
+						voltage_value_t vtg_manifold = { manifold / 100, manifold % 100};
+						sprint_voltage(&adc_line[linecnt][7],vtg_manifold);
+						adc_line[linecnt][10] = 'b';
+						adc_line[linecnt][11] = 'a';
+						adc_line[linecnt][12] = 'r';
+						linecnt++;
+					}
+
+					switch(linecnt){
+						case 1:{
+							dog_write_empty_line(NEW_POSITION(2,0));
+							dog_write_empty_line(NEW_POSITION(3,0));
+							dog_write_mid_string(NEW_POSITION(4,0), &adc_line[0][0]);
+							dog_write_empty_line(NEW_POSITION(6,0));
+							dog_write_empty_line(NEW_POSITION(7,0));
+							break;
+						}
+						case 2:{
+							dog_write_empty_line(NEW_POSITION(2,0));
+							dog_write_mid_strings(NEW__POSITION(3,0,4), &adc_line[0][0],&adc_line[1][0]);
+							dog_write_empty_line(NEW_POSITION(7,0));
+							break;
+						}
+						case 3:{
+							dog_write_mid_string(NEW_POSITION(2,0), &adc_line[0][0]);
+							dog_write_mid_string(NEW_POSITION(4,0), &adc_line[1][0]);
+							dog_write_mid_string(NEW_POSITION(6,0), &adc_line[2][0]);
+							break;
+						}
+						default:{
+							dog_write_mid_strings(NEW_POSITION(2,0),&adc_line[0][0], &adc_line[1][0]);
+							dog_write_mid_strings(NEW_POSITION(5,0),&adc_line[2][0], &adc_line[3][0]);
+						}
+					}
+				}else{
+					uint8_t linecnt = 0;
+					char adc_line[8][16] = {"                ","                ","                ","                ","                ","                ","                ","                "};
+					
+					if(available_values & (1<<SPANNUNG1)){
+						adc_line[linecnt][3] = BAT;
+						adc_line[linecnt][4] = BAT+1;
+						adc_line[linecnt][5] = '1';
+						sprint_voltage(&adc_line[linecnt][6], starterbat);
+						adc_line[linecnt][12] = 'V';
+						linecnt++;
+					}
+
+					if(available_values & (1<<SPANNUNG2)){
+						adc_line[linecnt][3] = BAT;
+						adc_line[linecnt][4] = BAT+1;
+						adc_line[linecnt][5] = '1';
+						sprint_voltage(&adc_line[linecnt][6], zweitbat);
+						adc_line[linecnt][12] = 'V';
+						linecnt++;
+					}
+
+					if(available_values & (1<<SPANNUNG3)){
+						adc_line[linecnt][3] = BAT;
+						adc_line[linecnt][4] = BAT+1;
+						adc_line[linecnt][5] = '1';
+						sprint_voltage(&adc_line[linecnt][6], v_solar_plus);
+						adc_line[linecnt][12] = 'V';
+						linecnt++;
+					}
+
+					if(available_values & (1<<SPANNUNG4)){
+						adc_line[linecnt][3] = BAT;
+						adc_line[linecnt][4] = BAT+1;
+						adc_line[linecnt][5] = '1';
+						sprint_voltage(&adc_line[linecnt][6], entlastungsbat);
+						adc_line[linecnt][12] = 'V';
+						linecnt++;
+					}
+
+					if(available_values & (1<<OELTEMP)){
+						adc_line[linecnt][4] = OILT;
+						adc_line[linecnt][5] = OILT + 1;
+						sprint_temperature(&adc_line[linecnt][7],oil_temperature);
+						adc_line[linecnt][10] = CENTIGRADE;
+						linecnt++;
+					}
+
+					if(available_values & (1<<AUSSENTEMP)){
+						if(ambient_temperature < AMBIENT_FROST_TEMP){
+							adc_line[linecnt][4] = FROST;
+							adc_line[linecnt][5] = FROST + 1;
+						}
+						
+						sprint_temperature(&adc_line[linecnt][7],ambient_temperature);
+						adc_line[linecnt][10] = CENTIGRADE;
+						linecnt++;
+					}
+
+					if(available_values & (1<<GETRIEBETEMP)){
+						adc_line[linecnt][4] = GEARBOXT;
+						adc_line[linecnt][5] = GEARBOXT + 1;
+						sprint_temperature(&adc_line[linecnt][7],gearbox_temperature);
+						adc_line[linecnt][10] = CENTIGRADE;
+						linecnt++;
+					}
+
+					if(available_values & (1<<MANIFOLD)){
+						voltage_value_t vtg_manifold = { manifold / 100, manifold % 100};
+						sprint_voltage(&adc_line[linecnt][7],vtg_manifold);
+						adc_line[linecnt][10] = 'b';
+						adc_line[linecnt][11] = 'a';
+						adc_line[linecnt][12] = 'r';
+						linecnt++;
+					}
+
+					switch(linecnt){
+						case 5:{
+							if(mfa.mode){
+								dog_write_mid_string(NEW_POSITION(2,0), &adc_line[0][0]);
+								dog_write_mid_string(NEW_POSITION(4,0), &adc_line[1][0]);
+								dog_write_mid_string(NEW_POSITION(6,0), &adc_line[2][0]);
+							}else{
+								dog_write_empty_line(NEW_POSITION(2,0));
+								dog_write_mid_strings(NEW__POSITION(3,0,4), &adc_line[3][0],&adc_line[4][0]);
+								dog_write_empty_line(NEW_POSITION(7,0));
+							}
+						}
+						case 6:{
+							if(mfa.mode){
+								dog_write_mid_string(NEW_POSITION(2,0), &adc_line[0][0]);
+								dog_write_mid_string(NEW_POSITION(4,0), &adc_line[1][0]);
+								dog_write_mid_string(NEW_POSITION(6,0), &adc_line[2][0]);
+							}else{
+								dog_write_mid_string(NEW_POSITION(2,0), &adc_line[3][0]);
+								dog_write_mid_string(NEW_POSITION(4,0), &adc_line[4][0]);
+								dog_write_mid_string(NEW_POSITION(6,0), &adc_line[5][0]);
+							}
+							break;
+						}
+						case 7:{
+							if(mfa.mode){
+								dog_write_mid_strings(NEW_POSITION(2,0),&adc_line[0][0], &adc_line[1][0]);
+								dog_write_mid_strings(NEW_POSITION(5,0),&adc_line[2][0], &adc_line[3][0]);
+							}else{
+								dog_write_mid_string(NEW_POSITION(2,0), &adc_line[4][0]);
+								dog_write_mid_string(NEW_POSITION(4,0), &adc_line[5][0]);
+								dog_write_mid_string(NEW_POSITION(6,0), &adc_line[6][0]);
+							}
+							break;
+						}
+						case 8:{
+							if(mfa.mode){
+								dog_write_mid_strings(NEW_POSITION(2,0),&adc_line[0][0], &adc_line[1][0]);
+								dog_write_mid_strings(NEW_POSITION(5,0),&adc_line[2][0], &adc_line[3][0]);
+							}else{
+								dog_write_mid_strings(NEW_POSITION(2,0),&adc_line[4][0], &adc_line[5][0]);
+								dog_write_mid_strings(NEW_POSITION(5,0),&adc_line[6][0], &adc_line[7][0]);
+							}
+							break;
+						}
+						default:{
+							return;
+						}
+					}
+				}
+				#if 0
 				if(mfa.mode){
 					// spg1 spg2 oil aussentenp
 						
@@ -884,6 +1154,7 @@ void display_small_text(void){
 				
 					dog_write_mid_strings(NEW_POSITION(5,0),adc_line4, adc_line5);
 				}
+				#endif
 			}
 			break;
 			}
