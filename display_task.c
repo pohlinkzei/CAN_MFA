@@ -917,8 +917,7 @@ void display_small_text(void){
 					}
 
 					if(available_values & (1<<MANIFOLD)){
-						voltage_value_t vtg_manifold = { manifold / 100, manifold % 100};
-						sprint_voltage(&adc_line[linecnt][7],vtg_manifold);
+						uint16_to_string(&adc_line[linecnt][5],manifold);
 						adc_line[linecnt][10] = 'b';
 						adc_line[linecnt][11] = 'a';
 						adc_line[linecnt][12] = 'r';
@@ -1273,11 +1272,10 @@ void display_small_text(void){
 				sprint_temperature(&line3[3],mfa.mode==CUR?max_gearbox_temp:min_gearbox_temp);
 				line3[6] = CENTIGRADE;
 				
-				line3[9] = INT;
-				line3[10] = INT + 1;
-				#warning "Cleanup"
-				sprint_temperature(&line4[11],mfa.mode==CUR?0:0);
-				line3[14] = CENTIGRADE;
+				uint16_to_string(&line3[9], mfa.mode==CUR?max_manifold:min_manifold);
+				line3[13] = 'b';
+				line3[14] = 'a';
+				line3[15] = 'r';
 				
 				line4[1] = ENGT;
 				line4[2] = ENGT + 1;
@@ -1686,11 +1684,6 @@ void display_med_row(volatile uint8_t* dv, uint8_t page, uint8_t row){
 			}
 			break;
 		}
-		case VAL_INT:{
-			#warning "Cleanup"
-			display_value++;
-			break;
-		}
 		//*
 		case VAL_RPM:{
 			//	0123456789012
@@ -1746,7 +1739,7 @@ void display_med_row(volatile uint8_t* dv, uint8_t page, uint8_t row){
 			}
 			break;
 		}
-		#if 0
+
 		case VAL_MANIFOLD:{
 			display_value++;
 			break;
@@ -1759,7 +1752,7 @@ void display_med_row(volatile uint8_t* dv, uint8_t page, uint8_t row){
 			break;
 			*/
 		}
-
+		#if 0
 		case VAL_FUEL:{
 			display_value++;
 			/*
@@ -2165,7 +2158,7 @@ void display_top_line(void){
 		dog_write_big_string(NEW_POSITION(0,4),_str);
 		line_shift_timer = LINE_SHIFT_START;
 		#else
-		sprintf(_str, " %i %i ",k58b_timer, k58b_pw);
+		sprintf(_str, " %i %i ",ambient_temperature, oil_temperature);
 		dog_write_big_string(NEW_POSITION(0,4),_str);
 		#endif
 		return;

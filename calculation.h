@@ -22,7 +22,7 @@ void sprint_temperature(char* str,int16_t temperature);
 void uint8_to_string(char* str, uint8_t integer);
 void uint16_to_string(char* str, uint16_t integer);
 void int16_to_string(char* str, int16_t integer);
-int16_t calculate_in_temperature(uint16_t adc);
+int16_t calculate_manifold(uint16_t adc);
 int16_t calculate_ambient_temperature(uint16_t adc);
 int16_t calculate_oil_temperature(uint16_t adc);
 int16_t calculate_gearbox_temperature(uint16_t adc);

@@ -9,11 +9,17 @@
 #include "calculation.h"
 
 int16_t calculate_manifold(uint16_t adc){
-	// P(mbar) = (10850 * ADC - 444010) / 4096
-	#warning "TODO: calculate manifold for gasoline engine"
-	int32_t manifold32 = 10850 * adc - 444010;
+	int32_t manifold32 = 0;
+	#warning "TODO: Find out how to decide which car we have"
+	if(1){ //TDI
+		// P(mbar) = (10850 * ADC - 444010) / 4096
+		manifold32 = 10850 * adc - 444010;
+	}else{ //Petrol - find out how to decide which car we have
+		// P(mbar) = (3871 * ADC - 58713) / 4096
+		manifold32 = 3871 * adc - 58713;
+	}
 	manifold32 *= eeprom_read_byte(&cal_manifold);
-	return manifold32 / 524288;
+	return manifold32 / 524288; //524288 = 128 x 4096
 }
 
 voltage_value_t calculate_voltage(uint16_t adc){
@@ -353,9 +359,12 @@ void sprint_distance(char* str, uint64_t distance){
 
 int16_t calculate_ambient_temperature(uint16_t adc){//kty 81-110
 	//t=((840*adc)/128-1557)/10
-	volatile int32_t adc_temp = 840 * (uint32_t) adc;
-	adc_temp = adc_temp / 128;
-	volatile uint16_t cal_offset = 1429;
+// 	volatile int32_t adc_temp = 840 * (uint32_t) adc;
+// 	adc_temp = adc_temp / 128;
+// 	volatile uint16_t cal_offset = 1429;
+	volatile int32_t adc_temp = 6867 * (uint32_t) adc;
+	adc_temp = adc_temp / 1024;
+	volatile uint16_t cal_offset = 1432;
 	cal_offset += eeprom_read_byte(&cal_ambient_temperature); // 1429 - 1684
 	adc_temp = adc_temp - cal_offset;
 	adc_temp = adc_temp / 10;

@@ -150,7 +150,6 @@ enum med_value {
 	 VAL_ENGT,
 	 VAL_OIL,
 	 VAL_AMBIENT,
-	 VAL_INT,
 	 VAL_GEARBXT,
 	 VAL_TIME,
 	 VAL_RPM,
@@ -280,6 +279,8 @@ extern int16_t max_ambient_temp;
 extern int16_t min_ambient_temp;
 extern /*volatile*/ int16_t oil_temperature;
 extern uint16_t manifold;
+extern uint16_t min_manifold;
+extern uint16_t max_manifold;
 extern int16_t max_oil_temp;
 extern int16_t min_oil_temp;
 extern uint8_t EEMEM cal_water_temperature; //85; 

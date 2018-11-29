@@ -32,7 +32,7 @@
 #include "navigation.h"
 #include "display_task.h"
 #include "kline.h"
-#ifdef HAVE_MCP_ADC
+#if HAVE_MCP_ADC
 #include "mcp3208.h"
 #endif
 	
@@ -133,6 +133,8 @@ int16_t min_ambient_temp;
 int16_t max_oil_temp;
 int16_t min_oil_temp;
 uint16_t manifold;
+uint16_t min_manifold;
+uint16_t max_manifold;
 uint8_t EEMEM cal_ambient_temperature;
 uint8_t EEMEM cal_voltage;
 uint8_t EEMEM cal_speed;
@@ -643,7 +645,7 @@ void adc_init(void){
 }
 /***********************************************************************************************/
 uint16_t read_adc(uint8_t portbit){
-#ifdef HAVE_MCP_ADC
+#if HAVE_MCP_ADC
 	uint16_t result = mcp3208_spi_read(SINGLE, portbit);
 	return (result>>2);
 #else
@@ -775,6 +777,15 @@ void app_task(){
 					max_oil_temp = oil_temperature;
 				}else if(min_oil_temp > oil_temperature){
 					min_oil_temp = oil_temperature;
+				}
+			}
+
+			manifold = calculate_manifold(adc_value[MANIFOLD]);
+			if(manifold < 2700 && manifold > 20){
+				if(max_manifold < manifold){
+					max_manifold = manifold;
+				}else if(min_manifold > manifold){
+					min_manifold = manifold;
 				}
 			}
 		}
