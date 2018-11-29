@@ -18,7 +18,7 @@
 extern uint8_t EEMEM cal_voltage; // 171
 extern uint8_t EEMEM cal_speed; // 169
 extern uint8_t EEMEM cal_oil_temperature;
-extern uint8_t EEMEM cal_in_temperature;
+extern uint8_t EEMEM cal_manifold;
 extern uint8_t EEMEM cal_consumption;
 extern uint8_t EEMEM cal_gearbox_temperature;
 extern uint8_t EEMEM cal_ambient_temperature;
@@ -120,7 +120,7 @@ void uart_print_cal_menu(void){
 	uart1_puts("\n\rv\tcal_voltage ");
 	uart1_puts("\n\rs\tcal_speed ");
 	uart1_puts("\n\ra\tcal_ambient_temperature");
-	uart1_puts("\n\ri\tcal_in_temperature");
+	uart1_puts("\n\rp\tcal_manifold_pressure");
 	uart1_puts("\n\rg\tcal_gearbox_temperature");
 	uart1_puts("\n\ro\tcal_oil_temperature ");
 	uart1_puts("\n\rc\tcal_consumption ");
@@ -183,12 +183,12 @@ void uart_calibrate(void){
 					uart_print_cal_menu();
 					break;
 				}
-				case 'i':{
+				case 'p':{
 					char val[5] = {0,};
-					uart1_puts("\n\rWert cal_in_temperature: (0-255) ");
-					sprintf(val, "%i\n\r", eeprom_read_byte(&cal_in_temperature));
+					uart1_puts("\n\rWert cal_manifold: (0-255) ");
+					sprintf(val, "%i\n\r", eeprom_read_byte(&cal_manifold));
 					uart1_puts(val);
-					eeprom_write_byte(&cal_in_temperature, uart_get_int());
+					eeprom_write_byte(&cal_manifold, uart_get_int());
 					uart_print_cal_menu();
 					break;
 				}

@@ -23,7 +23,7 @@
 /*volatile*/ uint8_t max_field_position;
 /*volatile*/ menu_item_t settings_temperatures;
 /*volatile*/ menu_item_t settings_cal_oil_temperature;
-/*volatile*/ menu_item_t settings_cal_in_temperature;
+/*volatile*/ menu_item_t settings_cal_manifold;
 /*volatile*/ menu_item_t settings_cal_gearbox_temperature;
 /*volatile*/ menu_item_t settings_cal_ambient_temperature;
 
@@ -62,7 +62,7 @@ void display_menu_init(void){
 	//											 0123456789012345
 	strcpy((char*) settings_temperatures.text,			"  Temperaturen  ");
 	settings_temperatures.parent = (menu_item_t*) &settings_menu;
-	settings_temperatures.num_child = 4;
+	settings_temperatures.num_child = 3;
 	settings_temperatures.is_value = 0;
 	settings_temperatures.value = 0;
 	settings_temperatures.is_switch = 0;
@@ -76,17 +76,8 @@ void display_menu_init(void){
 		settings_cal_oil_temperature.value = eeprom_read_byte(&cal_oil_temperature);
 		settings_cal_oil_temperature.is_switch = 0;
 		settings_cal_oil_temperature.switch_value = 0;
-		settings_cal_oil_temperature.next = (menu_item_t*) &settings_cal_in_temperature;
+		settings_cal_oil_temperature.next = (menu_item_t*) &settings_cal_gearbox_temperature;
 
-		strcpy((char*) settings_cal_in_temperature.text,			"     INNEN     ");
-		settings_cal_in_temperature.num_child = 0;
-		settings_cal_in_temperature.child = NULL;
-		settings_cal_in_temperature.parent = (menu_item_t*) &settings_temperatures;
-		settings_cal_in_temperature.is_value = 1;
-		settings_cal_in_temperature.value = eeprom_read_byte(&cal_in_temperature);
-		settings_cal_in_temperature.is_switch = 0;
-		settings_cal_in_temperature.switch_value = 0;
-		settings_cal_in_temperature.next = (menu_item_t*) &settings_cal_gearbox_temperature;
 
 		strcpy((char*) settings_cal_gearbox_temperature.text,	"    GETRIEBE    ");
 		settings_cal_gearbox_temperature.num_child = 0;
@@ -113,7 +104,7 @@ void display_menu_init(void){
 
 	strcpy((char*) settings_mfa_values.text,		"  Analogwerte  ");
 	settings_mfa_values.parent = (menu_item_t*) &settings_menu;
-	settings_mfa_values.num_child = 3;
+	settings_mfa_values.num_child = 4;
 	settings_mfa_values.is_value = 0;
 	settings_mfa_values.value = 0;
 	settings_mfa_values.is_switch = 0;
@@ -147,7 +138,17 @@ void display_menu_init(void){
 		settings_cal_consumption.value = eeprom_read_byte(&cal_consumption);
 		settings_cal_consumption.is_switch = 0;
 		settings_cal_consumption.switch_value = 0;
-		settings_cal_consumption.next = NULL;
+		settings_cal_consumption.next = (menu_item_t*) &settings_cal_manifold;
+
+		strcpy((char*) settings_cal_manifold.text,			"     DRUCK     ");
+		settings_cal_manifold.num_child = 0;
+		settings_cal_manifold.child = NULL;
+		settings_cal_manifold.parent = (menu_item_t*) &settings_mfa_values;
+		settings_cal_manifold.is_value = 1;
+		settings_cal_manifold.value = eeprom_read_byte(&cal_manifold);
+		settings_cal_manifold.is_switch = 0;
+		settings_cal_manifold.switch_value = 0;
+		settings_cal_manifold.next = NULL;
 	}
 
 	settings_mfa_values.child = (menu_item_t*) &settings_cal_voltage;

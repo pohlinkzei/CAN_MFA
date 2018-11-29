@@ -8,6 +8,14 @@
 #include "CAN-MFA.h"
 #include "calculation.h"
 
+int16_t calculate_manifold(uint16_t adc){
+	// P(mbar) = (10850 * ADC - 444010) / 4096
+	#warning "TODO: calculate manifold for gasoline engine"
+	int32_t manifold32 = 10850 * adc - 444010;
+	manifold32 *= eeprom_read_byte(&cal_manifold);
+	return manifold32 / 524288;
+}
+
 voltage_value_t calculate_voltage(uint16_t adc){
 	uint32_t voltage32 = (719 * (uint32_t) adc);
 	voltage32 = voltage32 * eeprom_read_byte(&cal_voltage) / 32768;
@@ -353,19 +361,6 @@ int16_t calculate_ambient_temperature(uint16_t adc){//kty 81-110
 	adc_temp = adc_temp / 10;
 	return (int16_t) adc_temp;
 }
-
-
-int16_t calculate_in_temperature(uint16_t adc){//kty 81-110
-	//t=((840*adc)/128-1557)/10
-	volatile int32_t adc_temp = 840 * (uint32_t) adc;
-	adc_temp = adc_temp / 128;
-	volatile uint16_t cal_offset = 1429;
-	cal_offset += eeprom_read_byte(&cal_in_temperature); // 1429 - 1684
-	adc_temp = adc_temp - cal_offset;//((1557 * eeprom_read_byte(&cal_ambient_temperature))/128);
-	adc_temp = adc_temp / 10;
-	return (int16_t) adc_temp;
-}
-
 
 int16_t calculate_oil_temperature(uint16_t adc){//oil temp KTY19-6
 	//t=((1715*adc)/256-1560)/10 alt

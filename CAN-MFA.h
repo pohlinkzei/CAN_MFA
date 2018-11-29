@@ -286,7 +286,7 @@ extern uint8_t EEMEM cal_water_temperature; //85;
 extern uint8_t EEMEM cal_voltage; // 171
 extern uint8_t EEMEM cal_speed; // 169
 extern uint8_t EEMEM cal_oil_temperature;
-extern uint8_t EEMEM cal_in_temperature;
+extern uint8_t EEMEM cal_manifold;
 extern uint8_t EEMEM cal_consumption;
 extern uint8_t EEMEM cal_gearbox_temperature;
 extern uint8_t EEMEM cal_ambient_temperature;

@@ -31,7 +31,7 @@ extern /*volatile*/ uint8_t field_position;
 extern /*volatile*/ uint8_t max_field_position;
 extern /*volatile*/ menu_item_t settings_temperatures;
 extern /*volatile*/ menu_item_t settings_cal_oil_temperature;
-extern /*volatile*/ menu_item_t settings_cal_in_temperature;
+extern /*volatile*/ menu_item_t settings_cal_manifold;
 extern /*volatile*/ menu_item_t settings_cal_gearbox_temperature;
 extern /*volatile*/ menu_item_t settings_cal_ambient_temperature;
 //menu_item_t settings_cal_water_temperature; //85;

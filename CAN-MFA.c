@@ -137,7 +137,7 @@ uint8_t EEMEM cal_ambient_temperature;
 uint8_t EEMEM cal_voltage;
 uint8_t EEMEM cal_speed;
 uint8_t EEMEM cal_oil_temperature;
-uint8_t EEMEM cal_in_temperature;
+uint8_t EEMEM cal_manifold;
 uint8_t EEMEM cal_consumption;
 uint8_t EEMEM cal_gearbox_temperature;
 uint8_t EEMEM cal_ambient_temperature;
@@ -814,8 +814,8 @@ void app_task(){
 				if(settings_cal_oil_temperature.value != eeprom_read_byte(&cal_oil_temperature)){
 					eeprom_write_byte(&cal_oil_temperature, settings_cal_oil_temperature.value);
 				}
-				if(settings_cal_in_temperature.value != eeprom_read_byte(&cal_in_temperature)){
-					eeprom_write_byte(&cal_in_temperature, settings_cal_in_temperature.value);
+				if(settings_cal_manifold.value != eeprom_read_byte(&cal_manifold)){
+					eeprom_write_byte(&cal_manifold, settings_cal_manifold.value);
 				}
 				if(settings_cal_consumption.value != eeprom_read_byte(&cal_consumption)){
 					eeprom_write_byte(&cal_consumption, settings_cal_consumption.value);
