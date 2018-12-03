@@ -12,7 +12,7 @@
 
 
 volatile uint16_t k58b_timer = 0;
-uint16_t volatile k58b_pw = 0;
+uint8_t volatile k58b_pw = 0;
 
 
 void initk58_pwm(void){
@@ -35,10 +35,16 @@ void initk58_pwm(void){
 
 void set_backlight(uint8_t pw){
 	if(pw == OCR1B) return;
-	OCR1B = pw;
+	
 	if(pw > 0){
 		LED_DDR |= (1<<LED);
+		if(0 == OCR1B){
+			TCCR1A |= (1<<COM1B1) | (1<<WGM10);
+		}
 	}else{
 		LED_DDR &= ~(1<<LED);
+		TCCR1A = 0x00;
+		LED_PORT &= ~(1<<LED);
 	}
+	OCR1B = pw;
 }

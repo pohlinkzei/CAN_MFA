@@ -576,15 +576,9 @@ int main(void){
 					}
 					//*/
 					uint8_t i;
-					k58b_pw = 0;
 					// disable CAN receiver
 					PCA_PORT |= (1<<DISABLE_PCA);
 					dog_disable();
-
-					PORTE &= ~(1<<PE3);
-					DDRE &= ~(1<<PE3);
-					TCCR3B = 0x00;
-					TCCR3A = 0x00;
 
 					for(i=0;i<8;i++){
 						id280_data[i] = 0;
@@ -599,6 +593,7 @@ int main(void){
 					}
 					id280_valid = 1;
 				}
+				set_backlight(0);
 				sleep_mode();
 				break;
 			}
