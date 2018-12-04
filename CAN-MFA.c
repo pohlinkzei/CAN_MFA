@@ -159,10 +159,11 @@ volatile uint8_t can_status = 0x00;
  uint8_t startstop_enabled;
 volatile uint8_t can_mode;
 
- uint8_t display_mode = 0;
- uint8_t display_mode_tmp;
- uint8_t old_display_mode;
- uint8_t display_enable;
+uint8_t display_mode = 0;
+uint8_t display_mode_tmp;
+uint8_t old_display_mode;
+volatile uint8_t display_enable;
+volatile uint8_t display_enable_cnt;
 volatile uint8_t t0cnt = 0;
  uint16_t tmp_rpm;
 volatile uint16_t rpm_cnt;
@@ -197,9 +198,9 @@ volatile uint8_t send_can_lock;
 
 volatile int16_t old_val = 0;
 volatile int16_t new_val = 0;
-uint8_t mfa_res_cnt = 0;
+uint16_t mfa_res_cnt = 0;
 uint8_t no_res_switch = 0;
-uint8_t mfa_mfa_cnt = 0;
+uint16_t mfa_mfa_cnt = 0;
 uint8_t no_mfa_switch = 0;
 
 uint16_t t3cnt = 0;
@@ -228,7 +229,7 @@ void enable_mfa_switch(void){
 }
 
 void disable_mfa_switch(void){
-	return;
+	//return;
 	MFA_SWITCH_DDR &= ~(1<<MFA_SWITCH_MFA) & ~(1<<MFA_SWITCH_MODE) & ~(1<<MFA_SWITCH_RES);
 	MFA_SWITCH_DDR &= ~(1<<MFA_SWITCH_GND);
 	MFA_SWITCH_PORT &= ~(1<<MFA_SWITCH_MFA) & ~(1<<MFA_SWITCH_MODE) & ~(1<<MFA_SWITCH_RES);
@@ -407,7 +408,7 @@ void avr_init(){
 	uart_bootloader_init(UART_BAUD_RATE);
 	set_sleep_mode(SLEEP_MODE_PWR_SAVE);
 	initk58_pwm();
-	
+
 	kline_uart_init(9600);
 	kline_io_init();
 
@@ -489,7 +490,6 @@ status_t get_status(status_t old){
 }
 
 int main(void){
-	int dcnt = 0;
 	status = OFF;
 	cli();
 	avr_init();
@@ -497,8 +497,8 @@ int main(void){
 	sei();
 	
 	K15_PORT &= ~(1<<K15);
-	//TKML_PORT |= (1<<TKML);
-	//K15_PORT |= (1<<K15); // zündung an, bitte ;)
+	TKML_PORT |= (1<<TKML);
+	K15_PORT |= (1<<K15); // zündung an, bitte ;)
 	line_shift_timer = LINE_SHIFT_START;
 	#if 1
 	display_mode = SMALL_TEXT;
@@ -509,6 +509,9 @@ int main(void){
 	#endif
 	//strcpy( (char*) radio_text, "  CAN Test        ");
 
+	#if ENABLE_SETTINGS
+	display_menu_init();
+	#endif
 	status = get_status(OFF);
 	
 	enable_mfa_switch();
@@ -553,12 +556,16 @@ int main(void){
 							 );
 				int vtg_high = ((((starterbat.integer * 100) + starterbat.fraction) > 1280) || (zweitbat.fraction + (zweitbat.integer*100)) > 1280);
 				if(vtg_state && vtg_high){
-					app_task();
-					display_task();
+					if(display_enable){
+						display_enable = 0;
+						app_task();
+						display_task();
+					}
 					k15_delay_cnt = 0;
 					break;
 				}else{
-					if(k15_delay_cnt){
+					if(k15_delay_cnt && display_enable){
+						display_enable = 0;
 						app_task();
 						display_task();
 						break;
@@ -599,15 +606,15 @@ int main(void){
 			}
 			case IGNITION_ON:{
 				door_delay = 0;
-				dcnt++;
-				if(dcnt==100){
-					dcnt=0;
+				if(display_enable){
+					display_enable = 0;
 					display_task();
 					uart_bootloader_task();
+					app_task();
+					twi_task();
 				}
 				can_task();
-				app_task();
-				twi_task();
+				
 				//kline_task();
 				break;
 			}
@@ -723,10 +730,183 @@ void reset_averages_start(void){
 }
 
 
+void switch_task(void){
+	enable_mfa_switch();
+	if(read_mfa_switch(MFA_SWITCH_MODE)){
+		mfa.mode = CUR;
+	}else{
+		mfa.mode = AVG;
+		#if ENABLE_SETTINGS
+		if((display_mode & (1<<SETTINGS))){
+			// used to save changed values to eeprom
+			display_settings_save_value();
+			/*
+			if(settings_cal_ambient_temperature.value != eeprom_read_byte(&cal_ambient_temperature)){
+				eeprom_write_byte(&cal_ambient_temperature, settings_cal_ambient_temperature.value);
+			}
+			if(settings_cal_voltage.value != eeprom_read_byte(&cal_voltage)){
+				eeprom_write_byte(&cal_voltage, settings_cal_voltage.value);
+			}
+			if(settings_cal_speed.value != eeprom_read_byte(&cal_speed)){
+				eeprom_write_byte(&cal_speed, settings_cal_speed.value);
+			}
+			if(settings_cal_oil_temperature.value != eeprom_read_byte(&cal_oil_temperature)){
+				eeprom_write_byte(&cal_oil_temperature, settings_cal_oil_temperature.value);
+			}
+			if(settings_cal_manifold.value != eeprom_read_byte(&cal_manifold)){
+				eeprom_write_byte(&cal_manifold, settings_cal_manifold.value);
+			}
+			if(settings_cal_consumption.value != eeprom_read_byte(&cal_consumption)){
+				eeprom_write_byte(&cal_consumption, settings_cal_consumption.value);
+			}
+			if(settings_cal_gearbox_temperature.value != eeprom_read_byte(&cal_gearbox_temperature)){
+				eeprom_write_byte(&cal_gearbox_temperature, settings_cal_gearbox_temperature.value);
+			}
+			if(settings_cal_gearbox_temperature.value != eeprom_read_byte(&cal_gearbox_temperature)){
+				eeprom_write_byte(&cal_gearbox_temperature, settings_cal_gearbox_temperature.value);
+			}
+			if(settings_cal_k15_delay.value != eeprom_read_byte(&cal_k15_delay)){
+				eeprom_write_byte(&cal_k15_delay, settings_cal_k15_delay.value);
+			}
+			if(settings_cal_k58b_off_val.value != eeprom_read_byte(&cal_k58b_off_val)){
+				eeprom_write_byte(&cal_k58b_off_val, settings_cal_k58b_off_val.value);
+			}
+			if(settings_cal_can_mode.switch_value != eeprom_read_byte(&cal_can_mode)){
+				eeprom_write_byte(&cal_can_mode, settings_cal_can_mode.switch_value);
+			}
+			if(settings_cal_startstop_enabled.switch_value != eeprom_read_byte(&cal_startstop_enabled)){
+				eeprom_write_byte(&cal_startstop_enabled, settings_cal_startstop_enabled.switch_value);
+			}
+			//*/
+		}
+		#endif
+	}			
 
+	if(read_mfa_switch(MFA_SWITCH_RES)){
+		mfa.res = 1;
+		if(mfa.res == mfa_old.res){
+			mfa_res_cnt++;
+			#if ENABLE_SETTINGS
+			if(display_mode & (1<<SETTINGS)){
+				if(current_enty->parent == NULL){
+					if (mfa_res_cnt > 10){
+						dog_clear_lcd();
+						no_res_switch = 1;
+						if(mfa_res_cnt > 25){
+							void (*reset)( void ) = 0xF800;
+							reset();
+						}
+					}
+				}
+			}else	
+			#endif
+			{
+				if (mfa_res_cnt > 10){
+					if(display_mode == SMALL_TEXT && display_value[SMALL_TEXT] == MIN_MAX_VALUES){
+						reset_min_max_values();
+						mfa_res_cnt = 0;
+					}else{
+						reset_averages_start();
+					}
+					dog_clear_lcd();
+					no_res_switch = 1;
+					if(mfa_res_cnt > 25){
+						// long: reset values by current display values ;)
+						reset_averages();
+						dog_set_lcd(0xFF);
+						//no_res_switch = 1;
+						mfa_res_cnt = 0;
+					}
+				}
+			}
+		}
+	}else{
+		mfa.res = 0;
+		mfa_res_cnt = 0;
+		if(mfa.res != mfa_old.res){
+			if(!no_res_switch){
+				#if ENABLE_SETTINGS
+				if(display_mode & (1<<SETTINGS)){
+					field_position++;
+					if(field_position > max_field_position){
+						field_position = 0;
+					}
+				}else
+				#endif
+				{
+					display_value[display_mode]++;
+				}
+			}else{
+				no_res_switch = 0;
+			}
+		}
+	}
+	if(read_mfa_switch(MFA_SWITCH_MFA)){
+		mfa.mfa = 1;
+		#if ENABLE_SETTINGS
+		if(mfa.mfa == mfa_old.mfa){
+			mfa_mfa_cnt++;
+			if(mfa_mfa_cnt>25){
+				if(display_mode & (1<<SETTINGS)){
+					display_mode &= ~(1<<SETTINGS);
+				}else{
+					display_mode |= (1<<SETTINGS);
+				}
+				mfa_mfa_cnt = 0;
+				no_mfa_switch = 1;
+			}
+		}
+		#endif
+	}else{
+		mfa.mfa = 0;
+		mfa_mfa_cnt = 0;
+		if(mfa.mfa != mfa_old.mfa){
+			if(!no_mfa_switch){
+				#if ENABLE_SETTINGS
+				if(display_mode & (1<<SETTINGS)){
+					// Settings display
+					if(field_position == 0){
+						current_enty = current_enty->parent?current_enty->parent:&settings_menu;
+					}else{
+						if(current_enty->is_value){
+							switch(field_position){
+								case 1: current_enty->value += 100; break;
+								case 2: current_enty->value += 10; break;
+								case 3: current_enty->value += 1; break;
+								case 4: current_enty->value -= 100; break;
+								case 5: current_enty->value -= 10; break;
+								case 6: current_enty->value -= 1; break;
+							}
+						}else if (current_enty->is_switch){
+							switch(field_position){
+								case 1: current_enty->switch_value = 1; break;
+								case 2: current_enty->switch_value = 0; break;
+							}
+						}else{
+							current_enty = display_settings_nth_child((menu_item_t*) current_enty, field_position-1);
+							field_position = 0;
+						}
+					}
+				}else
+				#endif
+				{
+					display_mode++;
+				}
+			}else{
+				no_mfa_switch = 0;
+			}
+			if((navigation_status == status_routing || navigation_status == status_recalculating) && display_mode == NAVIGATION){
+				do_not_switch_to_navigation = 1;
+			}else{
+				do_not_switch_to_navigation = 0;
+			}
+		}
+	}
+	mfa_old = mfa;
+	disable_mfa_switch();
+}
 
 void app_task(){
-		enable_mfa_switch();
 		read_adc_values();
 		starterbat = calculate_voltage(adc_value[SPANNUNG1]);
 		zweitbat = calculate_voltage(adc_value[SPANNUNG2]);
@@ -802,162 +982,7 @@ void app_task(){
 			max_rpm = rpm;
 		}
 		
-		if(read_mfa_switch(MFA_SWITCH_MODE)){
-			mfa.mode = CUR;
-		}else{
-			mfa.mode = AVG;
-			if((display_mode & (1<<SETTINGS))){
-				// used to save changed values to eeprom
-				if(settings_cal_ambient_temperature.value != eeprom_read_byte(&cal_ambient_temperature)){
-					eeprom_write_byte(&cal_ambient_temperature, settings_cal_ambient_temperature.value);
-				}
-				if(settings_cal_voltage.value != eeprom_read_byte(&cal_voltage)){
-					eeprom_write_byte(&cal_voltage, settings_cal_voltage.value);
-				}
-				if(settings_cal_speed.value != eeprom_read_byte(&cal_speed)){
-					eeprom_write_byte(&cal_speed, settings_cal_speed.value);
-				}
-				if(settings_cal_oil_temperature.value != eeprom_read_byte(&cal_oil_temperature)){
-					eeprom_write_byte(&cal_oil_temperature, settings_cal_oil_temperature.value);
-				}
-				if(settings_cal_manifold.value != eeprom_read_byte(&cal_manifold)){
-					eeprom_write_byte(&cal_manifold, settings_cal_manifold.value);
-				}
-				if(settings_cal_consumption.value != eeprom_read_byte(&cal_consumption)){
-					eeprom_write_byte(&cal_consumption, settings_cal_consumption.value);
-				}
-				if(settings_cal_gearbox_temperature.value != eeprom_read_byte(&cal_gearbox_temperature)){
-					eeprom_write_byte(&cal_gearbox_temperature, settings_cal_gearbox_temperature.value);
-				}
-				if(settings_cal_gearbox_temperature.value != eeprom_read_byte(&cal_gearbox_temperature)){
-					eeprom_write_byte(&cal_gearbox_temperature, settings_cal_gearbox_temperature.value);
-				}
-				if(settings_cal_k15_delay.value != eeprom_read_byte(&cal_k15_delay)){
-					eeprom_write_byte(&cal_k15_delay, settings_cal_k15_delay.value);
-				}
-				if(settings_cal_k58b_off_val.value != eeprom_read_byte(&cal_k58b_off_val)){
-					eeprom_write_byte(&cal_k58b_off_val, settings_cal_k58b_off_val.value);
-				}
-				if(settings_cal_can_mode.switch_value != eeprom_read_byte(&cal_can_mode)){
-					eeprom_write_byte(&cal_can_mode, settings_cal_can_mode.switch_value);
-				}
-				if(settings_cal_startstop_enabled.switch_value != eeprom_read_byte(&cal_startstop_enabled)){
-					eeprom_write_byte(&cal_startstop_enabled, settings_cal_startstop_enabled.switch_value);
-				}
-			}
-		}			
-
-		if(read_mfa_switch(MFA_SWITCH_RES)){
-			//sprintf(radio_text, "%i           " ,mfa_res_cnt);
-			mfa.res = 1;
-			if(mfa.res == mfa_old.res){
-				mfa_res_cnt++;
-				if(!(display_mode & (1<<SETTINGS))){	
-					if (mfa_res_cnt > 10){
-						if(display_mode == SMALL_TEXT && display_value[SMALL_TEXT] == MIN_MAX_VALUES){
-							reset_min_max_values();
-							mfa_res_cnt = 0;
-						}else{
-							reset_averages_start();
-						}
-						dog_clear_lcd();
-						no_res_switch = 1;
-						if(mfa_res_cnt > 25){
-							// long: reset values by current display values ;)
-							reset_averages();
-							dog_set_lcd(0xFF);
-							//no_res_switch = 1;
-							mfa_res_cnt = 0;
-						}
-					}else{
-						if(current_enty->parent == NULL){
-							if (mfa_res_cnt > 10){
-								dog_clear_lcd();
-								no_res_switch = 1;
-								if(mfa_res_cnt > 25){
-									void (*reset)( void ) = 0xF800;
-									reset();
-								}
-							}
-						}
-					}
-				}
-			}
-		}else{
-			mfa.res = 0;
-			mfa_res_cnt = 0;
-			if(mfa.res != mfa_old.res){
-				if(!no_res_switch){
-					if(!(display_mode & (1<<SETTINGS))){
-						display_value[display_mode]++;
-					}else{
-						field_position++;
-						if(field_position > max_field_position){
-							field_position = 0;
-						}
-					}
-				}else{
-					no_res_switch = 0;
-				}
-			}
-		}
-		if(read_mfa_switch(MFA_SWITCH_MFA)){
-			mfa.mfa = 1;
-			if(mfa.mfa == mfa_old.mfa){
-				mfa_mfa_cnt++;
-				if(mfa_mfa_cnt>10){
-					if(display_mode & (1<<SETTINGS)){
-						display_mode &= ~(1<<SETTINGS);
-					}else{
-						display_mode |= (1<<SETTINGS);
-					}
-					no_mfa_switch = 1;
-				}
-			}
-		}else{
-			mfa.mfa = 0;
-			mfa_mfa_cnt = 0;
-			if(mfa.mfa != mfa_old.mfa){
-				if(!no_mfa_switch){
-					if(!(display_mode & (1<<SETTINGS))){
-						display_mode++;
-					}else{
-						// Settings display
-						if(field_position == 0){
-							current_enty = current_enty->parent?current_enty->parent:&settings_menu;
-						}else{
-							if(current_enty->is_value){
-								switch(field_position){
-									case 1: current_enty->value += 100; break;
-									case 2: current_enty->value += 10; break;
-									case 3: current_enty->value += 1; break;
-									case 4: current_enty->value -= 100; break;
-									case 5: current_enty->value -= 10; break;
-									case 6: current_enty->value -= 1; break;
-								}
-							}else if (current_enty->is_switch){
-								switch(field_position){
-									case 1: current_enty->switch_value = 1; break;
-									case 2: current_enty->switch_value = 0; break;
-								}
-							}else{
-								current_enty = display_settings_nth_child(current_enty, field_position-1);
-								field_position = 0;
-							}
-						}
-					}
-				}else{
-					no_mfa_switch = 0;
-				}
-				if((navigation_status == status_routing || navigation_status == status_recalculating) && display_mode == NAVIGATION){
-					do_not_switch_to_navigation = 1;
-				}else{
-					do_not_switch_to_navigation = 0;
-				}
-			}
-		}
-		mfa_old = mfa;
-		disable_mfa_switch();
+		switch_task();
 
 		if(engine_cut != engine_cut_old){
 			// new status from startstop device
@@ -997,12 +1022,19 @@ ISR(TIMER0_COMP_vect){//0.1ms timer
 		if(draw_engine_cut_state){
 			draw_engine_cut_state--;
 		}
-
+		if(!display_enable){
+			display_enable_cnt++;
+			if(display_enable_cnt > 99){
+				display_enable = 1;
+				display_enable_cnt = 0;
+			}
+		}
 		set_backlight(k58b_pw);
 		line_ms_timer++;
+
 		if(line_ms_timer > 400){
 			
-			display_enable = 1;
+				
 			line_ms_timer = 0;
 			line_shift_timer += 5;
 			if(line_shift_timer > 0xFFF) line_shift_timer = 0;

@@ -309,7 +309,6 @@ extern /*volatile*/ uint8_t startstop_enabled;
 extern /*volatile*/ uint8_t display_mode;
 extern /*volatile*/ uint8_t display_mode_tmp;
 extern /*volatile*/ uint8_t old_display_mode;
-extern /*volatile*/ uint8_t display_enable;
 extern /*volatile*/ uint8_t display_value[8];
 extern /*volatile*/ uint8_t display_value_top;
 extern /*volatile*/ uint8_t display_value_bot;
