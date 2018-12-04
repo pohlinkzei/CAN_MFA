@@ -349,4 +349,8 @@ void display_task(void);
 void app_task(void);
 void twi_task(void);
 int main(void);
+void enable_mfa_switch(void);
+void disable_mfa_switch(void);
+uint8_t read_mfa_switch(uint8_t button);
+
 #endif

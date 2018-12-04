@@ -285,7 +285,9 @@ void uart_calibrate(void){
 			}
 		}
 		_delay_ms(200);
-		
+		if(read_mfa_switch(MFA_SWITCH_RES)){
+			reset();
+		}
 	}while( (unsigned char) c != 13);
 	return;
 	//main();
@@ -295,7 +297,7 @@ void uart_calibrate(void){
 void uart_bootloader_task(void){
 	unsigned int 	c;
 	void (*bootloader)( void ) = 0xF800;  // Achtung Falle: Hier Word-Adresse
-
+	enable_mfa_switch();
 	c = uart1_getc();
 	if(!(c & UART_NO_DATA))
 	{
@@ -337,4 +339,5 @@ void uart_bootloader_task(void){
 			}
 		}
 	}
+	disable_mfa_switch();
 }

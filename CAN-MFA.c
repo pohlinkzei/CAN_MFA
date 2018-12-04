@@ -235,7 +235,7 @@ void disable_mfa_switch(void){
 	MFA_SWITCH_PORT &= ~(1<<MFA_SWITCH_GND);
 }
 
-static inline uint8_t read_mfa_switch(uint8_t button){
+uint8_t read_mfa_switch(uint8_t button){
 #if MFA_BUTTONS_ACTIVE_LOW
 	return !(MFA_SWITCH_PIN & (1<<button));
 #else
@@ -498,7 +498,7 @@ int main(void){
 	
 	K15_PORT &= ~(1<<K15);
 	//TKML_PORT |= (1<<TKML);
-	//K15_PORT |= (1<<K15); // zündung an, bitte ;)
+	K15_PORT |= (1<<K15); // zündung an, bitte ;)
 	line_shift_timer = LINE_SHIFT_START;
 	#if 1
 	display_mode = SMALL_TEXT;
