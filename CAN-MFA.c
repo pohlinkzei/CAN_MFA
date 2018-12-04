@@ -498,7 +498,7 @@ int main(void){
 	
 	K15_PORT &= ~(1<<K15);
 	//TKML_PORT |= (1<<TKML);
-	K15_PORT |= (1<<K15); // zündung an, bitte ;)
+	//K15_PORT |= (1<<K15); // zündung an, bitte ;)
 	line_shift_timer = LINE_SHIFT_START;
 	#if 1
 	display_mode = SMALL_TEXT;
