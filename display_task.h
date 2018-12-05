@@ -30,7 +30,7 @@ extern const menu_item_t settings_temperatures;
 extern const menu_item_t settings_mfa_values;
 extern const menu_item_t settings_options;
 extern const menu_item_t settings_cal_k58b;
-extern volatile menu_item_t *current_enty;
+extern volatile menu_item_t *current_entry;
 extern volatile uint8_t field_position;
 extern volatile uint8_t max_field_position;
 /*

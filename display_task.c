@@ -19,7 +19,7 @@
 
 extern uint8_t kline_errors_occured;
 #if ENABLE_SETTINGS
-volatile menu_item_t* current_enty;
+volatile menu_item_t* current_entry;
 volatile uint8_t field_position;
 volatile uint8_t max_field_position; 
 
@@ -41,7 +41,7 @@ volatile uint8_t max_field_position;
 
 /*volatile*/ menu_item_t settings_cal_startstop_enabled =	{"    STASTO EIN  ", NULL, &settings_options, NULL, 0, 0, 0, 1, 0/*, NULL*/};
 /*volatile*/ menu_item_t settings_cal_can_mode =			{"    CAN MODUS   ", NULL, &settings_options, &settings_cal_startstop_enabled, 0, 0, 0, 1, 0/*, NULL*/};
-/*volatile*/ menu_item_t settings_cal_k15_delay =			{"  AUSSCH. NACH  ", NULL, &settings_options, &settings_cal_can_mode, 0, 0, 0, 1, 0/*, NULL*/};
+/*volatile*/ menu_item_t settings_cal_k15_delay =			{"  AUSSCH. NACH  ", NULL, &settings_options, &settings_cal_can_mode, 0, 1, 0, 0, 0/*, NULL*/};
 /*volatile*/ menu_item_t settings_cal_k58b_on_val =			{"     LICHT AN   ", NULL, &settings_cal_k58b, NULL, 0, 1, 0, 0, 0/*, NULL*/};
 /*volatile*/ menu_item_t settings_cal_k58b_off_val =		{"     LICHT AUS  ", NULL, &settings_cal_k58b, &settings_cal_k58b_on_val, 0, 1, 0, 0, 0/*, NULL*/};
 /*volatile*/ menu_item_t const settings_cal_k58b =			{"   BELEUCHTUNG  ", &settings_cal_k58b_off_val,&settings_options,&settings_cal_k15_delay,2, 0, 0, 0, 0/*, NULL*/};
@@ -277,7 +277,7 @@ void display_menu_init(void){
 	display_settings_set_switch_value(&settings_cal_startstop_enabled,eeprom_read_byte(&cal_startstop_enabled)?1:0);
 //	settings_cal_startstop_enabled.mem_address = &cal_startstop_enabled;
 	//*/
-	current_enty = (menu_item_t*) &settings_menu;
+	current_entry = (menu_item_t*) &settings_menu;
 }
 //*
 void display_settings_save_value(void){
@@ -379,18 +379,18 @@ void display_settings(void){
 	if(field_position==0){
 		reversed = 1;
 	}
-	dog_write_mid_string(NEW_POSITION(0,0), (char*) current_enty->text);
+	dog_write_mid_string(NEW_POSITION(0,0), (char*) current_entry->text);
 	//uint8_to_string(&str[1], field_position);
 	//dog_write_mid_string(NEW_POSITION(0,0), str);
 	if(field_position==0){
 		reversed = 0;
 	}
 
-	if(current_enty->is_value){
+	if(current_entry->is_value){
 		uint8_t i;
 		position_t pos = {0,0,0};
 		max_field_position = 6; // |+100|+10|+1|-1|-10|-100|back
-		uint8_to_string(&str[7], current_enty->value);
+		uint8_to_string(&str[7], current_entry->value);
 		dog_write_mid_string(NEW_POSITION(2,0), str);
 		switch(field_position){
 			case 0:{
@@ -517,9 +517,9 @@ void display_settings(void){
 				break;
 			}
  		}
-	}else if(current_enty->is_switch){
+	}else if(current_entry->is_switch){
 		max_field_position = 2; //2 switch positions + 1 back
-		if(current_enty->switch_value){ //			 0123456789012345
+		if(current_entry->switch_value){ //			 0123456789012345
 			dog_write_mid_string(NEW_POSITION(2,0), "       EIN      ");
 		}else{
 			dog_write_mid_string(NEW_POSITION(2,0), "       AUS      ");
@@ -540,7 +540,7 @@ void display_settings(void){
 		}
 		
 	}else{ // list item
-		max_field_position = current_enty->num_child;
+		max_field_position = current_entry->num_child;
 		if(field_position < 3 || max_field_position < 4){
 			/*	|  text  |	|  text  |
 				| entry1 |<	| entry1 |
@@ -550,8 +550,8 @@ void display_settings(void){
 			if(field_position == 1){
 				reversed = 1;
 			}
-			if(display_settings_child((menu_item_t*) current_enty))
-				dog_write_mid_string(NEW_POSITION(2,0), (char*) display_settings_nth_child((menu_item_t*) current_enty, 0)->text);
+			if(display_settings_child((menu_item_t*) current_entry))
+				dog_write_mid_string(NEW_POSITION(2,0), (char*) display_settings_nth_child((menu_item_t*) current_entry, 0)->text);
 			else
 				dog_write_mid_string(NEW_POSITION(2,0), "                ");
 			if(field_position == 1){
@@ -560,8 +560,8 @@ void display_settings(void){
 			if(field_position == 2){
 				reversed = 1;
 			}
-			if(display_settings_nth_child((menu_item_t*) current_enty, 1))
-				dog_write_mid_string(NEW_POSITION(4,0), (char*) display_settings_nth_child((menu_item_t*) current_enty, 1)->text);
+			if(display_settings_nth_child((menu_item_t*) current_entry, 1))
+				dog_write_mid_string(NEW_POSITION(4,0), (char*) display_settings_nth_child((menu_item_t*) current_entry, 1)->text);
 			else
 				dog_write_mid_string(NEW_POSITION(4,0), "                ");
 			if(field_position == 2){
@@ -570,8 +570,8 @@ void display_settings(void){
 			if(field_position == 3){
 				reversed = 1;
 			}
-			if(display_settings_nth_child((menu_item_t*) current_enty, 2))
-				dog_write_mid_string(NEW_POSITION(6,0), (char*) display_settings_nth_child((menu_item_t*) current_enty, 2)->text);
+			if(display_settings_nth_child((menu_item_t*) current_entry, 2))
+				dog_write_mid_string(NEW_POSITION(6,0), (char*) display_settings_nth_child((menu_item_t*) current_entry, 2)->text);
 			else
 				dog_write_mid_string(NEW_POSITION(6,0), "                ");
 			if(field_position == 3){
@@ -583,22 +583,22 @@ void display_settings(void){
 				| entry n-1 |<	| entry n-1 |
 				| entry n   |	| entry n   |<
 			*/
-			if(display_settings_nth_child((menu_item_t*) current_enty, max_field_position-3))
-				dog_write_mid_string(NEW_POSITION(2,0), (char*) display_settings_nth_child((menu_item_t*) current_enty, max_field_position-3)->text);
+			if(display_settings_nth_child((menu_item_t*) current_entry, max_field_position-3))
+				dog_write_mid_string(NEW_POSITION(2,0), (char*) display_settings_nth_child((menu_item_t*) current_entry, max_field_position-3)->text);
 			else
 				dog_write_mid_string(NEW_POSITION(2,0), "                ");
 			if(field_position == max_field_position-1)
 				reversed = 1;
-			if(display_settings_nth_child((menu_item_t*) current_enty, max_field_position-2))
-				dog_write_mid_string(NEW_POSITION(4,0), (char*) display_settings_nth_child((menu_item_t*) current_enty, max_field_position-2)->text);
+			if(display_settings_nth_child((menu_item_t*) current_entry, max_field_position-2))
+				dog_write_mid_string(NEW_POSITION(4,0), (char*) display_settings_nth_child((menu_item_t*) current_entry, max_field_position-2)->text);
 			else
 				dog_write_mid_string(NEW_POSITION(4,0), "                ");
 			if(field_position == max_field_position - 1)
 				reversed = 0;
 			if(field_position == max_field_position)
 				reversed = 1;
-			if(display_settings_nth_child((menu_item_t*) current_enty, max_field_position-1))
-				dog_write_mid_string(NEW_POSITION(6,0), (char*) display_settings_nth_child((menu_item_t*) current_enty, max_field_position-1)->text);
+			if(display_settings_nth_child((menu_item_t*) current_entry, max_field_position-1))
+				dog_write_mid_string(NEW_POSITION(6,0), (char*) display_settings_nth_child((menu_item_t*) current_entry, max_field_position-1)->text);
 			else
 				dog_write_mid_string(NEW_POSITION(6,0), "                ");
 			if(field_position == max_field_position)
@@ -609,18 +609,18 @@ void display_settings(void){
 				| entry x   |<
 				| entry x+1 |
 			*/
-			if(display_settings_nth_child((menu_item_t*) current_enty, field_position-2))
-				dog_write_mid_string(NEW_POSITION(2,0), (char*) display_settings_nth_child((menu_item_t*) current_enty, field_position-2)->text);
+			if(display_settings_nth_child((menu_item_t*) current_entry, field_position-2))
+				dog_write_mid_string(NEW_POSITION(2,0), (char*) display_settings_nth_child((menu_item_t*) current_entry, field_position-2)->text);
 			else
 				dog_write_mid_string(NEW_POSITION(2,0), "                ");
 			reversed = 1;
-			if(display_settings_nth_child((menu_item_t*) current_enty, field_position-1))
-				dog_write_mid_string(NEW_POSITION(4,0), (char*) display_settings_nth_child((menu_item_t*) current_enty, field_position-1)->text);
+			if(display_settings_nth_child((menu_item_t*) current_entry, field_position-1))
+				dog_write_mid_string(NEW_POSITION(4,0), (char*) display_settings_nth_child((menu_item_t*) current_entry, field_position-1)->text);
 			else
 				dog_write_mid_string(NEW_POSITION(4,0), "                ");
 			reversed = 0;
-			if(display_settings_nth_child((menu_item_t*) current_enty, field_position))
-				dog_write_mid_string(NEW_POSITION(6,0), (char*) display_settings_nth_child((menu_item_t*) current_enty, field_position)->text);
+			if(display_settings_nth_child((menu_item_t*) current_entry, field_position))
+				dog_write_mid_string(NEW_POSITION(6,0), (char*) display_settings_nth_child((menu_item_t*) current_entry, field_position)->text);
 			else
 				dog_write_mid_string(NEW_POSITION(6,0), "                ");
  		}
@@ -738,7 +738,6 @@ void display_small_text(void){
 			char can_line4[22] = "                ";
 			char can_line5[22] = "                ";
 			
-			#if 1
 			can_line2[11] = KMH;
 			can_line2[12] = KMH + 1;
 			can_line3[4] = ENGT;
@@ -771,59 +770,7 @@ void display_small_text(void){
 			}
 			dog_write_mid_strings(NEW_POSITION(2,0),can_line2, can_line5);
 			dog_write_mid_strings(NEW_POSITION(5,0),can_line4, can_line3);
-			
-			#else
-			
-			can_line2[6] = KMH;
-			can_line2[7] = KMH + 1;
-			if(mfa.mode == CUR){
-				can_line2[0] = ' ';
-				can_line5[0] = ' ';
-				sprint_cur_speed(&can_line2[2],speed[mfa.mode]);
-			}else{
-				can_line2[0] = 0x9D;
-				can_line5[0] = 0x9D;
-				sprint_avg_speed(&can_line2[1],speed[mfa.mode]);
-			}
-			sprintf(&can_line2[9], "%06X ", speed_sum);
-			
-			if(mfa.mode == CUR && speed[CUR] < 100){
-				sprint_float(&can_line5[1],cons_l_h[mfa.mode]);
-				can_line5[7] = CONS_PER_HOUR;
-				can_line5[6] = ' ';
-				can_line5[8] = ' ';
-			}else{
-				sprint_float(&can_line5[1],cons_l_100km[mfa.mode]);
-				can_line5[6] = CONS;
-				can_line5[7] = CONS + 1;
-				can_line5[8] = CONS + 2;
-			}
-			
-			sprint_float(&can_line5[10], cons_l_h[mfa.mode]);
-			can_line5[15] = CONS_PER_HOUR;
-			
-			can_line3[0] = ENGT;
-			can_line3[1] = ENGT + 1;
-			sprint_temperature(&can_line3[2],engine_temperature);
-			can_line3[5] = CENTIGRADE;
-			
-			uint16_to_string(&can_line3[9], rpm);
-			can_line3[14] = RPM;
-			can_line3[15] = RPM + 1;
-			
-			sprintf(can_line4, "v:%05d  %06X   ", old_val, cons_sum);
-			
-			//can_line4[0] = 'o';
-			//int16_to_string(&can_line4[1], old_val);
-			//can_line4[7] = 'n';
-			//int16_to_string(&can_line4[8], new_val);
-			//can_line4[10] = RPM;
-			//can_line4[11] = RPM + 1;
-
-			dog_write_mid_strings(NEW_POSITION(2,0),can_line2, can_line5);
-			
-			dog_write_mid_strings(NEW_POSITION(5,0),can_line4, can_line3);
-			#endif
+		
 			break;
 		}
 		case CAN_VALUES2:{
@@ -852,13 +799,14 @@ void display_small_text(void){
              
 								//	012  345678  90123456
 			sprintf(&can_line5[0], "  0x%02X  0x%02X     ", eng_status0, eng_status1 );
-			
+
 			dog_write_mid_strings(NEW_POSITION(2,0),can_line2, can_line5);
 			dog_write_mid_strings(NEW_POSITION(5,0),can_line4, can_line3);
 			
 			break;
 		}
 		case ADC_VALUES:{
+			#warning "TODO: verify"
 			if(can_mode == NO_CAN){
 				display_value[SMALL_TEXT]++;
 			}else{
@@ -1480,8 +1428,24 @@ void display_small_text(void){
 					line3[9] = FROST + 1;
 				}
 				//				01234567890123456
-				//				AC: OFF  + 12,34V 
-				sprintf(line4, " AC: %s %2i,%02iV  ", (eng_status1 & AC)?"ON ":"OFF", starterbat.integer, starterbat.fraction);
+				//				 AC: OFF  12,34V 
+				//sprintf(line4, " AC: %s %2i,%02iV  ", (eng_status1 & AC)?"ON ":"OFF", starterbat.integer, starterbat.fraction);
+				sprint_voltage(&line4[10], starterbat);
+				line4[15] = 'V';
+				line4[1] = 'A';
+				line4[2] = 'C';
+				line4[3] = ':';
+				
+				if(eng_status1 & AC){
+					line4[5] = 'O';
+					line4[6] = 'N';
+					line4[7] = ' ';
+				}else{
+					line4[5] = 'O';
+					line4[6] = 'F';
+					line4[7] = 'F';
+				}
+				
 				dog_write_mid_strings(NEW_POSITION(5,0), line3,line4);
 				break;
 			}
@@ -1903,9 +1867,8 @@ void generate_can_display_str_byte(char str[17], uint8_t index, volatile uint8_t
 void generate_can_display_str_word(char str[17], uint8_t index, volatile uint8_t can_data[8]){
 	str[1] = index + '0';
 	str[2] = ' ';
-	//rpm = (id280_data[4]  ((id280_data[3]) << 8))>>2;
-	uint16_t tmp = (can_data[index] << 8  ) + can_data[index+1];
 
+	uint16_t tmp = (can_data[index] << 8  ) + can_data[index+1];
 	snprintf(&str[3], 7, "0x%04X ", tmp);
 	uint16_to_string(&str[10],tmp);
 }
@@ -1933,7 +1896,6 @@ void display_can_data(void){
 							
 					for(i=0; i<8; i++){
 						sprintf(id, "%02X", id288_data[i]);
-								
 						dog_transmit_data(0x00);
 						dog_write_small_string(id);
 					}
@@ -1943,7 +1905,6 @@ void display_can_data(void){
 							
 					for(i=0; i<8; i++){
 						sprintf(id, "%02X", id380_data[i]);
-								
 						dog_transmit_data(0x00);
 						dog_write_small_string(id);
 					}
@@ -1952,7 +1913,6 @@ void display_can_data(void){
 							
 					for(i=0; i<8; i++){
 						sprintf(id, "%02X", id480_data[i]);
-								
 						dog_transmit_data(0x00);
 						dog_write_small_string(id);
 					}
@@ -1962,7 +1922,6 @@ void display_can_data(void){
 							
 					for(i=0; i<8; i++){
 						sprintf(id, "%02X", id320_data[i]);
-								
 						dog_transmit_data(0x00);
 						dog_write_small_string(id);
 					}
@@ -1972,7 +1931,6 @@ void display_can_data(void){
 							
 					for(i=0; i<8; i++){
 						sprintf(id, "%02X", id420_data[i]);
-								
 						dog_transmit_data(0x00);
 						dog_write_small_string(id);
 					}
@@ -1993,7 +1951,6 @@ void display_can_data(void){
 							
 					for(i=0; i<8; i++){
 						sprintf(id, "%02X", id666_data[i]);
-								
 						dog_transmit_data(0x00);
 						dog_write_small_string(id);
 					}
@@ -2003,7 +1960,6 @@ void display_can_data(void){
 							
 					for(i=0; i<8; i++){
 						sprintf(id, "%02X", id667_data[i]);
-								
 						dog_transmit_data(0x00);
 						dog_write_small_string(id);
 					}
@@ -2012,7 +1968,6 @@ void display_can_data(void){
 							
 					for(i=0; i<8; i++){
 						sprintf(id, "%02X", 255);
-								
 						dog_transmit_data(0x00);
 						dog_write_small_string(id);
 					}
@@ -2022,7 +1977,6 @@ void display_can_data(void){
 							
 					for(i=0; i<8; i++){
 						sprintf(id, "%02X", 255);
-								
 						dog_transmit_data(0x00);
 						dog_write_small_string(id);
 					}
@@ -2032,7 +1986,6 @@ void display_can_data(void){
 							
 					for(i=0; i<8; i++){
 						sprintf(id, "%02X", 255);
-								
 						dog_transmit_data(0x00);
 						dog_write_small_string(id);
 					}
@@ -2221,8 +2174,10 @@ void display_top_line(void){
 		dog_write_big_string(NEW_POSITION(0,4),_str);
 		line_shift_timer = LINE_SHIFT_START;
 		#else
-		sprintf(_str, " %i %i ",ambient_temperature, oil_temperature);
-		dog_write_big_string(NEW_POSITION(0,4),_str);
+		
+		//#warning "PRINTF"
+		//sprintf(_str, " %i %i ",ambient_temperature, oil_temperature);
+		//dog_write_big_string(NEW_POSITION(0,4),_str);
 		#endif
 		return;
 	}
