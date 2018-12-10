@@ -501,15 +501,16 @@ int main(void){
 	sei();
 	
 	K15_PORT &= ~(1<<K15);
-	TKML_PORT |= (1<<TKML);
-	K15_PORT |= (1<<K15); // zündung an, bitte ;)
+	
 	line_shift_timer = LINE_SHIFT_START;
 	#if 1
 	display_mode = SMALL_TEXT;
 	display_value[SMALL_TEXT] = STANDARD_VALUES;
 	#else
-	display_mode = CAN_DATA;
-	display_value[CAN_DATA] = 0;
+	TKML_PORT |= (1<<TKML);
+	K15_PORT |= (1<<K15); // zündung an, bitte ;)
+	display_mode = SMALL_TEXT;
+	display_value[SMALL_TEXT] = STANDARD_VALUES;
 	#endif
 	//strcpy( (char*) radio_text, "  CAN Test        ");
 
