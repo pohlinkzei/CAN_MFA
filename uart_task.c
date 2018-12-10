@@ -128,6 +128,7 @@ void uart_print_cal_menu(void){
 	uart1_puts("\n\rd\tcal_k15_delay ");
 	uart1_puts("\n\rm\tcal_can_mode ");
 	uart1_puts("\n\rS\tcal_startstop ");
+	uart1_puts("\n\ri\tcal_i2c ");
 	uart1_puts("\n\re\tEnde ");
 }
 
@@ -165,6 +166,15 @@ void uart_calibrate(void){
 					uart_print_cal_menu();
 					break;
 				}
+				case 'i':{
+					char val[5] = {0,};
+					uart1_puts("\n\rWert cal_i2c: (1: I2C | 0: NO_I2C ) ");
+					sprintf(val, "%i\n\r", eeprom_read_byte(&cal_i2c));
+					uart1_puts(val);
+					eeprom_write_byte(&cal_i2c, uart_get_int());
+					uart_print_cal_menu();
+					break;
+			}
 				case 'S':{
 					char val[5] = {0,};
 					uart1_puts("\n\rWert cal_startstop: (0: Aus | 1: Ein ) ");
@@ -296,7 +306,7 @@ void uart_calibrate(void){
 
 void uart_bootloader_task(void){
 	unsigned int 	c;
-	void (*bootloader)( void ) = 0xF800;  // Achtung Falle: Hier Word-Adresse
+	void (*bootloader)( void ) = 0xF000;  // Achtung Falle: Hier Word-Adresse
 	enable_mfa_switch();
 	c = uart1_getc();
 	if(!(c & UART_NO_DATA))

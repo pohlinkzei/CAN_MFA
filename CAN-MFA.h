@@ -5,6 +5,8 @@
 #include <avr/eeprom.h>
 #define NO_CAN 1
 #define CAN 0
+#define NO_I2C 0
+#define I2C 1
 #define MFA_BUTTONS_ACTIVE_LOW 1
 
 #define HAVE_MCP_ADC 0
@@ -283,6 +285,7 @@ extern uint16_t min_manifold;
 extern uint16_t max_manifold;
 extern int16_t max_oil_temp;
 extern int16_t min_oil_temp;
+extern uint8_t EEMEM cal_i2c;
 extern uint8_t EEMEM cal_water_temperature; //85; 
 extern uint8_t EEMEM cal_voltage; // 171
 extern uint8_t EEMEM cal_speed; // 169

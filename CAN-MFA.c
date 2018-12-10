@@ -135,6 +135,7 @@ int16_t min_oil_temp;
 uint16_t manifold;
 uint16_t min_manifold;
 uint16_t max_manifold;
+uint8_t EEMEM cal_i2c;
 uint8_t EEMEM cal_ambient_temperature;
 uint8_t EEMEM cal_voltage;
 uint8_t EEMEM cal_speed;
@@ -398,8 +399,11 @@ void avr_init(){
 		can_mode = CAN;
 		can_init();
 		can_status = 0;
-		uint8_t addr = calculateID("MFA");
-		init_twi_slave(addr);
+		if(eeprom_read_byte(&cal_can_mode) == NO_I2C){
+			uint8_t addr = calculateID("MFA");
+			init_twi_slave(addr);
+		}
+		
 	}
 
 	dog_spi_init();
@@ -497,8 +501,8 @@ int main(void){
 	sei();
 	
 	K15_PORT &= ~(1<<K15);
-//	TKML_PORT |= (1<<TKML);
-//	K15_PORT |= (1<<K15); // zündung an, bitte ;)
+	TKML_PORT |= (1<<TKML);
+	K15_PORT |= (1<<K15); // zündung an, bitte ;)
 	line_shift_timer = LINE_SHIFT_START;
 	#if 1
 	display_mode = SMALL_TEXT;
@@ -611,7 +615,9 @@ int main(void){
 					display_task();
 					uart_bootloader_task();
 					app_task();
-					twi_task();
+					if (eeprom_read_byte(&cal_i2c) == NO_I2C){
+						twi_task();
+					}
 				}
 				can_task();
 				
