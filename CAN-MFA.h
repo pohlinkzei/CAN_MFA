@@ -9,7 +9,6 @@
 #define I2C 1
 #define MFA_BUTTONS_ACTIVE_LOW 1
 
-#define HAVE_MCP_ADC 0
 #define HAVE_PWM_BACKLIGHT 1
 // io
 
@@ -200,9 +199,11 @@ typedef enum stat{
 	DOOR_OPEN,
 }status_t;
 
+
+
 extern volatile status_t status;
-extern /*volatile*/ status_t old_status;
-extern /*volatile*/ uint8_t off;
+extern status_t old_status;
+extern uint8_t off;
 
 extern volatile uint8_t id280_data[8];
 extern volatile uint8_t id288_data[8];
@@ -214,72 +215,72 @@ extern volatile uint8_t id520_data[8];
 extern volatile uint8_t id666_data[8];
 extern volatile uint8_t id667_data[8];
 
-extern /*volatile*/ uint8_t id280_valid;
-extern /*volatile*/ uint8_t id288_valid;
-extern /*volatile*/ uint8_t id380_valid;
-extern /*volatile*/ uint8_t id480_valid;
-extern /*volatile*/ uint8_t id320_valid;
-extern /*volatile*/ uint8_t id420_valid;
-extern /*volatile*/ uint8_t id520_valid;
-extern /*volatile*/ uint8_t id666_valid;
-extern /*volatile*/ uint8_t id667_valid;
+extern uint8_t id280_valid;
+extern uint8_t id288_valid;
+extern uint8_t id380_valid;
+extern uint8_t id480_valid;
+extern uint8_t id320_valid;
+extern uint8_t id420_valid;
+extern uint8_t id520_valid;
+extern uint8_t id666_valid;
+extern uint8_t id667_valid;
 
 // values from can data
-extern /*volatile*/ int16_t speed[2]; //0-317km/h
+extern int16_t speed[2]; //0-317km/h
 extern int16_t max_speed;
-extern /*volatile*/ int16_t speed_start; //0-317km/h
+extern int16_t speed_start; //0-317km/h
 //extern volatile uint16_t speed[CUR]; //0-317km/h
 //extern volatile uint16_t speed[AVG];
 extern volatile uint16_t rpm;	//0-16000rpm
 extern uint16_t max_rpm;
-extern /*volatile*/ int16_t engine_temperature;//-100-154 centigrade
+extern int16_t engine_temperature;//-100-154 centigrade
 extern int16_t max_engine_temp;
 extern int16_t min_engine_temp;
-extern /*volatile*/ uint8_t fuel;	//0-100% or 0-80l
+extern uint8_t fuel;	//0-100% or 0-80l
 //extern volatile uint32_t cons_time[16];
 //extern volatile uint8_t cons_cnt;
 extern volatile uint16_t cons_delta_ul;
-extern /*volatile*/ uint16_t cons_delta_timer; 
+extern uint16_t cons_delta_timer; 
 //extern volatile uint32_t cons_ul[16];
-extern /*volatile*/ float cons_l_h[2];
-extern /*volatile*/ float cons_l_h_start;
-extern /*volatile*/ float cons_km_l[2];
-extern /*volatile*/ float cons_km_l_start;
-extern /*volatile*/ float cons_l_100km[2];
-extern /*volatile*/ float cons_l_100km_start;
-extern /*volatile*/ int16_t gra_speed; //id380D4
-extern /*volatile*/ uint8_t pedal_position; //id280D6
-extern /*volatile*/ uint8_t eng_status0; //id280D1
-extern /*volatile*/ uint8_t eng_status1; //id288D2
-extern /*volatile*/ uint8_t do_not_switch_to_navigation;
+extern float cons_l_h[2];
+extern float cons_l_h_start;
+extern float cons_km_l[2];
+extern float cons_km_l_start;
+extern float cons_l_100km[2];
+extern float cons_l_100km_start;
+extern int16_t gra_speed; //id380D4
+extern uint8_t pedal_position; //id280D6
+extern uint8_t eng_status0; //id280D1
+extern uint8_t eng_status1; //id288D2
+extern uint8_t do_not_switch_to_navigation;
 
 extern uint64_t can_speed_sum;
 extern uint32_t can_speed_cnt;
 
 extern volatile uint64_t speed_sum;
-extern /*volatile*/ uint64_t speed_sum_start;
-extern /*volatile*/ uint64_t cons_sum;
-extern /*volatile*/ uint64_t cons_sum_start;
-extern /*volatile*/ uint64_t avg_cnt;
-extern /*volatile*/ uint64_t avg_cnt_start;
+extern uint64_t speed_sum_start;
+extern uint64_t cons_sum;
+extern uint64_t cons_sum_start;
+extern uint64_t avg_cnt;
+extern uint64_t avg_cnt_start;
 extern volatile uint32_t driving_time[2];
 extern volatile uint32_t driving_time_start;
-extern /*volatile*/ uint32_t distance[2];
-extern /*volatile*/ uint32_t distance_start;
-extern /*volatile*/ uint16_t range[2];
+extern uint32_t distance[2];
+extern uint32_t distance_start;
+extern uint16_t range[2];
 extern volatile uint32_t start_cnt;
 
-extern /*volatile*/ voltage_value_t starterbat;
-extern /*volatile*/ voltage_value_t zweitbat;
-extern /*volatile*/ voltage_value_t v_solar_plus;
-extern /*volatile*/ voltage_value_t entlastungsbat;
-extern /*volatile*/ int16_t gearbox_temperature;
+extern voltage_value_t starterbat;
+extern voltage_value_t zweitbat;
+extern voltage_value_t v_solar_plus;
+extern voltage_value_t entlastungsbat;
+extern int16_t gearbox_temperature;
 extern int16_t max_gearbox_temp;
 extern int16_t min_gearbox_temp;
-extern /*volatile*/ int16_t ambient_temperature;
+extern int16_t ambient_temperature;
 extern int16_t max_ambient_temp;
 extern int16_t min_ambient_temp;
-extern /*volatile*/ int16_t oil_temperature;
+extern int16_t oil_temperature;
 extern uint16_t manifold;
 extern uint16_t min_manifold;
 extern uint16_t max_manifold;
@@ -299,36 +300,36 @@ extern uint8_t EEMEM cal_k58b_off_val;
 extern uint8_t EEMEM cal_k58b_on_val;
 extern uint8_t EEMEM cal_can_mode;
 extern uint8_t EEMEM cal_startstop_enabled;
-extern /*volatile*/ uint8_t mkl;
-extern /*volatile*/ uint16_t avg_timer;
+extern uint8_t mkl;
+extern uint16_t avg_timer;
 extern volatile uint16_t k58b_timer;
-extern /*volatile*/ uint32_t cons_timer;
+extern uint32_t cons_timer;
 extern volatile uint8_t can_status;
-extern /*volatile*/ uint8_t engine_cut;
-extern /*volatile*/ uint8_t engine_cut_old;
-extern /*volatile*/ uint16_t draw_engine_cut_state;
-extern /*volatile*/ uint8_t startstop_enabled;
+extern uint8_t engine_cut;
+extern uint8_t engine_cut_old;
+extern uint16_t draw_engine_cut_state;
+extern uint8_t startstop_enabled;
 
-extern /*volatile*/ uint8_t display_mode;
-extern /*volatile*/ uint8_t display_mode_tmp;
-extern /*volatile*/ uint8_t old_display_mode;
-extern /*volatile*/ uint8_t display_value[8];
-extern /*volatile*/ uint8_t display_value_top;
-extern /*volatile*/ uint8_t display_value_bot;
-extern /*volatile*/ uint8_t old_display_value[8];
+extern uint8_t display_mode;
+extern uint8_t display_mode_tmp;
+extern uint8_t old_display_mode;
+extern uint8_t display_value[8];
+extern uint8_t display_value_top;
+extern uint8_t display_value_bot;
+extern uint8_t old_display_value[8];
 
-extern /*volatile*/ uint8_t navigation_next_turn;
-extern /*volatile*/ uint8_t navigation_status;
-extern /*volatile*/ uint8_t navigation_status_old;
-extern /*volatile*/ uint32_t distance_to_next_turn;
+extern uint8_t navigation_next_turn;
+extern uint8_t navigation_status;
+extern uint8_t navigation_status_old;
+extern uint32_t distance_to_next_turn;
 
-extern /*volatile*/ uint8_t radio_text[AUDIO_STR_LENGTH];
+extern uint8_t radio_text[AUDIO_STR_LENGTH];
 extern volatile uint8_t can_mode;
 
-extern /*volatile*/ uint8_t navi_old;
+extern uint8_t navi_old;
 extern volatile uint16_t timer2_cnt;
-extern /*volatile*/ mfa_t mfa;
-extern /*volatile*/ mfa_t mfa_old;
+extern mfa_t mfa;
+extern mfa_t mfa_old;
 
 extern volatile uint16_t line_ms_timer;
 extern volatile uint16_t line_shift_timer;
@@ -342,8 +343,8 @@ extern volatile uint16_t line7timer;
 extern volatile uint8_t send_can_message;
 extern volatile uint8_t send_can_lock;
 
-extern /*volatile*/ uint8_t reversed;
-extern /*volatile*/ uint8_t underlined;
+extern uint8_t reversed;
+extern uint8_t underlined;
 
 void init_spi_lcd(void);
 void avr_init(void);

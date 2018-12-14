@@ -15,6 +15,7 @@
 
 extern volatile uint16_t k58b_timer;
 extern volatile uint8_t k58b_pw; // prozentwert fuer pwm
+extern volatile uint8_t debug_ocr1b;
 
 void initk58_pwm(void);
 void set_backlight(uint8_t pc);

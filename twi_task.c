@@ -16,8 +16,8 @@
 #include "CAN-MFA.h"
 
 
-extern /*volatile*/ rx_t rx;
-extern /*volatile*/ tx_t tx;
+extern rx_t rx;
+extern tx_t tx;
 
 extern volatile uint8_t i2crxdata[i2c_buffer_size]; 
 extern volatile uint8_t i2ctxdata[i2c_buffer_size]; 

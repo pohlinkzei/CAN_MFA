@@ -32,9 +32,6 @@
 #include "navigation.h"
 #include "display_task.h"
 #include "kline.h"
-#if HAVE_MCP_ADC
-#include "mcp3208.h"
-#endif
 	
 #define FILTER_VALUE 3	
 uint16_t adc_value[8] = {0,};
@@ -82,7 +79,6 @@ uint16_t max_rpm;
 int16_t max_engine_temp;
 int16_t min_engine_temp;
  uint8_t fuel;	//0-100% or 0-80l
-//volatile uint8_t cons_cnt;
 volatile uint16_t cons_delta_ul;
  uint16_t cons_delta_timer;
  float cons_l_h[2];
@@ -121,8 +117,6 @@ volatile uint32_t driving_time_start;
  voltage_value_t v_solar_plus;
  voltage_value_t entlastungsbat;
  int16_t in_temperature;
-// int16_t max_in_temp;
-// int16_t min_in_temp;
  int16_t gearbox_temperature;
 int16_t max_gearbox_temp;
 int16_t min_gearbox_temp;
@@ -230,7 +224,6 @@ void enable_mfa_switch(void){
 }
 
 void disable_mfa_switch(void){
-	//return;
 	MFA_SWITCH_DDR &= ~(1<<MFA_SWITCH_MFA) & ~(1<<MFA_SWITCH_MODE) & ~(1<<MFA_SWITCH_RES);
 	MFA_SWITCH_DDR &= ~(1<<MFA_SWITCH_GND);
 	MFA_SWITCH_PORT &= ~(1<<MFA_SWITCH_MFA) & ~(1<<MFA_SWITCH_MODE) & ~(1<<MFA_SWITCH_RES);
@@ -311,10 +304,10 @@ void timer0_init(void){
 	
 	TCCR0A = 0x00;
 	//*
-	// 0.1ms für alles mögliche
-	TCCR0A |= (1<<WGM01) | (1<<CS01);// prescaler 8 | (1<<CS00); //ctc, prescaler 64
+	// 1ms für alles mögliche
+	TCCR0A = (1<<WGM01) | (1<<CS01) | (1<<CS00); //ctc, prescaler 64
 
-	OCR0A = F_CPU / 8 / 10000; //200
+	OCR0A = F_CPU / 64 / 1000;
 
 	TIMSK0 = (1<<OCIE0A);
 	//*/
@@ -322,7 +315,7 @@ void timer0_init(void){
 
 void timer3_init(void){
 	// 1s for consumption calculation
-	TCCR3B |= (1<<WGM32) | (1<<CS30) | (1<<CS32);// ctc prescaler 1024
+	TCCR3B = (1<<WGM32) | (1<<CS30) | (1<<CS32);// ctc prescaler 1024
 	OCR3A = F_CPU / 1024;
 	TIMSK3 = (1<<OCIE3A);
 }
@@ -330,7 +323,6 @@ void timer3_init(void){
 void timer2_init(void){
 	// timer 2 init
 	// asy wakeup timer (0,25s)
-	//return;
 	ACSR = 0x80;
 	ASSR  = (1<< AS2);
 	_delay_ms(1000);
@@ -343,26 +335,26 @@ void timer2_init(void){
 
 void io_init(void){
 	// PORTA:
-	DDRA = 0x0F;
-	PORTA = 0x00;
+	PORTA = 0x0F;
+	DDRA = 0x00;
 	// PORTB
-	DDRB = 0x88;
-	PORTB = 0x00;
+	PORTB = 0x88;
+	DDRB = 0x00;
 	// PORTC
-	DDRC = 0xB2 /*| 0x1F*/;
-	PORTC = 0x00;
+	PORTC = 0xB2;
+	DDRC = 0x00 /*| 0x1F*/;
 	// PORTD
-	DDRD = (1<<CAN_RS);
 	PORTD = (1<<SCL) | (1<<SDA);
+	DDRD = (1<<CAN_RS);
 	// PORTE
 	PORTE = 0x00;
 	DDRE = 0x00;
 	// PORTF
-	DDRF = 0x00;
 	PORTF |= 0x00;
+	DDRF = 0x00;
 	// PORTG
-	DDRG = 0x07;
-	PORTG = 0x00;
+	PORTG = 0x07;
+	DDRG = 0x00;
 
 	PCA_PORT |= (1<<DISABLE_PCA);
 	PCA_DDR |= (1<<DISABLE_PCA);
@@ -370,7 +362,7 @@ void io_init(void){
 
 void avr_init(){
 	ACSR |= (1<<ACD);
-	//WDTCR |= (1<<WDE);
+	WDTCR &= ~(1<<WDE);
 	ADCSRA = 0x00;
 	
 	io_init();
@@ -378,11 +370,7 @@ void avr_init(){
 	timer0_init();
 	timer3_init();
 	timer2_init();
-#if HAVE_MCP_ADC
-	mcp3208_spi_init();
-#else
 	adc_init();
-#endif
 
 	if(eeprom_read_byte(&cal_can_mode) == NO_CAN){
 		can_mode = NO_CAN;
@@ -415,39 +403,31 @@ void avr_init(){
 
 	kline_uart_init(9600);
 	kline_io_init();
-
-	sleep_enable();
-	//#warning: "TODO: inits" done ;) 
 }
 
 status_t get_status(status_t old){
 	status_t status = OFF;
 	if(!(TKML_PIN & (1<<TKML))) status = DOOR_OPEN;
-	if(K15_PIN & (1<<K15) || (button_irq?button_irq--:button_irq)) status = IGNITION_ON;
+	if(/*K15_PIN & (1<<K15) || */(button_irq?button_irq--:button_irq)) status = IGNITION_ON;
 
 	if(old != status){
 		switch(status){
 			case DOOR_OPEN:{
-
-				//k58b_pw = 100;
 				dog_spi_init();
-				initk58_pwm();	
-			
-				LED_DDR |= (1<<LED);
-				LED_PORT |= (1<<LED);
+				initk58_pwm();
+				set_backlight(k58b_pw);
+
 				dog_init();
 				line_shift_timer = LINE_SHIFT_START;
-				dog_clear_lcd();
+				//dog_clear_lcd();
 				break;
 			}
 			case IGNITION_ON:{
 				uint8_t a, b;
-				//k58b_pw = 100;
 				dog_spi_init();
 				initk58_pwm();	
-		
-				LED_DDR |= (1<<LED);
-				LED_PORT |= (1<<LED);
+				set_backlight(k58b_pw);
+
 				dog_init();
 				if(button_irq == 0){
 					char t4forum[] = "  www.t4forum.de  ";
@@ -474,9 +454,11 @@ status_t get_status(status_t old){
 			}
 			case OFF:{
 				if(old == IGNITION_ON){
+					set_backlight(k58b_pw);
 					k15_delay_cnt = eeprom_read_byte(&cal_k15_delay) + 1;
 				}
 				if(old == DOOR_OPEN){
+					set_backlight(k58b_pw);
 					door_delay = 1000; //ms
 				}
 				break;
@@ -485,11 +467,7 @@ status_t get_status(status_t old){
 				;
 			}
 		}
-	}/*else{
-		if(status==DOOR_OPEN){
-			door_open_count++;
-		}
-	}*/
+	}
 	return status;
 }
 
@@ -511,12 +489,18 @@ int main(void){
 	K15_PORT |= (1<<K15); // zündung an, bitte ;)
 	display_mode = SMALL_TEXT;
 	display_value[SMALL_TEXT] = STANDARD_VALUES;
-	#endif
 	//strcpy( (char*) radio_text, "  CAN Test        ");
+	#endif
 
 	#if ENABLE_SETTINGS
 	display_menu_init();
 	#endif
+	if(!(K58B_PIN & (1<<K58B))){ // k58b off assuming bright ambient light -> value should be high(er)
+		k58b_pw = eeprom_read_byte(&cal_k58b_off_val);
+	}else{ // k58b on assuming dark ambient light -> value should be low(er)
+		k58b_pw = eeprom_read_byte(&cal_k58b_on_val); 
+	}
+	set_backlight(k58b_pw);
 	status = get_status(OFF);
 	
 	enable_mfa_switch();
@@ -527,16 +511,15 @@ int main(void){
 		status_t status_old = status;
 		status = get_status(status_old);
 
+		set_backlight(k58b_pw);
+
 		//*
 		if(k58b_timer == 0){ // k58b off assuming bright ambient light -> value should be high(er)
 			k58b_pw = eeprom_read_byte(&cal_k58b_off_val);
-			//reversed = 1;
 		}else{ // k58b on assuming dark ambient light -> value should be low(er)
 			k58b_pw = eeprom_read_byte(&cal_k58b_on_val); 
-			//reversed = 0;
 		}
 		//*/
-		#if 1 
 		switch (status){
 			case DOOR_OPEN:{
 				reversed = 0;
@@ -569,10 +552,12 @@ int main(void){
 					k15_delay_cnt = 0;
 					break;
 				}else{
-					if(k15_delay_cnt && display_enable){
-						display_enable = 0;
-						app_task();
-						display_task();
+					if(k15_delay_cnt){
+						if(display_enable){
+							display_enable = 0;
+							app_task();
+							display_task();
+						}
 						break;
 					}
 					//*
@@ -580,10 +565,11 @@ int main(void){
 						display_tuer_closed();
 						break;
 					}
-
+					enable_mfa_switch();
 					if(read_mfa_switch(MFA_SWITCH_RES) || read_mfa_switch(MFA_SWITCH_MFA)){
 						_delay_ms(300);
 						button_irq = 255;
+						disable_mfa_switch();
 						break;
 					}
 					//*/
@@ -592,6 +578,8 @@ int main(void){
 					PCA_PORT |= (1<<DISABLE_PCA);
 					dog_disable();
 
+					k58b_pw = 0;
+					set_backlight(k58b_pw);
 					for(i=0;i<8;i++){
 						id280_data[i] = 0;
 						id288_data[i] = 0;
@@ -605,8 +593,11 @@ int main(void){
 					}
 					id280_valid = 1;
 				}
-				set_backlight(0);
-				sleep_mode();
+				
+				sleep_enable();
+				sei();
+				sleep_cpu();
+				sleep_disable();
 				break;
 			}
 			case IGNITION_ON:{
@@ -642,7 +633,6 @@ int main(void){
 				break;
 			}
 		}
-	#endif
     }
 	
 }
@@ -654,10 +644,6 @@ void adc_init(void){
 }
 /***********************************************************************************************/
 uint16_t read_adc(uint8_t portbit){
-#if HAVE_MCP_ADC
-	uint16_t result = mcp3208_spi_read(SINGLE, portbit);
-	return (result>>2);
-#else
 	uint8_t i;
 	volatile uint16_t result;
 	ADMUX |= portbit;
@@ -671,7 +657,6 @@ uint16_t read_adc(uint8_t portbit){
 	}
 	ADMUX &= ~portbit;
 	return (result>>2);
-#endif
 }
 
 void read_adc_values(void){
@@ -714,13 +699,11 @@ void reset_averages(void){
 void reset_min_max_values(void){
 	//speed, rpm, temperature (eng, oil, out, gaerbox)
 	max_gearbox_temp= -50;
-	//max_in_temp=-50;
 	max_oil_temp=-50;
 	max_ambient_temp = -50;
 	max_speed= 0;
 	max_rpm = 0;
 	min_gearbox_temp= 150;
-	//min_in_temp = 150;
 	min_oil_temp = 150;
 	min_ambient_temp = 150;
 }
@@ -783,7 +766,6 @@ void switch_task(void){
 						// long: reset values by current display values ;)
 						reset_averages();
 						dog_set_lcd(0xFF);
-						//no_res_switch = 1;
 						mfa_res_cnt = 0;
 					}
 				}
@@ -975,62 +957,61 @@ void app_task(){
 		//*/
 }
 
-ISR(TIMER0_COMP_vect){//0.1ms timer
-	t0cnt++;
-	if(t0cnt == 10){//1ms
-		t0cnt = 0;
-		if(K58B_PIN & (1<<K58B)){
-			k58b_timer=15;
-		}else{
-			if(k58b_timer > 0){
-				k58b_timer--;
-			}
+ISR(TIMER0_COMP_vect){//1ms timer
+	t0cnt = 0;
+	if(K58B_PIN & (1<<K58B)){
+		k58b_timer=15;
+	}else{
+		if(k58b_timer > 0){
+			k58b_timer--;
 		}
-		if(door_delay){
-			door_delay--;
+	}
+	if(door_delay){
+		door_delay--;
+	}
+	if(draw_engine_cut_state){
+		draw_engine_cut_state--;
+	}
+	if(!display_enable){
+		display_enable_cnt++;
+		if(display_enable_cnt > 99){
+			display_enable = 1;
+			display_enable_cnt = 0;
 		}
-		if(draw_engine_cut_state){
-			draw_engine_cut_state--;
-		}
-		if(!display_enable){
-			display_enable_cnt++;
-			if(display_enable_cnt > 99){
-				display_enable = 1;
-				display_enable_cnt = 0;
-			}
-		}
-		set_backlight(k58b_pw);
-		line_ms_timer++;
+	}
+	line_ms_timer++;
 
-		if(line_ms_timer > 400){
+	if(line_ms_timer > 400){
 			
 				
-			line_ms_timer = 0;
-			line_shift_timer += 5;
-			if(line_shift_timer > 0xFFF) line_shift_timer = 0;
-		}
-		if(send_can_lock < 20)
-			if(!(line_ms_timer % 100))
-				send_can_message = 1;
+		line_ms_timer = 0;
+		line_shift_timer += 5;
+		if(line_shift_timer > 0xFFF) line_shift_timer = 0;
+	}
+	if(send_can_lock < 20)
+		if(!(line_ms_timer % 100))
+			send_can_message = 1;
 	
-		if(can_mode == NO_CAN){
-			// TODO: Calculate RPM
-			if(rpm_cnt < 3001)
-				rpm = (uint16_t) ((uint32_t) (600000 / tmp_rpm));
-			else
-				rpm = 0;
-			rpm_cnt = 0;
-			// TODO: Set can send timing dependent (10ms / 100ms / ...)
-		}
+	if(can_mode == NO_CAN){
+		// TODO: Calculate RPM
+		if(rpm_cnt < 3001)
+			rpm = (uint16_t) ((uint32_t) (600000 / tmp_rpm));
+		else
+			rpm = 0;
+		rpm_cnt = 0;
+		// TODO: Set can send timing dependent (10ms / 100ms / ...)
 	}
 }
 
 ISR(TIMER3_COMPA_vect){
 	if(status == IGNITION_ON){
-		driving_time[CUR]++;
-		driving_time[AVG]++;
-		driving_time_start++;
 		uint32_t delta = 0;
+		if(K15_PIN & (1<<K15)){
+			driving_time[CUR]++;
+			driving_time[AVG]++;
+			driving_time_start++;
+		}
+		
 		if(can_mode == CAN){
 			new_val = ((id480_data[3] & 0x7F) << 8) + id480_data[2];
 			if(new_val < old_val){
@@ -1047,13 +1028,6 @@ ISR(TIMER3_COMPA_vect){
 		calculate_averages();
 		old_val = new_val;
 		start_cnt = 0;
-		/*
-		if(K58B_PORT & (1<<K58B)){
-			K58B_PORT &= ~(1<<K58B);
-		}else{
-			K58B_PORT |= (1<<K58B);
-		}
-		*/
 	}else{
 		if(k15_delay_cnt){
 			k15_delay_cnt--;

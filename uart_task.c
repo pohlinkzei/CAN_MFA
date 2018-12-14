@@ -263,33 +263,12 @@ void uart_calibrate(void){
 				}
 				//*
 				case 'e':{
-					//avr_init();
-					//return;
 					reset();
-					//reenable_interrupts();
-					//return;
 					break;
 				}
 				//*/
 				default:{ 
-					/*
-					uart1_puts("\n\rCalibrierung: Waehle die variable ");
-					uart1_puts("\n\rw\tcal_ambient_temperature");
-					uart1_puts("\n\rv\tcal_voltage ");
-					uart1_puts("\n\rs\tcal_speed ");
-					uart1_puts("\n\ro\tcal_oil_temperature ");
-					uart1_puts("\n\rc\tcal_consumption ");
-					uart1_puts("\n\rb\tcal_cal_k58b ");
-					uart1_puts("\n\re\tEnde ");
-
-					s
-					char val[10] = {0,};
-					uart1_puts("\n\rDu hast folgendes Zeichen gesendet: ");
-					sprintf(val, "0x%X", (unsigned char) c);
-					uart1_puts(val);
-					uart1_putc(' ');
-					uart1_putc((unsigned char)c);
-					//*/
+					
 					break;
 				}
 			}
@@ -300,8 +279,6 @@ void uart_calibrate(void){
 		}
 	}while( (unsigned char) c != 13);
 	return;
-	//main();
-	reset();
 }
 
 void uart_bootloader_task(void){
@@ -318,8 +295,6 @@ void uart_bootloader_task(void){
 				dog_clear_lcd();					//	 0123456789012345
 				dog_write_mid_string(NEW_POSITION(4,4), "  *BOOTLOADER*  ");
 				uart1_puts("\n\rSpringe zum Bootloader...\n\r");
-				TCCR3B = 0x00;
-				TCCR3A = 0x00;
 				
 				LED_PORT |= (1<<LED);
 				LED_DDR |= (1<<LED);
@@ -337,15 +312,9 @@ void uart_bootloader_task(void){
 				break;
 			}
 			default:{
-			//char val[10] = {0,};
 			uart1_puts("\n\rCAN-MFA USB tool Optionen: ");
 			uart1_puts("\n\rb: Springe zum Bootloader");
 			uart1_puts("\n\rc: Calibrierung");
-			/*sprintf(val, "0x%X", val);
-			uart1_puts(val);
-			uart1_putc(' ');
-			uart1_putc((unsigned char)c);
-			//*/
 			}
 		}
 	}
