@@ -408,7 +408,7 @@ void avr_init(){
 status_t get_status(status_t old){
 	status_t status = OFF;
 	if(!(TKML_PIN & (1<<TKML))) status = DOOR_OPEN;
-	if(/*K15_PIN & (1<<K15) || */(button_irq?button_irq--:button_irq)) status = IGNITION_ON;
+	if(K15_PIN & (1<<K15) || (button_irq?button_irq--:button_irq)) status = IGNITION_ON;
 
 	if(old != status){
 		switch(status){
