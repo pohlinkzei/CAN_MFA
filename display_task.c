@@ -806,23 +806,12 @@ void display_small_text(void){
 			break;
 		}
 		case ADC_VALUES:{
-			#warning "TODO: verify"
 			if(can_mode == NO_CAN){
 				display_value[SMALL_TEXT]++;
 			}else{
 				uint8_t available_values = 0;
 				uint8_t number_available_values = 0;
-				/*
-				#define SPANNUNG1 2
-				#define SPANNUNG2 3
-				#define OELTEMP 0
-				#define AUSSENTEMP 1
-				#define SPANNUNG3 4
-				#define SPANNUNG4 5
-
-				#define GETRIEBETEMP 6
-				#define MANIFOLD 7
-				*/
+				
 				if(starterbat.integer != 0){
 					available_values |= (1<<SPANNUNG1);
 					number_available_values++;
@@ -839,22 +828,24 @@ void display_small_text(void){
 					available_values |= (1<<SPANNUNG4);
 					number_available_values++;
 				}
-				if(oil_temperature > 300 || oil_temperature < -50){
+				if(oil_temperature < 150 && oil_temperature > -50){
 					available_values |= (1<<OELTEMP);
 					number_available_values++;
 				}
-				if(ambient_temperature > 200 || ambient_temperature <-50){
+				if(ambient_temperature < 150 && ambient_temperature >-50){
 					available_values |= (1<<AUSSENTEMP);
 					number_available_values++;
 				}
-				if(gearbox_temperature > 300 || gearbox_temperature < -50){
+				if(gearbox_temperature < 150 && gearbox_temperature > -50){
 					available_values |= (1<<GETRIEBETEMP);
 					number_available_values++;
 				}
-				if(manifold){
+				if(manifold < 2700 && manifold > 20){
 					available_values |= (1<<MANIFOLD);
 					number_available_values++;
 				}
+
+				
 				if(!available_values){
 					display_value[SMALL_TEXT]++;
 					return;
@@ -876,7 +867,7 @@ void display_small_text(void){
 					if(available_values & (1<<SPANNUNG2)){
 						adc_line[linecnt][3] = BAT;
 						adc_line[linecnt][4] = BAT+1;
-						adc_line[linecnt][5] = '1';
+						adc_line[linecnt][5] = '2';
 						sprint_voltage(&adc_line[linecnt][6], zweitbat);
 						adc_line[linecnt][12] = 'V';
 						linecnt++;
@@ -885,7 +876,7 @@ void display_small_text(void){
 					if(available_values & (1<<SPANNUNG3)){
 						adc_line[linecnt][3] = BAT;
 						adc_line[linecnt][4] = BAT+1;
-						adc_line[linecnt][5] = '1';
+						adc_line[linecnt][5] = '3';
 						sprint_voltage(&adc_line[linecnt][6], v_solar_plus);
 						adc_line[linecnt][12] = 'V';
 						linecnt++;
@@ -894,7 +885,7 @@ void display_small_text(void){
 					if(available_values & (1<<SPANNUNG4)){
 						adc_line[linecnt][3] = BAT;
 						adc_line[linecnt][4] = BAT+1;
-						adc_line[linecnt][5] = '1';
+						adc_line[linecnt][5] = '4';
 						sprint_voltage(&adc_line[linecnt][6], entlastungsbat);
 						adc_line[linecnt][12] = 'V';
 						linecnt++;
@@ -935,32 +926,8 @@ void display_small_text(void){
 						linecnt++;
 					}
 
-					switch(linecnt){
-						case 1:{
-							dog_write_empty_line(NEW_POSITION(2,0));
-							dog_write_empty_line(NEW_POSITION(3,0));
-							dog_write_mid_string(NEW_POSITION(4,0), &adc_line[0][0]);
-							dog_write_empty_line(NEW_POSITION(6,0));
-							dog_write_empty_line(NEW_POSITION(7,0));
-							break;
-						}
-						case 2:{
-							dog_write_empty_line(NEW_POSITION(2,0));
-							dog_write_mid_strings(NEW__POSITION(3,0,4), &adc_line[0][0],&adc_line[1][0]);
-							dog_write_empty_line(NEW_POSITION(7,0));
-							break;
-						}
-						case 3:{
-							dog_write_mid_string(NEW_POSITION(2,0), &adc_line[0][0]);
-							dog_write_mid_string(NEW_POSITION(4,0), &adc_line[1][0]);
-							dog_write_mid_string(NEW_POSITION(6,0), &adc_line[2][0]);
-							break;
-						}
-						default:{
-							dog_write_mid_strings(NEW_POSITION(2,0),&adc_line[0][0], &adc_line[1][0]);
-							dog_write_mid_strings(NEW_POSITION(5,0),&adc_line[2][0], &adc_line[3][0]);
-						}
-					}
+					dog_write_mid_strings(NEW_POSITION(2,0),&adc_line[2][0], &adc_line[0][0]);
+					dog_write_mid_strings(NEW_POSITION(5,0),&adc_line[1][0], &adc_line[3][0]);
 				}else{
 					uint8_t linecnt = 0;
 					char adc_line[8][16] = {"                ","                ","                ","                ","                ","                ","                ","                "};
@@ -977,7 +944,7 @@ void display_small_text(void){
 					if(available_values & (1<<SPANNUNG2)){
 						adc_line[linecnt][3] = BAT;
 						adc_line[linecnt][4] = BAT+1;
-						adc_line[linecnt][5] = '1';
+						adc_line[linecnt][5] = '2';
 						sprint_voltage(&adc_line[linecnt][6], zweitbat);
 						adc_line[linecnt][12] = 'V';
 						linecnt++;
@@ -986,7 +953,7 @@ void display_small_text(void){
 					if(available_values & (1<<SPANNUNG3)){
 						adc_line[linecnt][3] = BAT;
 						adc_line[linecnt][4] = BAT+1;
-						adc_line[linecnt][5] = '1';
+						adc_line[linecnt][5] = '3';
 						sprint_voltage(&adc_line[linecnt][6], v_solar_plus);
 						adc_line[linecnt][12] = 'V';
 						linecnt++;
@@ -995,7 +962,7 @@ void display_small_text(void){
 					if(available_values & (1<<SPANNUNG4)){
 						adc_line[linecnt][3] = BAT;
 						adc_line[linecnt][4] = BAT+1;
-						adc_line[linecnt][5] = '1';
+						adc_line[linecnt][5] = '4';
 						sprint_voltage(&adc_line[linecnt][6], entlastungsbat);
 						adc_line[linecnt][12] = 'V';
 						linecnt++;
@@ -1037,136 +1004,14 @@ void display_small_text(void){
 						linecnt++;
 					}
 
-					switch(linecnt){
-						case 5:{
-							if(mfa.mode){
-								dog_write_mid_string(NEW_POSITION(2,0), &adc_line[0][0]);
-								dog_write_mid_string(NEW_POSITION(4,0), &adc_line[1][0]);
-								dog_write_mid_string(NEW_POSITION(6,0), &adc_line[2][0]);
-							}else{
-								dog_write_empty_line(NEW_POSITION(2,0));
-								dog_write_mid_strings(NEW__POSITION(3,0,4), &adc_line[3][0],&adc_line[4][0]);
-								dog_write_empty_line(NEW_POSITION(7,0));
-							}
-						}
-						case 6:{
-							if(mfa.mode){
-								dog_write_mid_string(NEW_POSITION(2,0), &adc_line[0][0]);
-								dog_write_mid_string(NEW_POSITION(4,0), &adc_line[1][0]);
-								dog_write_mid_string(NEW_POSITION(6,0), &adc_line[2][0]);
-							}else{
-								dog_write_mid_string(NEW_POSITION(2,0), &adc_line[3][0]);
-								dog_write_mid_string(NEW_POSITION(4,0), &adc_line[4][0]);
-								dog_write_mid_string(NEW_POSITION(6,0), &adc_line[5][0]);
-							}
-							break;
-						}
-						case 7:{
-							if(mfa.mode){
-								dog_write_mid_strings(NEW_POSITION(2,0),&adc_line[0][0], &adc_line[1][0]);
-								dog_write_mid_strings(NEW_POSITION(5,0),&adc_line[2][0], &adc_line[3][0]);
-							}else{
-								dog_write_mid_string(NEW_POSITION(2,0), &adc_line[4][0]);
-								dog_write_mid_string(NEW_POSITION(4,0), &adc_line[5][0]);
-								dog_write_mid_string(NEW_POSITION(6,0), &adc_line[6][0]);
-							}
-							break;
-						}
-						case 8:{
-							if(mfa.mode){
-								dog_write_mid_strings(NEW_POSITION(2,0),&adc_line[0][0], &adc_line[1][0]);
-								dog_write_mid_strings(NEW_POSITION(5,0),&adc_line[2][0], &adc_line[3][0]);
-							}else{
-								dog_write_mid_strings(NEW_POSITION(2,0),&adc_line[4][0], &adc_line[5][0]);
-								dog_write_mid_strings(NEW_POSITION(5,0),&adc_line[6][0], &adc_line[7][0]);
-							}
-							break;
-						}
-						default:{
-							return;
-						}
+					if(mfa.mode){
+						dog_write_mid_strings(NEW_POSITION(2,0),&adc_line[4][0], &adc_line[0][0]);
+						dog_write_mid_strings(NEW_POSITION(5,0),&adc_line[2][0], &adc_line[6][0]);
+						}else{
+						dog_write_mid_strings(NEW_POSITION(2,0),&adc_line[5][0], &adc_line[1][0]);
+						dog_write_mid_strings(NEW_POSITION(5,0),&adc_line[3][0], &adc_line[7][0]);
 					}
 				}
-				#if 0
-				if(mfa.mode){
-					// spg1 spg2 oil aussentenp
-						
-					//				 "0123456789012345"
-					//				 "   BB1 12,50V   "
-					char adc_line2[16] = "                ";
-					//				 "0123456789012345"
-					//				 "   BB2 12,10V   "
-					char adc_line3[16] = "                ";
-					//				 "0123456789012345"
-					//				 "    öT 103GC    "
-					char adc_line4[16] = "                ";
-					//				 "0123456789012345"
-					//				 "    aT -03GC    "
-					char adc_line5[16] = "                ";
-					adc_line2[3] = BAT;
-					adc_line2[4] = BAT+1;
-					adc_line2[5] = '1';
-					sprint_voltage(&adc_line2[6], starterbat);
-					adc_line2[12] = 'V';
-					adc_line3[3] = BAT;
-					adc_line3[4] = BAT+1;
-					adc_line3[5] = '2';
-					sprint_voltage(&adc_line3[6], zweitbat);
-					adc_line3[12] = 'V';
-						
-					adc_line4[4] = OILT;
-					adc_line4[5] = OILT + 1;
-					sprint_temperature(&adc_line4[7],oil_temperature);
-					adc_line4[10] = CENTIGRADE;
-					if(ambient_temperature < AMBIENT_FROST_TEMP){
-						adc_line5[4] = FROST;
-						adc_line5[5] = FROST + 1;
-					}
-						
-					sprint_temperature(&adc_line5[7],ambient_temperature);
-					adc_line5[10] = CENTIGRADE;
-					dog_write_mid_strings(NEW_POSITION(2,0),adc_line2, adc_line3);
-						
-					dog_write_mid_strings(NEW_POSITION(5,0),adc_line4, adc_line5);
-				
-				//*/
-				}else{
-					char adc_line2[16] = "                ";
-					//				 "0123456789012345"
-					//				 "   BB2 12,10V   "
-					char adc_line3[16] = "                ";
-					//				 "0123456789012345"
-					//				 "    gT 103GC    "
-					char adc_line4[16] = "                ";
-					//				 "0123456789012345"
-					//				 "    iT -03GC    "
-					char adc_line5[16] = "                ";
-					adc_line2[3] = BAT;
-					adc_line2[4] = BAT+1;
-					adc_line2[5] = '3';
-					sprint_voltage(&adc_line2[6], v_solar_plus);
-					adc_line2[12] = 'V';
-					adc_line3[3] = BAT;
-					adc_line3[4] = BAT+1;
-					adc_line3[5] = '4';
-					sprint_voltage(&adc_line3[6], v_solar_plus);
-					adc_line3[12] = 'V';
-				
-					adc_line4[3] = GEARBOXT;
-					adc_line4[4] = GEARBOXT + 1;
-					adc_line4[5] = 'C';
-					sprint_temperature(&adc_line4[7],gearbox_temperature);
-					adc_line4[10] = CENTIGRADE;
-				
-					adc_line5[4] = INT;
-					adc_line5[5] = INT + 1;
-					sprint_temperature(&adc_line5[7],gearbox_temperature);
-					adc_line5[10] = CENTIGRADE;
-					dog_write_mid_strings(NEW_POSITION(2,0),adc_line2, adc_line3);
-				
-					dog_write_mid_strings(NEW_POSITION(5,0),adc_line4, adc_line5);
-				}
-				#endif
 			}
 			break;
 			}
@@ -1244,6 +1089,7 @@ void display_small_text(void){
 			}
 			case MIN_MAX_VALUES:{
 				if(can_mode == NO_CAN){
+				#warning "Todo: enable useful values for non-can mode"
 					display_value[SMALL_TEXT]++;
 					break;
 				}
@@ -1303,6 +1149,7 @@ void display_small_text(void){
 			}
 			case TEMPERATURE_VALUES:{
 				if(can_mode == NO_CAN){
+				#warning "Todo: enable useful values for non-can mode"
 					display_value[SMALL_TEXT]++;
 					break;
 				}
@@ -2195,19 +2042,121 @@ void display_top_line(void){
 				line_shift_timer);
 			break;
 		}
-		case VOLTAGES:{
+		case VOLTAGES0:{
 			//				0123456789012345
 			//				 12,3V BB 12,3V
-			char str[17] = "                ";
-			sprint_voltage(&str[0], starterbat);
-			sprint_voltage(&str[9], zweitbat);
-			str[5] = 'V';
-			str[14] = 'V';
-			str[7] = BAT;
-			str[8] = BAT+1;
-			dog_write_mid_string(NEW_POSITION(0,4),str);
+			if(starterbat.integer != 0 && zweitbat.integer != 0){
+				char str[17] = "                ";
+				sprint_voltage(&str[0], starterbat);
+				sprint_voltage(&str[9], zweitbat);
+				str[5] = 'V';
+				str[6] = TINY1;
+				str[9] = TINY2;
+				str[14] = 'V';
+				str[7] = BAT;
+				str[8] = BAT+1;
+				dog_write_mid_string(NEW_POSITION(0,4),str);
+			}else{
+				display_value[TOP_LINE]++;
+			}
 			break;
 		}
+		case VOLTAGES1:{
+			//				0123456789012345
+			//				 12,3V BB 12,3V
+			if(starterbat.integer != 0 && v_solar_plus.integer != 0){
+				char str[17] = "                ";
+				sprint_voltage(&str[0], starterbat);
+				sprint_voltage(&str[9], v_solar_plus);
+				str[5] = 'V';
+				str[14] = 'V';
+				str[6] = TINY1;
+				str[9] = TINY3;
+				str[7] = BAT;
+				str[8] = BAT+1;
+				dog_write_mid_string(NEW_POSITION(0,4),str);
+			}else{
+				display_value[TOP_LINE]++;
+				}
+			break;
+		}
+		case VOLTAGES2:{
+			//				0123456789012345
+			//				 12,3V BB 12,3V
+			if(starterbat.integer != 0 && entlastungsbat.integer != 0){
+				char str[17] = "                ";
+				sprint_voltage(&str[0], starterbat);
+				sprint_voltage(&str[9], entlastungsbat);
+				str[5] = 'V';
+				str[14] = 'V';
+				str[6] = TINY1;
+				str[9] = TINY4;
+				str[7] = BAT;
+				str[8] = BAT+1;
+				dog_write_mid_string(NEW_POSITION(0,4),str);
+				}else{
+				display_value[TOP_LINE]++;
+			}
+			break;
+		}
+		case VOLTAGES3:{
+			//				0123456789012345
+			//				 12,3V BB 12,3V
+			if(zweitbat.integer != 0 && v_solar_plus.integer != 0){
+				char str[17] = "                ";
+				sprint_voltage(&str[0], zweitbat);
+				sprint_voltage(&str[9], v_solar_plus);
+				str[5] = 'V';
+				str[14] = 'V';
+				str[6] = TINY2;
+				str[9] = TINY3;
+				str[7] = BAT;
+				str[8] = BAT+1;
+				dog_write_mid_string(NEW_POSITION(0,4),str);
+			}else{
+				display_value[TOP_LINE]++;
+			}
+			break;
+		}
+		case VOLTAGES4:{
+			//				0123456789012345
+			//				 12,3V BB 12,3V
+			if(zweitbat.integer != 0 && entlastungsbat.integer != 0){
+				char str[17] = "                ";
+				sprint_voltage(&str[0], zweitbat);
+				sprint_voltage(&str[9], entlastungsbat);
+				str[5] = 'V';
+				str[14] = 'V';
+				str[6] = TINY2;
+				str[9] = TINY4;
+				str[7] = BAT;
+				str[8] = BAT+1;
+				dog_write_mid_string(NEW_POSITION(0,4),str);
+				}else{
+				display_value[TOP_LINE]++;
+			}
+			break;
+		}
+		case VOLTAGES5:{
+			//				0123456789012345
+			//				 12,3V BB 12,3V
+			if(v_solar_plus.integer != 0 && entlastungsbat.integer != 0){
+				char str[17] = "                ";
+				sprint_voltage(&str[0], v_solar_plus);
+				sprint_voltage(&str[9], entlastungsbat);
+				str[5] = 'V';
+				str[14] = 'V';
+				str[6] = TINY3;
+				str[9] = TINY4;
+				str[7] = BAT;
+				str[8] = BAT+1;
+				dog_write_mid_string(NEW_POSITION(0,4),str);
+				}else{
+				display_value[TOP_LINE]++;
+			}
+			break;
+		}
+
 		case TEMPERATURES0:{
 			if(can_mode == NO_CAN){
 				display_value[TOP_LINE]++;

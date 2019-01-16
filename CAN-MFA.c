@@ -350,7 +350,7 @@ void io_init(void){
 	PORTE = 0x00;
 	DDRE = 0x00;
 	// PORTF
-	PORTF |= 0x00;
+	PORTF = 0x00;
 	DDRF = 0x00;
 	// PORTG
 	PORTG = 0x07;
@@ -360,11 +360,22 @@ void io_init(void){
 	PCA_DDR |= (1<<DISABLE_PCA);
 }
 
+void disable_JTAG(void){
+	unsigned char sreg;
+	sreg = SREG;
+	uint8_t _mcucr = MCUCR;
+	_mcucr |= ( 1 <<JTD );
+	cli();
+	MCUCR = _mcucr;
+	MCUCR = _mcucr;
+	SREG = sreg;
+}
+
 void avr_init(){
 	ACSR |= (1<<ACD);
 	WDTCR &= ~(1<<WDE);
 	ADCSRA = 0x00;
-	
+//	disable_JTAG();
 	io_init();
 	
 	timer0_init();
@@ -488,7 +499,7 @@ int main(void){
 	TKML_PORT |= (1<<TKML);
 	K15_PORT |= (1<<K15); // zündung an, bitte ;)
 	display_mode = SMALL_TEXT;
-	display_value[SMALL_TEXT] = STANDARD_VALUES;
+	display_value[SMALL_TEXT] = ADC_VALUES;
 	//strcpy( (char*) radio_text, "  CAN Test        ");
 	#endif
 
