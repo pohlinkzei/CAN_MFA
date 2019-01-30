@@ -22,6 +22,7 @@ int16_t calculate_manifold(uint16_t adc){
 	return manifold32 / 524288; //524288 = 128 x 4096
 }
 
+/*
 voltage_value_t calculate_voltage(uint16_t adc){
 	uint32_t voltage32 = (719 * (uint32_t) adc);
 	voltage32 = voltage32 * eeprom_read_byte(&cal_voltage) / 32768;
@@ -30,6 +31,43 @@ voltage_value_t calculate_voltage(uint16_t adc){
 	voltage.fraction = voltage32 - (100*voltage.integer);
 	return voltage;
 }	
+//*/
+
+voltage_value_t calculate_voltage1(uint16_t adc){
+	uint32_t voltage32 = (719 * (uint32_t) adc);
+	voltage32 = voltage32 * eeprom_read_byte(&cal_voltage1) / 32768;
+	voltage_value_t voltage;
+	voltage.integer = voltage32 / 100;
+	voltage.fraction = voltage32 - (100*voltage.integer);
+	return voltage;
+}
+
+voltage_value_t calculate_voltage2(uint16_t adc){
+	uint32_t voltage32 = (719 * (uint32_t) adc);
+	voltage32 = voltage32 * eeprom_read_byte(&cal_voltage2) / 32768;
+	voltage_value_t voltage;
+	voltage.integer = voltage32 / 100;
+	voltage.fraction = voltage32 - (100*voltage.integer);
+	return voltage;
+}
+
+voltage_value_t calculate_voltage3(uint16_t adc){
+	uint32_t voltage32 = (719 * (uint32_t) adc);
+	voltage32 = voltage32 * eeprom_read_byte(&cal_voltage3) / 32768;
+	voltage_value_t voltage;
+	voltage.integer = voltage32 / 100;
+	voltage.fraction = voltage32 - (100*voltage.integer);
+	return voltage;
+}
+
+voltage_value_t calculate_voltage4(uint16_t adc){
+	uint32_t voltage32 = (719 * (uint32_t) adc);
+	voltage32 = voltage32 * eeprom_read_byte(&cal_voltage4) / 32768;
+	voltage_value_t voltage;
+	voltage.integer = voltage32 / 100;
+	voltage.fraction = voltage32 - (100*voltage.integer);
+	return voltage;
+}
 
 void sprint_cur_speed(char* str, uint16_t integer){
 	integer /= 10;

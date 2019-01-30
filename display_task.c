@@ -36,16 +36,22 @@ volatile uint8_t max_field_position;
 /*volatile*/ menu_item_t settings_cal_manifold =			{"     DRUCK      ", NULL, &settings_mfa_values, NULL, 0, 1, 0, 0, 0/*, NULL*/};
 /*volatile*/ menu_item_t settings_cal_consumption =			{"    VERBRAUCH   ", NULL, &settings_mfa_values, &settings_cal_manifold, 0, 1, 0, 0, 0/*, NULL*/};
 /*volatile*/ menu_item_t settings_cal_speed =				{" GESCHWINDIGKEIT", NULL, &settings_mfa_values, &settings_cal_consumption, 0, 1, 0, 0, 0/*, NULL*/}; // 169
-/*volatile*/ menu_item_t settings_cal_voltage =				{"    SPANNUNG    ", NULL, &settings_mfa_values, &settings_cal_speed, 0, 1, 0, 0, 0/*, NULL*/};
+
+/*volatile*/ menu_item_t settings_cal_voltage4 =			{"    SPANNUNG4   ", NULL, &settings_cal_voltage, NULL, 0, 1, 0, 0, 0/*, NULL*/};
+/*volatile*/ menu_item_t settings_cal_voltage3 =			{"    SPANNUNG3   ", NULL, &settings_cal_voltage, &settings_cal_voltage4, 0, 1, 0, 0, 0/*, NULL*/};
+/*volatile*/ menu_item_t settings_cal_voltage2 =			{"    SPANNUNG2   ", NULL, &settings_cal_voltage, &settings_cal_voltage3, 0, 1, 0, 0, 0/*, NULL*/};
+/*volatile*/ menu_item_t settings_cal_voltage1 =			{"    SPANNUNG1   ", NULL, &settings_cal_voltage, &settings_cal_voltage2, 0, 1, 0, 0, 0/*, NULL*/};
+/*volatile*/ menu_item_t const settings_cal_voltage =		{"   SPANNUNGEN   ",&settings_cal_voltage1, &settings_mfa_values, &settings_cal_speed, 4, 0, 0, 0, 0/*, NULL*/};
 /*volatile*/ menu_item_t const settings_mfa_values =		{"   Analogwerte  ",&settings_cal_voltage, &settings_menu, &settings_options, 4, 0, 0, 0, 0/*, NULL*/};
 
 /*volatile*/ menu_item_t settings_cal_startstop_enabled =	{"    STASTO EIN  ", NULL, &settings_options, NULL, 0, 0, 0, 1, 0/*, NULL*/};
-/*volatile*/ menu_item_t settings_cal_can_mode =			{"    CAN MODUS   ", NULL, &settings_options, &settings_cal_startstop_enabled, 0, 0, 0, 1, 0/*, NULL*/};
+/*volatile*/ menu_item_t settings_cal_i2c_mode =			{"    I2C MODUS   ", NULL, &settings_options, &settings_cal_startstop_enabled, 0, 0, 0, 1, 0/*, NULL*/};
+/*volatile*/ menu_item_t settings_cal_can_mode =			{"    CAN MODUS   ", NULL, &settings_options, &settings_cal_i2c_mode, 0, 0, 0, 1, 0/*, NULL*/};
 /*volatile*/ menu_item_t settings_cal_k15_delay =			{"  AUSSCH. NACH  ", NULL, &settings_options, &settings_cal_can_mode, 0, 1, 0, 0, 0/*, NULL*/};
 /*volatile*/ menu_item_t settings_cal_k58b_on_val =			{"     LICHT AN   ", NULL, &settings_cal_k58b, NULL, 0, 1, 0, 0, 0/*, NULL*/};
 /*volatile*/ menu_item_t settings_cal_k58b_off_val =		{"     LICHT AUS  ", NULL, &settings_cal_k58b, &settings_cal_k58b_on_val, 0, 1, 0, 0, 0/*, NULL*/};
 /*volatile*/ menu_item_t const settings_cal_k58b =			{"   BELEUCHTUNG  ", &settings_cal_k58b_off_val,&settings_options,&settings_cal_k15_delay,2, 0, 0, 0, 0/*, NULL*/};
-/*volatile*/ menu_item_t const settings_options =			{"     OPTIONEN   ", &settings_cal_k58b, &settings_menu, NULL, 4, 0, 0, 0, 0/*, NULL*/};
+/*volatile*/ menu_item_t const settings_options =			{"     OPTIONEN   ", &settings_cal_k58b, &settings_menu, NULL, 5, 0, 0, 0, 0/*, NULL*/};
 
 
 void display_settings_set_value(menu_item_t* setting, uint8_t val){
@@ -260,7 +266,10 @@ void display_menu_init(void){
 //	settings_cal_gearbox_temperature.mem_address = &cal_gearbox_temperature;
 	display_settings_set_value(&settings_cal_ambient_temperature,eeprom_read_byte(&cal_ambient_temperature));
 //	settings_cal_ambient_temperature.mem_address = &cal_ambient_temperature;
-	display_settings_set_value(&settings_cal_voltage,eeprom_read_byte(&cal_voltage)); // 171
+	display_settings_set_value(&settings_cal_voltage1,eeprom_read_byte(&cal_voltage1)); // 171
+	display_settings_set_value(&settings_cal_voltage2,eeprom_read_byte(&cal_voltage2)); // 171
+	display_settings_set_value(&settings_cal_voltage3,eeprom_read_byte(&cal_voltage3)); // 171
+	display_settings_set_value(&settings_cal_voltage4,eeprom_read_byte(&cal_voltage4)); // 171
 //	settings_cal_voltage.mem_address = &cal_voltage;
 	display_settings_set_value(&settings_cal_speed,eeprom_read_byte(&cal_speed)); // 169
 //	settings_cal_speed.mem_address = &cal_speed;
@@ -273,6 +282,7 @@ void display_menu_init(void){
 	display_settings_set_value(&settings_cal_k58b_on_val,eeprom_read_byte(&cal_k58b_on_val));
 //	settings_cal_k58b_on_val.mem_address = &cal_k58b_on_val;
 	display_settings_set_switch_value(&settings_cal_can_mode,eeprom_read_byte(&cal_can_mode)?1:0);
+	display_settings_set_switch_value(&settings_cal_i2c_mode,eeprom_read_byte(&cal_i2c_mode)?1:0);
 //	settings_cal_can_mode.mem_address = &cal_can_mode;
 	display_settings_set_switch_value(&settings_cal_startstop_enabled,eeprom_read_byte(&cal_startstop_enabled)?1:0);
 //	settings_cal_startstop_enabled.mem_address = &cal_startstop_enabled;
@@ -284,8 +294,17 @@ void display_settings_save_value(void){
 	if(settings_cal_ambient_temperature.value != eeprom_read_byte(&cal_ambient_temperature)){
 		eeprom_write_byte(&cal_ambient_temperature, settings_cal_ambient_temperature.value);
 	}
-	if(settings_cal_voltage.value != eeprom_read_byte(&cal_voltage)){
-		eeprom_write_byte(&cal_voltage, settings_cal_voltage.value);
+	if(settings_cal_voltage1.value != eeprom_read_byte(&cal_voltage1)){
+		eeprom_write_byte(&cal_voltage1, settings_cal_voltage1.value);
+	}
+	if(settings_cal_voltage2.value != eeprom_read_byte(&cal_voltage2)){
+		eeprom_write_byte(&cal_voltage2, settings_cal_voltage2.value);
+	}
+	if(settings_cal_voltage3.value != eeprom_read_byte(&cal_voltage3)){
+		eeprom_write_byte(&cal_voltage3, settings_cal_voltage3.value);
+	}
+	if(settings_cal_voltage4.value != eeprom_read_byte(&cal_voltage4)){
+		eeprom_write_byte(&cal_voltage4, settings_cal_voltage4.value);
 	}
 	if(settings_cal_speed.value != eeprom_read_byte(&cal_speed)){
 		eeprom_write_byte(&cal_speed, settings_cal_speed.value);
@@ -1172,6 +1191,43 @@ void display_small_text(void){
 				strcpy(line1, " cur            ");
 				line1[14] = CENTIGRADE;
 
+				sprint_temperature(&line1[11],ambient_temperature);
+				
+				sprint_cur_speed(&line2[1], speed[mfa.mode]);
+				line2[4] = KMH;
+				line2[5] = KMH + 1;
+				
+				uint16_to_string(&line2[7], rpm);
+				
+				line2[13] = RPM;
+				line2[14] = RPM + 1;
+
+				dog_write_mid_strings(NEW_POSITION(2,0), line2,line1);
+				line3[1] = GEARBOXT;
+				line3[2] = GEARBOXT + 1;
+				sprint_temperature(&line3[3],gearbox_temperature);
+				line3[6] = CENTIGRADE;
+				
+				uint16_to_string(&line3[9], manifold);
+				line3[13] = 'b';
+				line3[14] = 'a';
+				line3[15] = 'r';
+				
+				line4[1] = ENGT;
+				line4[2] = ENGT + 1;
+				sprint_temperature(&line4[3],engine_temperature);
+				line4[6] = CENTIGRADE;
+				
+				line4[9] = OILT;
+				line4[10] = OILT + 1;
+				sprint_temperature(&line4[11],oil_temperature);
+				line4[14] = CENTIGRADE;
+				
+				dog_write_mid_strings(NEW_POSITION(5,0), line3,line4);
+				
+				/*
+				line1[14] = CENTIGRADE;
+
 				sprint_temperature(&line1[11], ambient_temperature);
 				
 				sprint_cur_speed(&line2[1], (uint16_t) speed[CUR]);
@@ -1205,6 +1261,7 @@ void display_small_text(void){
 				line4[14] = CENTIGRADE;
 				
 				dog_write_mid_strings(NEW_POSITION(5,0), line3,line4);
+				//*/
 				break;
 			}
 			case STARTSTOP:{

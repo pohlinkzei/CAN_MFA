@@ -169,9 +169,9 @@ void uart_calibrate(void){
 				case 'i':{
 					char val[5] = {0,};
 					uart1_puts("\n\rWert cal_i2c: (1: I2C | 0: NO_I2C ) ");
-					sprintf(val, "%i\n\r", eeprom_read_byte(&cal_i2c));
+					sprintf(val, "%i\n\r", eeprom_read_byte(&cal_i2c_mode));
 					uart1_puts(val);
-					eeprom_write_byte(&cal_i2c, uart_get_int());
+					eeprom_write_byte(&cal_i2c_mode, uart_get_int());
 					uart_print_cal_menu();
 					break;
 			}
@@ -204,10 +204,26 @@ void uart_calibrate(void){
 				}
 				case 'v':{
 					char val[5] = {0,};
-					uart1_puts("\n\rWert cal_voltage: (0-255) ");
-					sprintf(val, "%i\n\r", eeprom_read_byte(&cal_voltage));
+					uart1_puts("\n\rWert cal_voltage1: (0-255) ");
+					sprintf(val, "%i\n\r", eeprom_read_byte(&cal_voltage1));
 					uart1_puts(val);
-					eeprom_write_byte(&cal_voltage, uart_get_int());
+					eeprom_write_byte(&cal_voltage1, uart_get_int());
+					
+					uart1_puts("\n\rWert cal_voltage2: (0-255) ");
+					sprintf(val, "%i\n\r", eeprom_read_byte(&cal_voltage2));
+					uart1_puts(val);
+					eeprom_write_byte(&cal_voltage2, uart_get_int());
+					
+					uart1_puts("\n\rWert cal_voltage3: (0-255) ");
+					sprintf(val, "%i\n\r", eeprom_read_byte(&cal_voltage3));
+					uart1_puts(val);
+					eeprom_write_byte(&cal_voltage3, uart_get_int());
+					
+					uart1_puts("\n\rWert cal_voltage4: (0-255) ");
+					sprintf(val, "%i\n\r", eeprom_read_byte(&cal_voltage4));
+					uart1_puts(val);
+					eeprom_write_byte(&cal_voltage4, uart_get_int());
+					
 					uart_print_cal_menu();
 					break;
 				}

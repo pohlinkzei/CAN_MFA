@@ -291,9 +291,12 @@ extern uint16_t min_manifold;
 extern uint16_t max_manifold;
 extern int16_t max_oil_temp;
 extern int16_t min_oil_temp;
-extern uint8_t EEMEM cal_i2c;
-extern uint8_t EEMEM cal_water_temperature; //85; 
-extern uint8_t EEMEM cal_voltage; // 171
+extern uint8_t EEMEM cal_i2c_mode;
+extern uint8_t EEMEM cal_water_temperature; //85;
+extern uint8_t EEMEM cal_voltage1; // 171
+extern uint8_t EEMEM cal_voltage2; // 171
+extern uint8_t EEMEM cal_voltage3; // 171
+extern uint8_t EEMEM cal_voltage4; // 171
 extern uint8_t EEMEM cal_speed; // 169
 extern uint8_t EEMEM cal_oil_temperature;
 extern uint8_t EEMEM cal_manifold;

@@ -129,9 +129,12 @@ int16_t min_oil_temp;
 uint16_t manifold;
 uint16_t min_manifold;
 uint16_t max_manifold;
-uint8_t EEMEM cal_i2c;
+uint8_t EEMEM cal_i2c_mode;
 uint8_t EEMEM cal_ambient_temperature;
-uint8_t EEMEM cal_voltage;
+uint8_t EEMEM cal_voltage1;
+uint8_t EEMEM cal_voltage2;
+uint8_t EEMEM cal_voltage3;
+uint8_t EEMEM cal_voltage4;
 uint8_t EEMEM cal_speed;
 uint8_t EEMEM cal_oil_temperature;
 uint8_t EEMEM cal_manifold;
@@ -618,7 +621,7 @@ int main(void){
 					display_task();
 					uart_bootloader_task();
 					app_task();
-					if (eeprom_read_byte(&cal_i2c) == NO_I2C){
+					if (eeprom_read_byte(&cal_i2c_mode) == NO_I2C){
 						twi_task();
 					}
 				}
@@ -871,8 +874,8 @@ void switch_task(void){
 
 void app_task(){
 		read_adc_values();
-		starterbat = calculate_voltage(adc_value[SPANNUNG1]);
-		zweitbat = calculate_voltage(adc_value[SPANNUNG2]);
+		starterbat = calculate_voltage1(adc_value[SPANNUNG1]);
+		zweitbat = calculate_voltage2(adc_value[SPANNUNG2]);
 		if(can_mode == NO_CAN){
 			//voltage_value_t v_mkl = calculate_voltage(adc_value[MKL_NOCAN]);
 			//mkl = (uint8_t) (v_mkl.integer < 8); // mkl is active low!
@@ -889,8 +892,8 @@ void app_task(){
 
 
 		}else{
-			v_solar_plus = calculate_voltage(adc_value[SPANNUNG3]);
-			entlastungsbat = calculate_voltage(adc_value[SPANNUNG4]);
+			v_solar_plus = calculate_voltage3(adc_value[SPANNUNG3]);
+			entlastungsbat = calculate_voltage4(adc_value[SPANNUNG4]);
 
 			if(engine_temperature > -45 && engine_temperature < 142){
 				if(max_engine_temp < engine_temperature){

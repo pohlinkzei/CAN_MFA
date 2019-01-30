@@ -25,7 +25,10 @@ extern volatile uint8_t buffer_adr;
 extern volatile uint8_t i2crxready;
 
 extern uint8_t cal_ambient_temperature EEMEM;
-extern uint8_t cal_voltage EEMEM;
+extern uint8_t cal_voltage1 EEMEM;
+extern uint8_t cal_voltage2 EEMEM;
+extern uint8_t cal_voltage3 EEMEM;
+extern uint8_t cal_voltage4 EEMEM;
 extern uint8_t cal_speed EEMEM;
 extern uint8_t cal_oil_temperature EEMEM;
 extern uint8_t cal_consumption EEMEM;
