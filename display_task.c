@@ -1108,6 +1108,7 @@ void display_small_text(void){
 			}
 			case MIN_MAX_VALUES:{
 				if(can_mode == NO_CAN){
+					// rpm, speed, temp (aux)
 				#warning "Todo: enable useful values for non-can mode"
 					display_value[SMALL_TEXT]++;
 					break;

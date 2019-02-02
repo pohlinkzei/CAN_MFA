@@ -129,12 +129,12 @@ int16_t min_oil_temp;
 uint16_t manifold;
 uint16_t min_manifold;
 uint16_t max_manifold;
-uint8_t EEMEM cal_i2c_mode;
-uint8_t EEMEM cal_ambient_temperature;
-uint8_t EEMEM cal_voltage1;
 uint8_t EEMEM cal_voltage2;
 uint8_t EEMEM cal_voltage3;
 uint8_t EEMEM cal_voltage4;
+uint8_t EEMEM cal_i2c_mode;
+uint8_t EEMEM cal_ambient_temperature;
+uint8_t EEMEM cal_voltage1;
 uint8_t EEMEM cal_speed;
 uint8_t EEMEM cal_oil_temperature;
 uint8_t EEMEM cal_manifold;
@@ -439,7 +439,8 @@ status_t get_status(status_t old){
 			case IGNITION_ON:{
 				uint8_t a, b;
 				dog_spi_init();
-				initk58_pwm();	
+				initk58_pwm();
+				k58b_pw = eeprom_read_byte(&cal_k58b_off_val);
 				set_backlight(k58b_pw);
 
 				dog_init();

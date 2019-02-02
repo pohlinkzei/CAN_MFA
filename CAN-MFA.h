@@ -208,7 +208,7 @@ typedef enum stat{
 
 extern volatile status_t status;
 extern status_t old_status;
-extern uint8_t off;
+//extern uint8_t off;
 
 extern volatile uint8_t id280_data[8];
 extern volatile uint8_t id288_data[8];
