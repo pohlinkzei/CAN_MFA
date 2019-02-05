@@ -478,13 +478,108 @@ status_t get_status(status_t old){
 				}
 				break;
 			}
-			default:{
-				;
-			}
 		}
 	}
 	return status;
 }
+
+void off_task(void){
+	uint8_t i;
+	uint8_t vtg_state = ((display_value[SMALL_TEXT] == ADC_VALUES && display_mode == SMALL_TEXT)
+		|| (display_value[MED_TEXT_TOP] == VAL_VOLTA && display_mode == MED_TEXT_TOP)
+		|| (display_value[MED_TEXT_TOP] == VAL_VOLTB && display_mode == MED_TEXT_TOP)
+		|| (display_value[MED_TEXT_TOP] == VAL_VOLTC && display_mode == MED_TEXT_TOP)
+		|| (display_value[MED_TEXT_TOP] == VAL_VOLTD && display_mode == MED_TEXT_TOP)
+		|| (display_value[MED_TEXT_BOT] == VAL_VOLTA && display_mode == MED_TEXT_BOT)
+		|| (display_value[MED_TEXT_BOT] == VAL_VOLTB && display_mode == MED_TEXT_BOT)
+		|| (display_value[MED_TEXT_BOT] == VAL_VOLTC && display_mode == MED_TEXT_BOT)
+		|| (display_value[MED_TEXT_BOT] == VAL_VOLTD && display_mode == MED_TEXT_BOT)
+	);
+	uint8_t vtg_high = ((((starterbat.integer * 100) + starterbat.fraction) > 1280) || (zweitbat.fraction + (zweitbat.integer*100)) > 1280);
+	if(vtg_state && vtg_high){
+		if(display_enable){
+			display_enable = 0;
+			app_task();
+			display_task();
+		}
+		k15_delay_cnt = 0;
+		return;
+	}else{
+		if(k15_delay_cnt){
+			if(display_enable){
+				display_enable = 0;
+				app_task();
+				display_task();
+			}
+			return;
+		}
+		//*
+		if(door_delay){
+			display_tuer_closed();
+			return;
+		}
+		enable_mfa_switch();
+		if(read_mfa_switch(MFA_SWITCH_RES) || read_mfa_switch(MFA_SWITCH_MFA)){
+			_delay_ms(300);
+			button_irq = 255;
+			disable_mfa_switch();
+			return;
+		}
+		//*/
+
+		// disable CAN receiver
+		PCA_PORT |= (1<<DISABLE_PCA);
+		dog_disable();
+
+		k58b_pw = 0;
+		set_backlight(k58b_pw);
+		for(i=0;i<8;i++){
+			id280_data[i] = 0;
+			id288_data[i] = 0;
+			id380_data[i] = 0;
+			id480_data[i] = 0;
+			id320_data[i] = 0;
+			id420_data[i] = 0;
+			id520_data[i] = 0;
+			id666_data[i] = 0;
+			id667_data[i] = 0;
+		}
+		id280_valid = 1;
+	}
+				
+	sleep_enable();
+	sei();
+	sleep_cpu();
+	sleep_disable();
+}
+
+void ignition_on_task(void){
+	door_delay = 0;
+	if(display_enable){
+		display_enable = 0;
+		display_task();
+		uart_bootloader_task();
+		app_task();
+		if (eeprom_read_byte(&cal_i2c_mode) != NO_I2C){
+			twi_task();
+		}
+	}
+	can_task();
+	
+	//kline_task();
+}
+
+int door_open_task(void){
+	reversed = 0;
+	k15_delay_cnt = 0;
+	if(door_open_count < 300){
+		display_tuer_open();
+		uart_bootloader_task();
+		return 1;
+	}
+	return 0;
+}
+
 
 int main(void){
 	status = OFF;
@@ -507,7 +602,7 @@ int main(void){
 	//strcpy( (char*) radio_text, "  CAN Test        ");
 	#endif
 
-	#if ENABLE_SETTINGS
+	#if ENABLE_SETTINGS ///////////////////////////////////////////////////////////////////////////
 	display_menu_init();
 	#endif
 	if(!(K58B_PIN & (1<<K58B))){ // k58b off assuming bright ambient light -> value should be high(er)
@@ -537,114 +632,17 @@ int main(void){
 		//*/
 		switch (status){
 			case DOOR_OPEN:{
-				reversed = 0;
-				k15_delay_cnt = 0;
-				if(door_open_count < 300){
-					display_tuer_open();
-					uart_bootloader_task();
-					break;
+				if(!door_open_task()){
+					off_task();
 				}
-				
+				break;
 			}
 			case OFF:{
-				int vtg_state = ((display_value[SMALL_TEXT] == ADC_VALUES && display_mode == SMALL_TEXT)
-							 || (display_value[MED_TEXT_TOP] == VAL_VOLTA && display_mode == MED_TEXT_TOP)
-							 || (display_value[MED_TEXT_TOP] == VAL_VOLTB && display_mode == MED_TEXT_TOP)
-							 || (display_value[MED_TEXT_TOP] == VAL_VOLTC && display_mode == MED_TEXT_TOP)
-							 || (display_value[MED_TEXT_TOP] == VAL_VOLTD && display_mode == MED_TEXT_TOP)
-							 || (display_value[MED_TEXT_BOT] == VAL_VOLTA && display_mode == MED_TEXT_BOT)
-							 || (display_value[MED_TEXT_BOT] == VAL_VOLTB && display_mode == MED_TEXT_BOT)
-							 || (display_value[MED_TEXT_BOT] == VAL_VOLTC && display_mode == MED_TEXT_BOT)
-							 || (display_value[MED_TEXT_BOT] == VAL_VOLTD && display_mode == MED_TEXT_BOT)
-							 );
-				int vtg_high = ((((starterbat.integer * 100) + starterbat.fraction) > 1280) || (zweitbat.fraction + (zweitbat.integer*100)) > 1280);
-				if(vtg_state && vtg_high){
-					if(display_enable){
-						display_enable = 0;
-						app_task();
-						display_task();
-					}
-					k15_delay_cnt = 0;
-					break;
-				}else{
-					if(k15_delay_cnt){
-						if(display_enable){
-							display_enable = 0;
-							app_task();
-							display_task();
-						}
-						break;
-					}
-					//*
-					if(door_delay){
-						display_tuer_closed();
-						break;
-					}
-					enable_mfa_switch();
-					if(read_mfa_switch(MFA_SWITCH_RES) || read_mfa_switch(MFA_SWITCH_MFA)){
-						_delay_ms(300);
-						button_irq = 255;
-						disable_mfa_switch();
-						break;
-					}
-					//*/
-					uint8_t i;
-					// disable CAN receiver
-					PCA_PORT |= (1<<DISABLE_PCA);
-					dog_disable();
-
-					k58b_pw = 0;
-					set_backlight(k58b_pw);
-					for(i=0;i<8;i++){
-						id280_data[i] = 0;
-						id288_data[i] = 0;
-						id380_data[i] = 0;
-						id480_data[i] = 0;
-						id320_data[i] = 0;
-						id420_data[i] = 0;
-						id520_data[i] = 0;
-						id666_data[i] = 0;
-						id667_data[i] = 0;
-					}
-					id280_valid = 1;
-				}
-				
-				sleep_enable();
-				sei();
-				sleep_cpu();
-				sleep_disable();
+				off_task();
 				break;
 			}
 			case IGNITION_ON:{
-				door_delay = 0;
-				if(display_enable){
-					display_enable = 0;
-					display_task();
-					uart_bootloader_task();
-					app_task();
-					if (eeprom_read_byte(&cal_i2c_mode) == NO_I2C){
-						twi_task();
-					}
-				}
-				can_task();
-				
-				//kline_task();
-				break;
-			}
-			default:{
-				uint8_t a,b;
-				char t4forum[] = "  www.t4forum.de  ";
-				dog_home();
-				dog_clear_lcd();					//0123456789012345678901
-				underlined = 1;
-				dog_write_mid_string(NEW_POSITION(0,0), t4forum);
-				underlined = 0;
-				for(a=0;a<6;a++){
-					dog_set_position(a+2,4);
-					for(b=0;b<128; b++){
-						dog_transmit_data(pgm_read_byte(&(sym_t4forum_bmp[a*128 + b])));
-					}
-				}
+				ignition_on_task();
 				break;
 			}
 		}
@@ -741,19 +739,19 @@ void switch_task(void){
 		mfa.mode = CUR;
 	}else{
 		mfa.mode = AVG;
-		#if ENABLE_SETTINGS
+		#if ENABLE_SETTINGS ///////////////////////////////////////////////////////////////////////////
 		if((display_mode & (1<<SETTINGS))){
 			// used to save changed values to eeprom
 			display_settings_save_value();
 		}
-		#endif
+		#endif ////////////////////////////////////////////////////////////////////////////////////////
 	}			
 
 	if(read_mfa_switch(MFA_SWITCH_RES)){
 		mfa.res = 1;
 		if(mfa.res == mfa_old.res){
 			mfa_res_cnt++;
-			#if ENABLE_SETTINGS
+			#if ENABLE_SETTINGS ///////////////////////////////////////////////////////////////////////////
 			if(display_mode & (1<<SETTINGS)){
 				if(current_entry->parent == NULL){
 					if (mfa_res_cnt > 10){
@@ -766,7 +764,7 @@ void switch_task(void){
 					}
 				}
 			}else	
-			#endif
+			#endif //////////////////////////////////////////////////////////////////////////////////////
 			{
 				if (mfa_res_cnt > 10){
 					if(display_mode == SMALL_TEXT && display_value[SMALL_TEXT] == MIN_MAX_VALUES){
@@ -791,14 +789,14 @@ void switch_task(void){
 		mfa_res_cnt = 0;
 		if(mfa.res != mfa_old.res){
 			if(!no_res_switch){
-				#if ENABLE_SETTINGS
+				#if ENABLE_SETTINGS ///////////////////////////////////////////////////////////////////////////
 				if(display_mode & (1<<SETTINGS)){
 					field_position++;
 					if(field_position > max_field_position){
 						field_position = 0;
 					}
 				}else
-				#endif
+				#endif ////////////////////////////////////////////////////////////////////////////////////////
 				{
 					display_value[display_mode]++;
 				}
@@ -809,7 +807,7 @@ void switch_task(void){
 	}
 	if(read_mfa_switch(MFA_SWITCH_MFA)){
 		mfa.mfa = 1;
-		#if ENABLE_SETTINGS
+		#if ENABLE_SETTINGS ///////////////////////////////////////////////////////////////////////////
 		if(mfa.mfa == mfa_old.mfa){
 			mfa_mfa_cnt++;
 			if(mfa_mfa_cnt>25){
@@ -823,13 +821,13 @@ void switch_task(void){
 				no_mfa_switch = 1;
 			}
 		}
-		#endif
+		#endif ///////////////////////////////////////////////////////////////////////////////////////
 	}else{
 		mfa.mfa = 0;
 		mfa_mfa_cnt = 0;
 		if(mfa.mfa != mfa_old.mfa){
 			if(!no_mfa_switch){
-				#if ENABLE_SETTINGS
+				#if ENABLE_SETTINGS ///////////////////////////////////////////////////////////////////////////
 				if(display_mode & (1<<SETTINGS)){
 					// Settings display
 					if(field_position == 0){
@@ -855,7 +853,7 @@ void switch_task(void){
 						}
 					}
 				}else
-				#endif
+				#endif ///////////////////////////////////////////////////////////////////////////////////////
 				{
 					display_mode++;
 				}
@@ -997,8 +995,6 @@ ISR(TIMER0_COMP_vect){//1ms timer
 	line_ms_timer++;
 
 	if(line_ms_timer > 400){
-			
-				
 		line_ms_timer = 0;
 		line_shift_timer += 5;
 		if(line_shift_timer > 0xFFF) line_shift_timer = 0;
