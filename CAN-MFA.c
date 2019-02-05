@@ -33,7 +33,7 @@
 #include "display_task.h"
 #include "kline.h"
 	
-#define FILTER_VALUE 3	
+#define FILTER_VALUE 5	
 uint16_t adc_value[8] = {0,};
 uint16_t old_adc_value[8] = {0,};	
 extern  uint8_t reversed;
