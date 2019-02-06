@@ -33,7 +33,7 @@
 #include "display_task.h"
 #include "kline.h"
 	
-#define FILTER_VALUE 5	
+#define FILTER_VALUE 3	
 uint16_t adc_value[8] = {0,};
 uint16_t old_adc_value[8] = {0,};	
 extern  uint8_t reversed;
@@ -664,12 +664,13 @@ uint16_t read_adc(uint8_t portbit){
 	while(ADCSRA & (1<<ADSC)){;}
 	result = ADCW; //dummy readout
 	result = 0;
-	for(i=0;i<4;i++){
+	for(i=0;i<64;i++){
+		_delay_us(250);
 		while(ADCSRA & (1<<ADSC)){;}
 		result += ADCW;
 	}
 	ADMUX &= ~portbit;
-	return (result>>2);
+	return (result/64);
 }
 
 void read_adc_values(void){
