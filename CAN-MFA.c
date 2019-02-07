@@ -167,7 +167,7 @@ volatile uint8_t t0cnt = 0;
 volatile uint16_t rpm_cnt;
 volatile uint16_t hg_cnt;
 volatile uint16_t cons_cnt;
- uint8_t display_value[8] = {0, STANDARD_VALUES, VAL_AMBIENT, VAL_CUR_CONS, RADIO_TEXT,0,0,0}; // navi, small, med_top, med_bot, can, top_line, settings, invalid
+ uint8_t display_value[8] = {0, STANDARD_VALUES, VAL_AMBIENT, VAL_CUR_CONS, VOLTAGES2,0,0,0}; // navi, small, med_top, med_bot, can, top_line, settings, invalid
  uint8_t display_value_top = VAL_AMBIENT;
  uint8_t display_value_bot = VAL_CUR_CONS;
  uint8_t old_display_value[8] = {0,0,0,0,0,0,0,0};
@@ -594,6 +594,7 @@ int main(void){
 	#if 1
 	display_mode = SMALL_TEXT;
 	display_value[SMALL_TEXT] = STANDARD_VALUES;
+	display_value[TOP_LINE] = VOLTAGES2;
 	#else
 	TKML_PORT |= (1<<TKML);
 	K15_PORT |= (1<<K15); // zündung an, bitte ;)
