@@ -126,7 +126,7 @@
     <ListValues>
       <Value>F_CPU=16000000UL</Value>
       <Value>AUDIO_STR_LENGTH=115</Value>
-      <Value>ENABLE_SETTINGS=0</Value>
+      <Value>ENABLE_SETTINGS=1</Value>
     </ListValues>
   </avrgcc.compiler.symbols.DefSymbols>
   <avrgcc.compiler.directories.IncludePaths>
