@@ -172,6 +172,7 @@ enum small_value {
 	MIN_MAX_VALUES,
 	TEMPERATURE_VALUES,
 	STARTSTOP,
+	RANGE,
 };
 #define LINE_SHIFT_START 128
 

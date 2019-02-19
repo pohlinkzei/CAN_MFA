@@ -1354,6 +1354,80 @@ void display_small_text(void){
 				dog_write_mid_strings(NEW_POSITION(5,0), line3,line4);
 				break;
 			}
+			case RANGE:{
+				/*	0123456789012345
+					RADIO TEXT
+					----------------
+					  ab reset/start
+					 42kmh + 12,3lkm
+					  6,6lh + 123gC
+					 1234km + 12:34
+				*/
+				char line1[17] = "                "; 
+				char line2[17] = "                ";
+				char line3[17] = "                ";
+				char line4[17] = "                ";
+				dog_set_position(2,0);
+				//							"                ":"                ";
+				strcpy(line1, mfa.mode==CUR?"    ab Reset    ":"    ab Start    ");
+				
+				sprint_cur_speed(&line2[1], mfa.mode==CUR?speed[AVG]:speed_start);
+				line2[4] = KMH;
+				line2[5] = KMH + 1;
+				
+				sprint_float(&line2[7], mfa.mode==CUR?cons_l_100km[AVG]:cons_l_100km_start);
+				line2[12] = CONS;
+				line2[13] = CONS + 1;
+				line2[14] = CONS + 2;
+				
+				dog_write_mid_strings(NEW_POSITION(2,0), line1,line2);
+				
+				uint16_to_string(&line3[9], mfa.mode==CUR?range_avg:range_start);
+				line3[8] = FUEL;
+				line3[9] = FUEL + 1;
+				line3[14] = 'k';
+				line3[14] = 'm';
+	
+				sprint_temperature(&line3[3],ambient_temperature);
+				line3[6] = CENTIGRADE;
+				
+				if(ambient_temperature < AMBIENT_FROST_TEMP){
+					line3[1] = FROST;
+					line3[2] = FROST + 1;
+				}
+				
+				uint16_to_string(&line4[1], mfa.mode==CUR?distance[AVG]:distance_start);
+				
+				line4[6] = 'k';
+				line4[7] = 'm';
+				
+				uint8_t dt_hour;
+				uint8_t dt_minute;
+				if(mfa.mode == CUR){
+					dt_hour = (driving_time[AVG] / 3600);
+					dt_minute = (driving_time[AVG] % 3600) / 60;
+					
+					uint8_to_string(&line4[9], dt_hour);
+					uint8_to_string(&line4[12], dt_minute);
+				}else{
+					dt_hour = (driving_time_start / 3600);
+					dt_minute = (driving_time_start % 3600) / 60;
+					
+					uint8_to_string(&line4[9], dt_hour);
+					uint8_to_string(&line4[12], dt_minute);
+				}
+				
+				line4[12] = ':';
+				if(dt_hour < 10){
+					line4[10] = '0';
+				}
+				if(dt_minute < 10){
+					line4[13] = '0';
+				}
+				
+				dog_write_mid_strings(NEW_POSITION(5,0), line3,line4);
+				break;
+			}
 			default:{
 				display_value[SMALL_TEXT]=0;
 				break;
