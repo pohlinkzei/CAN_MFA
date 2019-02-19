@@ -1684,9 +1684,20 @@ void display_med_row(volatile uint8_t* dv, uint8_t page, uint8_t row){
 			break;
 			*/
 		}
-		#if 0
+
 		case VAL_FUEL:{
-			display_value++;
+			if(engine_type == TDI_CAN){
+				uint8_to_string(&str[2], fuel);
+				str[1] = FUEL;
+				str[2] = FUEL + 1;
+				str[8] = 'l';
+				for(i=0; i<12; i++){
+					dog_write_big_digit(NEW__POSITION(page,i*12,row),str[i]);
+					str[i] = ' ';
+				}
+			}else{
+				display_value++;
+			}
 			/*
 			sprintf(str, "%lu ! ", (unsigned long) driving_time[mfa.mode]);
 			dog_set_position(3,0);
@@ -1697,10 +1708,26 @@ void display_med_row(volatile uint8_t* dv, uint8_t page, uint8_t row){
 			break;
 		}
 		case VAL_RANGE:{
-			display_value++;
+			if(engine_type == TDI_CAN){
+				if(mfa.mode == CUR){
+					uint16_to_string(&str[2], range_start);
+				}else{
+					uint16_to_string(&str[2], range_avg);
+				}
+				str[1] = FUEL;
+				str[2] = FUEL + 1;
+				str[8] = 'k';
+				str[9] = 'm';
+				for(i=0; i<12; i++){
+					dog_write_big_digit(NEW__POSITION(page,i*12,row),str[i]);
+					str[i] = ' ';
+				}
+			}else{
+				display_value++;
+			}
 			break;
 		}
-		#endif
+
 		//*/
 		default:{
 			display_value=0;

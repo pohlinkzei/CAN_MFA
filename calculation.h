@@ -15,6 +15,7 @@ typedef struct vol_val{
 	uint8_t fraction;
 }voltage_value_t;
 
+uint16_t calculate_range(uint8_t fuel, float consumption);
 voltage_value_t calculate_voltage1(uint16_t adc);
 voltage_value_t calculate_voltage2(uint16_t adc);
 voltage_value_t calculate_voltage3(uint16_t adc);

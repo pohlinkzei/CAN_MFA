@@ -480,14 +480,21 @@ void can_task(void){
 		//read data
 		if(id280_valid){
 			// [status] [ 1 ] [ 2 ] [rpm] [rpm] [ 5 ] [ pedal_position ] [ 7 ]
+			if(engine_type == TDI_CAN){ //TDI
+				uint16_t p_temp = id280_data[5] * 100;
+				pedal_position =  p_temp / 255;
+			}else if(engine_type == PETROL){ //Petrol - find out how to decide which car we have
+				uint16_t p_temp = id280_data[5] * 100;
+				pedal_position =  p_temp / 249;
+			}
+			uint16_t p_temp = id280_data[5] * 100;
+			pedal_position =  p_temp / 249;
 			// calculate rpm
 			rpm = (id280_data[4] + ((id280_data[3]) << 8))>>2;
 			rpm += 25;
 			rpm /= 50;
 			rpm *= 50;
 			eng_status0 = id280_data[0];
-			uint16_t p_temp = id280_data[5] * 100;
-			pedal_position =  p_temp / 249;
 			id280_valid = 0;
 			can_status |= (1<<ID280);
 		}
@@ -514,16 +521,51 @@ void can_task(void){
 		}
 		if(id480_valid){
 			// [ 0 ] [ mkl ] [ cons ] [ cons ] [ 4 ] [ 5 ] [ 6 ] [ 7 ]
+			mkl = id480_data[1];
 			can_status |= (1<<ID480);
 			id480_valid = 0;
 		}
 		if(id320_valid){
-			// [ 0 ] [ 1 ] [ 2 ] [ 3 ] [ 4 ] [ 5 ] [ 6 ] [ 7 ]
+			// [ tkol ] [ handbrake ] [ fuel ] [ 3 ] [ speed ] [ 5 ] [ 6 ] [ 7 ]
+			/*
+			ID 0x320 Kombiinstrument I
+			Byte 0: 0 = Fahrert¸r zu / 1 = Fahrert¸r auf
+			Byte 1: 0 = Handbremse gelˆst / 2 = Handbremse angezogen
+			Byte 2: Tankinhalt in l *
+			Byte 4: Geschwindigkeit (wert * 1.31 = nahe an GPS Geschwindigkeit / wert * 1.34 = nahe an Tacho-Geschwindigkeit)
+			* Bei einem Tankinhalt > 10 l springt der Wert auf > 140. Ich weiﬂ aktuell noch nicht, wie man in dem Falle den Restwert bestimmt.
+			Ganz einfach: Bei 10l Inhalt springt der Wert auf 140. 9l entsprechen 139...
+			*/
+			tkol = 0;
+			handbrake = 0;
+			
+			
+			if(id320_data[0] & 0x01){
+				tkol = 1;
+			}
+			
+			if(id320_data[1] & 0x02){
+				handbrake = 1;
+			}
+			
+			fuel = id320_data[2] & 0x7F;
+			
 			can_status |= (1<<ID320);
 			id320_valid = 0;
 		}
 		if(id420_valid){
-			// [ 0 ] [ 1 ] [ 2 ] [ 3 ] [ 4 ] [ 5 ] [ 6 ] [ 7 ]
+			// [ 0 ] [ 1 ] [ 2 ] [ g266] [ g2 ] [ parklicht ] [ 6 ] [ 7 ]
+			/*
+			ID 0x420 Kombiinstrument II
+			Byte 3: ÷ltemperatur / wert - 60 **
+			Byte 4: Wassertemperatur / (wert - 64) * 0.75
+			Byte 5: 0 = Standlicht aus / 64 (kann auch 65 sein, konnte beides beobachten) = Licht an
+			** Der Geber G266 gibt als hˆchste Temperatur leider nur 50∞C aus, daher leider nur bedingt brauchbar.
+			*/
+			
+			g266 = id520_data[3] - 60;
+			g2 = (((id520_data[4] - 64) * 3)+1)/ 4; // =(((val-64)*3)+1)/4 --> round 0.75 to 1 and 1.5 to 1
+			sidelight = id520_data[5];
 			can_status |= (1<<ID420);
 			id420_valid = 0;
 		}

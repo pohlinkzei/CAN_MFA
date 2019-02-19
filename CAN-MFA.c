@@ -99,10 +99,11 @@ volatile uint32_t start_cnt = 0;
 uint8_t first_run = 1;
  float cons_avg[MAX_AVG_CNT];
  uint16_t speed_avg[MAX_AVG_CNT];
+engine_type_t engine_type = PETROL;
 
 volatile uint64_t speed_sum = 15000;
  uint64_t speed_sum_start = 0;
- uint64_t cons_sum = 120;
+float cons_sum = 120;
  uint64_t cons_sum_start = 0;
  uint64_t avg_cnt = 50;
  uint64_t avg_cnt_start = 0;
@@ -110,7 +111,8 @@ volatile uint32_t driving_time[2];
 volatile uint32_t driving_time_start;
  uint32_t distance[2];
  uint32_t distance_start;
- uint16_t range[2];
+ uint16_t range_avg;
+ uint16_t range_start;
 
  voltage_value_t starterbat;
  voltage_value_t zweitbat;
@@ -156,6 +158,12 @@ volatile uint8_t can_status = 0x00;
  uint16_t draw_engine_cut_state;
  uint8_t startstop_enabled;
 volatile uint8_t can_mode;
+
+uint8_t tkol;
+uint8_t handbrake;
+int8_t g266;
+int8_t g2;
+uint8_t sidelight;
 
 uint8_t display_mode = 0;
 uint8_t display_mode_tmp;
@@ -281,8 +289,8 @@ void reset_values(void){
 	driving_time[AVG] = 0;
 	distance[CUR] = 0;
 	distance[AVG] = 0;
-	range[CUR] = 0;
-	range[AVG] = 0;
+	range_avg = 0;
+	range_start = 0;
 	// driving_time[AVG] = 0;//odo
 	// driving_time[CUR] = 0;//trip
 	// distance[AVG] = 0;//odo
@@ -705,10 +713,8 @@ void reset_averages(void){
 	distance_start = 0;
 	cons_l_100km_start = 0;
 	driving_time_start = 0;
-	if(can_status & (1<<ID320) || can_status & (1<<ID420)){// gauges are connected via can bus - read fuel and calculate range
-		range[AVG] = 0;
-		range[CUR] = 0;
-	}
+	range_avg = 0;
+	range_start = 0;
 }
 
 void reset_min_max_values(void){
@@ -728,6 +734,7 @@ void reset_averages_start(void){
 	speed_sum_start = 0;
 	cons_sum_start = 0;
 	cons_l_h_start = 0;
+	range_start = 0;
 	speed_start = 0;
 	distance_start = 0;
 	cons_l_100km_start = 0;
@@ -877,6 +884,12 @@ void app_task(){
 		read_adc_values();
 		starterbat = calculate_voltage1(adc_value[SPANNUNG1]);
 		zweitbat = calculate_voltage2(adc_value[SPANNUNG2]);
+		
+		if (engine_type == TDI_CAN || engine_type == TDI_NOCAN){
+			range_start = calculate_range(fuel, cons_l_100km_start);
+			range_avg = calculate_range(fuel, cons_l_100km[AVG]);
+		}
+		
 		if(can_mode == NO_CAN){
 			//voltage_value_t v_mkl = calculate_voltage(adc_value[MKL_NOCAN]);
 			//mkl = (uint8_t) (v_mkl.integer < 8); // mkl is active low!

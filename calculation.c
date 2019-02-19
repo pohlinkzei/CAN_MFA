@@ -8,10 +8,15 @@
 #include "CAN-MFA.h"
 #include "calculation.h"
 
+uint16_t calculate_range(uint8_t fuel, float consumption){
+	//km = l / l/100km
+	float range = ((float) fuel) / consumption;
+	return (uint16_t) range;
+}
+
 int16_t calculate_manifold(uint16_t adc){
 	int32_t manifold32 = 0;
-	#warning "TODO: Find out how to decide which car we have"
-	if(1){ //TDI
+	if(engine_type == TDI_CAN || engine_type == TDI_NOCAN){ //TDI
 		// P(mbar) = (10850 * ADC - 444010) / 4096
 		manifold32 = 10850 * adc - 444010;
 	}else{ //Petrol - find out how to decide which car we have
@@ -440,7 +445,7 @@ void calculate_averages(void){
 	if(rpm){
 		//if(can_status & (1<<ID280) && can_status & (1<<ID288) && can_status & (1<<ID480)){
 		speed_sum += speed[CUR];
-		cons_sum += (uint16_t) (cons_l_h[CUR]);
+		cons_sum += cons_l_h[CUR];
 		cons_l_h[AVG] = ((float) (cons_sum) / (avg_cnt));
 		speed[AVG] = speed_sum / avg_cnt;
 		distance[AVG] = (uint32_t) ((speed[AVG] * driving_time[AVG]) / 36000);
@@ -473,14 +478,7 @@ void calculate_averages(void){
 		if(cons_l_100km_start > 99.9){
 			cons_l_100km_start = 99.9;
 		}
-		
-		if(can_status & (1<<ID320) || can_status & (1<<ID420)){// gauges are connected via can bus - read fuel and calculate range
-			range[AVG] = (fuel * 100) / cons_l_100km[AVG];
-			range[CUR] = (fuel * 100) / cons_l_100km[CUR];
-		}
-		//can_status = 0;
 	}
-	
 }
 
 

@@ -204,7 +204,11 @@ typedef enum stat{
 	DOOR_OPEN,
 }status_t;
 
-
+typedef enum eng_type{
+	PETROL = 0,
+	TDI_CAN,
+	TDI_NOCAN,
+}engine_type_t;
 
 extern volatile status_t status;
 extern status_t old_status;
@@ -262,9 +266,15 @@ extern uint8_t do_not_switch_to_navigation;
 extern uint64_t can_speed_sum;
 extern uint32_t can_speed_cnt;
 
+extern uint8_t tkol;
+extern uint8_t handbrake;
+extern int8_t g266;
+extern int8_t g2;
+extern uint8_t sidelight;
+
 extern volatile uint64_t speed_sum;
 extern uint64_t speed_sum_start;
-extern uint64_t cons_sum;
+extern float cons_sum;
 extern uint64_t cons_sum_start;
 extern uint64_t avg_cnt;
 extern uint64_t avg_cnt_start;
@@ -272,7 +282,8 @@ extern volatile uint32_t driving_time[2];
 extern volatile uint32_t driving_time_start;
 extern uint32_t distance[2];
 extern uint32_t distance_start;
-extern uint16_t range[2];
+extern uint16_t range_start;
+extern uint16_t range_avg;
 extern volatile uint32_t start_cnt;
 
 extern voltage_value_t starterbat;
@@ -317,6 +328,7 @@ extern uint8_t engine_cut;
 extern uint8_t engine_cut_old;
 extern uint16_t draw_engine_cut_state;
 extern uint8_t startstop_enabled;
+extern engine_type_t engine_type;
 
 extern uint8_t display_mode;
 extern uint8_t display_mode_tmp;
