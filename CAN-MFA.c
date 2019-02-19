@@ -131,6 +131,7 @@ int16_t min_oil_temp;
 uint16_t manifold;
 uint16_t min_manifold;
 uint16_t max_manifold;
+uint8_t EEMEM cal_engine_type;
 uint8_t EEMEM cal_voltage2;
 uint8_t EEMEM cal_voltage3;
 uint8_t EEMEM cal_voltage4;
@@ -621,7 +622,7 @@ int main(void){
 	}
 	set_backlight(k58b_pw);
 	status = get_status(OFF);
-	
+	engine_type = eeprom_read_byte(&cal_engine_type);
 	enable_mfa_switch();
 
     while(1)

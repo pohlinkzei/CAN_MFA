@@ -129,6 +129,7 @@ void uart_print_cal_menu(void){
 	uart1_puts("\n\rm\tcal_can_mode ");
 	uart1_puts("\n\rS\tcal_startstop ");
 	uart1_puts("\n\ri\tcal_i2c ");
+	uart1_puts("\n\rE\tcal_engine_type ");
 	uart1_puts("\n\re\tEnde ");
 }
 
@@ -274,6 +275,16 @@ void uart_calibrate(void){
 					uart1_puts(val);
 					
 					eeprom_write_byte(&cal_k15_delay, uart_get_int());
+					uart_print_cal_menu();
+					break;
+				}
+				case 'E':{
+					char val[5] = {0,};
+					uart1_puts("\n\rWert cal_engine_type:\n\r\t0 = PETROL,\n\r\t1 = TDI_CAN,\n\r\t2 = TDI_NOCAN) ");
+					sprintf(val, "%i\n\r", eeprom_read_byte(&cal_engine_type));
+					uart1_puts(val);
+					
+					eeprom_write_byte(&cal_engine_type, uart_get_int());
 					uart_print_cal_menu();
 					break;
 				}
