@@ -45,13 +45,14 @@ volatile uint8_t max_field_position;
 /*volatile*/ menu_item_t const settings_mfa_values =		{"   Analogwerte  ",&settings_cal_voltage, &settings_menu, &settings_options, 4, 0, 0, 0, 0/*, NULL*/};
 
 /*volatile*/ menu_item_t settings_cal_startstop_enabled =	{"    STASTO EIN  ", NULL, &settings_options, NULL, 0, 0, 0, 1, 0/*, NULL*/};
-/*volatile*/ menu_item_t settings_cal_i2c_mode =			{"    I2C MODUS   ", NULL, &settings_options, &settings_cal_startstop_enabled, 0, 0, 0, 1, 0/*, NULL*/};
+/*volatile*/ menu_item_t settings_cal_engine_type =			{"    MOTORTYP    ", NULL, &settings_options, &settings_cal_startstop_enabled, 0, 1, 0, 0, 0/*, NULL*/};
+/*volatile*/ menu_item_t settings_cal_i2c_mode =			{"    I2C MODUS   ", NULL, &settings_options, &settings_cal_engine_type, 0, 0, 0, 1, 0/*, NULL*/};
 /*volatile*/ menu_item_t settings_cal_can_mode =			{"    CAN MODUS   ", NULL, &settings_options, &settings_cal_i2c_mode, 0, 0, 0, 1, 0/*, NULL*/};
 /*volatile*/ menu_item_t settings_cal_k15_delay =			{"  AUSSCH. NACH  ", NULL, &settings_options, &settings_cal_can_mode, 0, 1, 0, 0, 0/*, NULL*/};
 /*volatile*/ menu_item_t settings_cal_k58b_on_val =			{"     LICHT AN   ", NULL, &settings_cal_k58b, NULL, 0, 1, 0, 0, 0/*, NULL*/};
 /*volatile*/ menu_item_t settings_cal_k58b_off_val =		{"     LICHT AUS  ", NULL, &settings_cal_k58b, &settings_cal_k58b_on_val, 0, 1, 0, 0, 0/*, NULL*/};
 /*volatile*/ menu_item_t const settings_cal_k58b =			{"   BELEUCHTUNG  ", &settings_cal_k58b_off_val,&settings_options,&settings_cal_k15_delay,2, 0, 0, 0, 0/*, NULL*/};
-/*volatile*/ menu_item_t const settings_options =			{"     OPTIONEN   ", &settings_cal_k58b, &settings_menu, NULL, 5, 0, 0, 0, 0/*, NULL*/};
+/*volatile*/ menu_item_t const settings_options =			{"     OPTIONEN   ", &settings_cal_k58b, &settings_menu, NULL, 6, 0, 0, 0, 0/*, NULL*/};
 
 
 void display_settings_set_value(menu_item_t* setting, uint8_t val){
@@ -281,6 +282,7 @@ void display_menu_init(void){
 //	settings_cal_k58b_off_val.mem_address = &cal_k58b_off_val;
 	display_settings_set_value(&settings_cal_k58b_on_val,eeprom_read_byte(&cal_k58b_on_val));
 //	settings_cal_k58b_on_val.mem_address = &cal_k58b_on_val;
+	display_settings_set_value(&settings_cal_engine_type,eeprom_read_byte(&cal_engine_type));
 	display_settings_set_switch_value(&settings_cal_can_mode,eeprom_read_byte(&cal_can_mode)?1:0);
 	display_settings_set_switch_value(&settings_cal_i2c_mode,eeprom_read_byte(&cal_i2c_mode)?1:0);
 //	settings_cal_can_mode.mem_address = &cal_can_mode;
@@ -2000,8 +2002,7 @@ void display_can_data(void){
 			}
 			case 1:{
 				/*
-				1: 0xAA  
-				
+				1: 0xAA
 				*/
 				//				 01234567890123456
 				char str0[17] =	"                 ";

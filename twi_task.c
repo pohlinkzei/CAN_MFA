@@ -190,8 +190,10 @@ void clear_tx_data(tx_t tx){
 
 void twi_task(void){
 
-	if(can_mode == NO_CAN) return;
-
+	if(can_mode == NO_CAN){
+		strncpy((char*) radio_text, "   CANmfa v1.1 ", 15);
+		return;
+	}
 	// process data received
 	if(!i2crxready){
 		i2ctimeout++;

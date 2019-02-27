@@ -33,7 +33,7 @@
 #include "display_task.h"
 #include "kline.h"
 	
-#define FILTER_VALUE 3	
+#define FILTER_VALUE 2	
 uint16_t adc_value[8] = {0,};
 uint16_t old_adc_value[8] = {0,};	
 extern  uint8_t reversed;
@@ -59,15 +59,9 @@ volatile uint8_t id520_data[8];
 volatile uint8_t id666_data[8];
 volatile uint8_t id667_data[8];
  
- uint8_t id280_valid;
- uint8_t id288_valid;
- uint8_t id380_valid;
- uint8_t id480_valid;
- uint8_t id320_valid;
- uint8_t id420_valid;
- uint8_t id520_valid;
- uint8_t id666_valid;
- uint8_t id667_valid;
+
+
+uint16_t can_id_valid;
 
 // values from can data
  int16_t speed[2]; //0-317km/h
@@ -261,13 +255,7 @@ void reset_values(void){
 		id420_data[i] = 0;
 		id520_data[i] = 0;
 	}
-	id280_valid = 0;
-	id288_valid = 0;
-	id380_valid = 0;
-	id480_valid = 0;
-	id320_valid = 0;
-	id420_valid = 0;
-	id520_valid = 0;
+	can_id_valid = 0;
 
 	// values from can data
 	//0-317km/h
@@ -387,7 +375,7 @@ void avr_init(){
 	ACSR |= (1<<ACD);
 	WDTCR &= ~(1<<WDE);
 	ADCSRA = 0x00;
-//	disable_JTAG();
+	disable_JTAG();
 	io_init();
 	
 	timer0_init();
@@ -455,6 +443,7 @@ status_t get_status(status_t old){
 				dog_init();
 				if(button_irq == 0){
 					char t4forum[] = "  www.t4forum.de  ";
+
 					dog_home();
 					dog_clear_lcd();					//0123456789012345678901
 					underlined = 1;
@@ -553,7 +542,7 @@ void off_task(void){
 			id666_data[i] = 0;
 			id667_data[i] = 0;
 		}
-		id280_valid = 1;
+		can_id_valid |= (1<<id280_valid);
 	}
 				
 	sleep_enable();
@@ -591,7 +580,7 @@ int door_open_task(void){
 
 
 int main(void){
-	status = OFF;
+
 	cli();
 	avr_init();
 	
@@ -600,15 +589,15 @@ int main(void){
 	K15_PORT &= ~(1<<K15);
 	
 	line_shift_timer = LINE_SHIFT_START;
-	#if 1
+	#if 0
 	display_mode = SMALL_TEXT;
 	display_value[SMALL_TEXT] = STANDARD_VALUES;
 	display_value[TOP_LINE] = VOLTAGES2;
 	#else
-	TKML_PORT |= (1<<TKML);
-	K15_PORT |= (1<<K15); // zündung an, bitte ;)
+	//TKML_PORT |= (1<<TKML);
+	//K15_PORT |= (1<<K15); // zündung an, bitte ;)
 	display_mode = SMALL_TEXT;
-	display_value[SMALL_TEXT] = ADC_VALUES;
+	display_value[SMALL_TEXT] = STANDARD_VALUES;
 	//strcpy( (char*) radio_text, "  CAN Test        ");
 	#endif
 
@@ -621,15 +610,14 @@ int main(void){
 		k58b_pw = eeprom_read_byte(&cal_k58b_on_val); 
 	}
 	set_backlight(k58b_pw);
-	status = get_status(OFF);
+	status = OFF;
 	engine_type = eeprom_read_byte(&cal_engine_type);
-	enable_mfa_switch();
 
     while(1)
     {
 
-		status_t status_old = status;
-		status = get_status(status_old);
+		old_status = status;
+		status = get_status(old_status);
 
 		set_backlight(k58b_pw);
 
@@ -686,8 +674,8 @@ uint16_t read_adc(uint8_t portbit){
 void read_adc_values(void){
 	
 	int i;
-	adc_value[0] = read_adc(0);
-	for(i=1; i<8;i++){
+//	adc_value[0] = read_adc(0);
+	for(i=0; i<8;i++){
 		//read all adc channels
 		//old_adc_value[i] = adc_value[i];
 		uint16_t temp = (adc_value[i]<<FILTER_VALUE) - adc_value[i];
@@ -767,10 +755,12 @@ void switch_task(void){
 					if (mfa_res_cnt > 10){
 						dog_clear_lcd();
 						no_res_switch = 1;
+						//*
 						if(mfa_res_cnt > 25){
 							void (*reset)( void ) = 0xF800;
 							reset();
 						}
+						//*/
 					}
 				}
 			}else	

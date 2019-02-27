@@ -29,21 +29,6 @@ extern uint8_t EEMEM cal_can_mode;
 extern uint8_t EEMEM cal_startstop_enabled;
 extern uint16_t t3cnt;
 
-volatile struct interrupt_backup{
-	uint8_t _TIMSK0;
-	uint8_t _TIMSK1;
-	uint8_t _TIMSK2;
-	uint8_t _TIMSK3;
-	//CAN:
-	uint8_t _CANGIT;				// clear pending interrupts
-	uint8_t _CANSIT1;				// clear interrupt
-	uint8_t _CANSIT2;
-	//TWI:
-	uint8_t _TWCR;
-	// ext INT:
-	uint8_t _EIMSK;
-}interrupt_backup;
-
 void uart_bootloader_init(uint32_t baudrate){
 	uart1_init( UART_BAUD_SELECT(baudrate,F_CPU) );
 	sei();
@@ -54,43 +39,6 @@ void uart_bootloader_init(uint32_t baudrate){
 	uart1_puts("\n\rc: Calibrierung");
 }
 
-void reenable_interrupts(void){
-	TIMSK0 = interrupt_backup._TIMSK0;
-	TIMSK1 = interrupt_backup._TIMSK1;
-	TIMSK2 = interrupt_backup._TIMSK2;
-	TIMSK3 = interrupt_backup._TIMSK3;
-	CANGIT = interrupt_backup._CANGIT;
-	CANSIT1 = interrupt_backup._CANSIT1;
-	CANSIT2 = interrupt_backup._CANSIT2;
-	EIMSK = interrupt_backup._EIMSK;
-	TWCR = interrupt_backup._TWCR;
-}
-
-void disable_interrupts(void){
-	
-	interrupt_backup._TIMSK0 = TIMSK0;
-	interrupt_backup._TIMSK1 = TIMSK1;
-	interrupt_backup._TIMSK2 = TIMSK2;
-	interrupt_backup._TIMSK3 = TIMSK3;
-	interrupt_backup._CANGIT = CANGIT;
-	interrupt_backup._CANSIT1 = CANSIT1;
-	interrupt_backup._CANSIT2 = CANSIT2;
-	interrupt_backup._EIMSK = EIMSK;
-	interrupt_backup._TWCR = TWCR;
-	//timer:
-	TIMSK0 = 0x00;
-	TIMSK1 = 0x00;
-	TIMSK2 = 0x00;
-	TIMSK3 = 0x00;
-	//CAN:
-	CANGIT = 0x00;				// clear pending interrupts
-	CANSIT1 = 0x00;				// clear interrupt
-	CANSIT2 = 0x00;
-	//TWI:
-	TWCR = 0x00;
-	// ext INT:
-	EIMSK = 0x00;
-}
 //*
 int uart_get_int(void){
 	char val[4] = {0,};
@@ -318,7 +266,6 @@ void uart_bootloader_task(void){
 		switch( (unsigned char)c)
 		{
 			case 'b':{
-				disable_interrupts();
 				dog_clear_lcd();					//	 0123456789012345
 				dog_write_mid_string(NEW_POSITION(4,4), "  *BOOTLOADER*  ");
 				uart1_puts("\n\rSpringe zum Bootloader...\n\r");
@@ -331,7 +278,6 @@ void uart_bootloader_task(void){
 				break;
 			}
 			case 'c':{
-				disable_interrupts();
 				dog_clear_lcd();					//	 0123456789012345
 				dog_write_mid_string(NEW_POSITION(4,0), "  *CALIBRATION* ");
 				uart1_puts("\n\rCalibrierung...");

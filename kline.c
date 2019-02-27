@@ -556,7 +556,6 @@ void kline_task(void)
 	}
 
 	kline_get_ids ();			// dummy read out
-RESET:
 	return;
 }
 
