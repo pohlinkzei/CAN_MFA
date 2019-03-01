@@ -317,7 +317,7 @@ void can_send_data(void){
 		CANSTMOB &= ~(1 << TXOK);
 		CANCDMOB &= 0x00;
 	}
-	can_id_valid |= (ID666);
+	can_id_valid |= (1<<ID666);
 }
 
 void can_send_data_nocan(void){
