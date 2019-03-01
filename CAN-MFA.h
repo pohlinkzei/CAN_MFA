@@ -224,17 +224,17 @@ extern volatile uint8_t id420_data[8];
 extern volatile uint8_t id520_data[8];
 extern volatile uint8_t id666_data[8];
 extern volatile uint8_t id667_data[8];
-
-#define id280_valid 0
-#define id288_valid 1
-#define id380_valid 2
-#define id480_valid 3
-#define id320_valid 4
-#define id420_valid 5
-#define id520_valid 6
-#define id666_valid 7
-#define id667_valid 8
-
+/*
+#define ID280 0
+#define ID288 1
+#define ID380 2
+#define ID480 3
+#define ID320 4
+#define ID420 5
+#define ID520 6
+#define ID666 7
+#define ID667 8
+*/
 uint16_t can_id_valid;
 
 // values from can data

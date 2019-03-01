@@ -542,7 +542,7 @@ void off_task(void){
 			id666_data[i] = 0;
 			id667_data[i] = 0;
 		}
-		can_id_valid |= (1<<id280_valid);
+		can_id_valid |= (1<<ID280);
 	}
 				
 	sleep_enable();

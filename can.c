@@ -317,7 +317,7 @@ void can_send_data(void){
 		CANSTMOB &= ~(1 << TXOK);
 		CANCDMOB &= 0x00;
 	}
-	can_id_valid |= (id666_valid);
+	can_id_valid |= (ID666);
 }
 
 void can_send_data_nocan(void){
@@ -332,28 +332,28 @@ void can_send_data_nocan(void){
 				for(i=0; i<dlc; i++){
 					CANMSG = id280_data[i];
 				}
-				can_id_valid |= (1<<id280_valid);
+				can_id_valid |= (1<<ID280);
 				break;
 			}
 			case 0x288:{
 				for(i=0; i<dlc; i++){
 					CANMSG = id288_data[i];
 				}
-				can_id_valid |= (1<<id288_valid);
+				can_id_valid |= (1<<ID288);
 				break;
 			}
 			case 0x380:{
 				for(i=0; i<dlc; i++){
 					CANMSG = id380_data[i];
 				}
-				can_id_valid |= (1<<id380_valid);
+				can_id_valid |= (1<<ID380);
 				break;
 			}
 			case 0x480:{
 				for(i=0; i<dlc; i++){
 					CANMSG = id480_data[i];
 				}
-				can_id_valid |= (1<<id480_valid);
+				can_id_valid |= (1<<ID480);
 				break;
 			}
 			default:
@@ -391,7 +391,7 @@ void can_read_data(){
 						CANPAGE &= (0xF8 | i);
 						id280_data[i] = CANMSG;
 					}
-					can_id_valid |= (1<<id280_valid);
+					can_id_valid |= (1<<ID280);
 					break;
 				}
 				case 0x288:{
@@ -399,7 +399,7 @@ void can_read_data(){
 						CANPAGE &= (0xF8 | i);
 						id288_data[i] = CANMSG;
 					}
-					can_id_valid |= (1<<id288_valid);
+					can_id_valid |= (1<<ID288);
 					break;
 				}
 				case 0x380:{
@@ -407,7 +407,7 @@ void can_read_data(){
 						CANPAGE &= (0xF8 | i);
 						id380_data[i] = CANMSG;
 					}
-					can_id_valid |= (1<<id380_valid);
+					can_id_valid |= (1<<ID380);
 					break;
 				}
 				case 0x480:{
@@ -415,7 +415,7 @@ void can_read_data(){
 						CANPAGE &= (0xF8 | i);
 						id480_data[i] = CANMSG;
 					}
-					can_id_valid |= (1<<id480_valid);
+					can_id_valid |= (1<<ID480);
 					break;
 				}
 				case 0x320:{
@@ -423,7 +423,7 @@ void can_read_data(){
 						CANPAGE &= (0xF8 | i);
 						id320_data[i] = CANMSG;
 					}
-					can_id_valid |= (1<<id320_valid);
+					can_id_valid |= (1<<ID320);
 					break;
 				}
 				case 0x420:{
@@ -431,7 +431,7 @@ void can_read_data(){
 						CANPAGE &= (0xF8 | i);
 						id420_data[i] = CANMSG;
 					}
-					can_id_valid |= (1<<id420_valid);
+					can_id_valid |= (1<<ID420);
 					break;
 				}
 				case 0x520:{
@@ -439,7 +439,7 @@ void can_read_data(){
 						CANPAGE &= (0xF8 | i);
 						id520_data[i] = CANMSG;
 					}
-					can_id_valid |= (1<<id520_valid);
+					can_id_valid |= (1<<ID520);
 					break;
 				}
 				case 0x667:{
@@ -447,7 +447,7 @@ void can_read_data(){
 						CANPAGE &= (0xF8 | i);
 						id667_data[i] = CANMSG;
 					}
-					can_id_valid |= (1<<id667_valid);
+					can_id_valid |= (1<<ID667);
 					break;
 				}
 				default:{
@@ -478,7 +478,7 @@ void can_task(void){
 			send_can_message = 0;
 		}
 		//read data
-		if(can_id_valid & (1<<id280_valid)){
+		if(can_id_valid & (1<<ID280)){
 			// [status] [ 1 ] [ 2 ] [rpm] [rpm] [ 5 ] [ pedal_position ] [ 7 ]
 			if(engine_type == TDI_CAN){ //TDI
 				uint16_t p_temp = id280_data[5] * 100;
@@ -495,10 +495,10 @@ void can_task(void){
 			rpm /= 50;
 			rpm *= 50;
 			eng_status0 = id280_data[0];
-			can_id_valid &= ~(1<<id280_valid);
+			can_id_valid &= ~(1<<ID280);
 			can_status |= (1<<ID280);
 		}
-		if(can_id_valid & (id288_valid)){
+		if(can_id_valid & (1<<ID288)){
 			// [ 0 ] [ eng_temp ] [ status1 ] [ spd ] [spd_gra] [ 5 ] [ 6 ] [ 7 ]
 			can_speed_cnt++;
 			engine_temperature = (((id288_data[1] - 64) * 3)+1)/ 4; // =(((val-64)*3)+1)/4 --> round 0.75 to 1 and 1.5 to 1
@@ -511,21 +511,21 @@ void can_task(void){
 			eng_status1 = id288_data[2];
 	
 			can_speed_sum += spd;
-			can_id_valid &= ~(1<<id288_valid);
+			can_id_valid &= ~(1<<ID288);
 			can_status |= (1<<ID288);
 		}
-		if(can_id_valid & (id380_valid)){
+		if(can_id_valid & (1<<ID380)){
 			// [ 0 ] [ 1 ] [ 2 ] [ 3 ] [ 4 ] [ 5 ] [ 6 ] [ 7 ]
-			can_id_valid &= ~(id380_valid);
+			can_id_valid &= ~(1<<ID380);
 			can_status |= (1<<ID380);
 		}
-		if(can_id_valid & (id480_valid)){
+		if(can_id_valid & (1<<ID480)){
 			// [ 0 ] [ mkl ] [ cons ] [ cons ] [ 4 ] [ 5 ] [ 6 ] [ 7 ]
 			mkl = id480_data[1];
 			can_status |= (1<<ID480);
-			can_id_valid &= ~(1<<id480_valid);
+			can_id_valid &= ~(1<<ID480);
 		}
-		if(can_id_valid & (id320_valid)){
+		if(can_id_valid & (1<<ID320)){
 			// [ tkol ] [ handbrake ] [ fuel ] [ 3 ] [ speed ] [ 5 ] [ 6 ] [ 7 ]
 			/*
 			ID 0x320 Kombiinstrument I
@@ -551,9 +551,9 @@ void can_task(void){
 			fuel = id320_data[2] & 0x7F;
 			
 			can_status |= (1<<ID320);
-			can_id_valid &= ~(1<<id320_valid);
+			can_id_valid &= ~(1<<ID320);
 		}
-		if(can_id_valid & (id420_valid)){
+		if(can_id_valid & (1<<ID420)){
 			// [ 0 ] [ 1 ] [ 2 ] [ g266] [ g2 ] [ parklicht ] [ 6 ] [ 7 ]
 			/*
 			ID 0x420 Kombiinstrument II
@@ -567,18 +567,18 @@ void can_task(void){
 			g2 = (((id520_data[4] - 64) * 3)+1)/ 4; // =(((val-64)*3)+1)/4 --> round 0.75 to 1 and 1.5 to 1
 			sidelight = id520_data[5];
 			can_status |= (1<<ID420);
-			can_id_valid &= ~(1<<id420_valid);
+			can_id_valid &= ~(1<<ID420);
 		}
-		if(can_id_valid & (id520_valid)){
+		if(can_id_valid & (1<<ID520)){
 			// [ 0 ] [ 1 ] [ 2 ] [ 3 ] [ 4 ] [ 5 ] [ 6 ] [ 7 ]
 			can_status |= (1<<ID520);
-			can_id_valid &= ~(1<<id520_valid);
+			can_id_valid &= ~(1<<ID520);
 		}
-		if(can_id_valid & (id667_valid)){
+		if(can_id_valid & (1<<ID667)){
 			// [ 0 ] [ 1 ] [ 2 ] [ 3 ] [ 4 ] [ 5 ] [ 6 ] [ 7 ]
 			engine_cut = id667_data[0];
 			can_status |= (1<<ID667);
-			can_id_valid &= ~(1<<id667_valid);
+			can_id_valid &= ~(1<<ID667);
 		}
 	}
 	else
@@ -601,25 +601,25 @@ void can_task(void){
 void can_task_nocan(void){
 	if(K15_PIN & (1<<K15)){
 		//prepare data
-		if(id280_valid){
+		if(can_id_valid & (1<<ID280)){
 			// [status] [ 1 ] [ 2 ] [rpm] [rpm] [ 5 ] [ pedal_position ] [ 7 ]
 			id280_data[4] = (uint8_t) (4 * rpm);
 			id280_data[3] = (uint8_t) (4 * rpm >> 8);
-			can_id_valid &= ~(id280_valid);
+			can_id_valid &= ~(ID280);
 			can_status |= (1<<ID280);
 		}
-		if(id288_valid){
+		if(can_id_valid & (1<<ID288)){
 			// [ 0 ] [ eng_temp ] [ status1 ] [ spd ] [spd_gra] [ 5 ] [ 6 ] [ 7 ]
 			id288_data[3] = (uint8_t) ((uint16_t) speed[CUR] * 4 / 5); // TODO: fix calculation
-			can_id_valid &= ~(id288_valid);
+			can_id_valid &= ~(ID288);
 			can_status |= (1<<ID288);
 		}
-		if(id480_valid){
+		if(can_id_valid & (1<<ID480)){
 			// [ 0 ] [ mkl ] [ verbrauch ] [ verbrauch ] [ 4 ] [ 5 ] [ 6 ] [ 7 ]
 			id480_data[1] = (uint8_t) (mkl?0x04:0x00);
 			id480_data[2] = (uint8_t) (cons_delta_ul>>8);
 			id480_data[3] = (uint8_t) (cons_delta_ul);
-			can_id_valid &= ~(id480_valid);
+			can_id_valid &= ~(ID480);
 			can_status |= (1<<ID480);
 		}
 		
