@@ -10,7 +10,7 @@
 
 uint16_t calculate_range(uint8_t fuel, float consumption){
 	//km = l / l/100km
-	float range = ((float) fuel) / consumption;
+	float range = ((float) (fuel * 100)) / consumption;
 	return (uint16_t) range;
 }
 
