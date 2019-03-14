@@ -1098,9 +1098,9 @@ void display_small_text(void){
 				}
 				
 				line4[12] = ':';
-				if(dt_hour < 10){
+				/*if(dt_hour < 10){
 					line4[10] = '0';
-				}
+				}*/
 				if(dt_minute < 10){
 					line4[13] = '0';
 				}
@@ -1383,11 +1383,12 @@ void display_small_text(void){
 				line2[14] = CONS + 2;
 				
 				dog_write_mid_strings(NEW_POSITION(2,0), line1,line2);
-				
-				uint16_to_string(&line3[9], mfa.mode==CUR?range_avg:range_start);
+				// 89012345
+				// FF01234
+				uint16_to_string(&line3[8], mfa.mode==CUR?range_avg:range_start);
 				line3[8] = FUEL;
 				line3[9] = FUEL + 1;
-				line3[14] = 'k';
+				line3[13] = 'k';
 				line3[14] = 'm';
 	
 				sprint_temperature(&line3[3],ambient_temperature);
@@ -1420,9 +1421,9 @@ void display_small_text(void){
 				}
 				
 				line4[12] = ':';
-				if(dt_hour < 10){
+				/*if(dt_hour < 10){
 					line4[10] = '0';
-				}
+				}*/
 				if(dt_minute < 10){
 					line4[13] = '0';
 				}
